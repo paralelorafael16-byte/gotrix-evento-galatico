@@ -1,0 +1,2338 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sorteio Gotrix 0km | Gotrix Mobilidade Urbana</title>
+  
+  <!-- Tailwind CSS CDN com Paleta Oficial Gotrix -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              yellow: '#ECA900',
+              yellowDark: '#D49500',
+              black: '#000000',
+              darkCard: '#0D0D0D',
+              darkCardAlt: '#141414',
+              darkBorder: '#26210A'
+            },
+            whatsapp: {
+              green: '#25D366',
+              greenDark: '#1EBE5D'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Bibliotecas Externas -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- SCRIPT BASE ESSENCIAL -->
+  <script>
+    window.scrollToForm = function() {
+      const el = document.getElementById('bloco-cadastro-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      else window.location.hash = '#bloco-cadastro-section';
+    };
+
+    window.scrollToCatalog = function() {
+      const el = document.getElementById('bloco-catalogo-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      else window.location.hash = '#bloco-catalogo-section';
+    };
+
+    var _secretCount = 0;
+    var _secretTimer = null;
+    window.handleSecretClick = function() {
+      _secretCount++;
+      clearTimeout(_secretTimer);
+      _secretTimer = setTimeout(function() { _secretCount = 0; }, 1500);
+      if (_secretCount >= 3) {
+        _secretCount = 0;
+        window.promptSupervisorPin();
+      }
+    };
+
+    window.promptSupervisorPin = function() {
+      const modal = document.getElementById('pin-modal');
+      const input = document.getElementById('supervisor-pin-input');
+      const err = document.getElementById('pin-error');
+      if (modal) {
+        if (err) err.classList.add('hidden');
+        if (input) input.value = '';
+        modal.classList.remove('hidden');
+        if (input) setTimeout(() => input.focus(), 150);
+      }
+    };
+
+    window.closePinModal = function() {
+      const modal = document.getElementById('pin-modal');
+      if (modal) modal.classList.add('hidden');
+    };
+
+    window.verifySupervisorPin = function() {
+      const input = document.getElementById('supervisor-pin-input');
+      const pinVal = input ? input.value : '';
+      const validPin = (window.appState && window.appState.cms && window.appState.cms.pin) ? window.appState.cms.pin : '1234';
+      
+      if (pinVal === validPin) {
+        sessionStorage.setItem('gotrix_supervisor_auth', 'true');
+        window.closePinModal();
+        window.location.hash = '#painel';
+      } else {
+        const err = document.getElementById('pin-error');
+        if (err) err.classList.remove('hidden');
+      }
+    };
+
+    window.lockSupervisorPanel = function() {
+      sessionStorage.removeItem('gotrix_supervisor_auth');
+      window.location.hash = '#landing';
+    };
+  </script>
+
+  <style>
+    body { background-color: #000000; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+    .kanban-col { min-height: auto; height: fit-content; }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #000000; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #26210A; border-radius: 4px; }
+    .custom-scroll::-webkit-scrollbar-thumb:hover { background: #ECA900; }
+  </style>
+</head>
+<body class="bg-brand-black text-gray-100 font-sans antialiased min-h-screen flex flex-col justify-between custom-scroll">
+
+  <!-- ======================================================== -->
+  <!-- 1. VISTA PÚBLICA (LANDING PAGE - 3 BLOCOS)               -->
+  <!-- ======================================================== -->
+  <div id="view-landing" class="w-full flex-grow bg-brand-black">
+    
+    <header class="sticky top-0 z-40 bg-brand-black/95 backdrop-blur border-b border-brand-darkBorder px-4 lg:px-8 py-3.5 transition-all">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <a href="#landing" class="flex items-center gap-2 group cursor-pointer">
+          <div class="brand-logo-container flex items-center">
+            <svg class="h-8 sm:h-9 w-auto text-brand-yellow" viewBox="0 0 240 60" fill="none">
+              <path d="M42 30C42 23.37 36.63 18 30 18C23.37 18 18 23.37 18 30C18 36.63 23.37 42 30 42C33.3 42 36.3 40.65 38.5 38.5L34.2 34.2C33.1 35.3 31.6 36 30 36C26.7 36 24 33.3 24 30C24 26.7 26.7 24 30 24C33.3 24 36 26.7 36 30H30V36H42V30Z" fill="#ECA900"/>
+              <circle cx="70" cy="30" r="18" stroke="#ECA900" stroke-width="4"/>
+              <path d="M72 17L62 31H70L68 43L78 29H70L72 17Z" fill="#ECA900"/>
+              <path d="M96 22H118V28H110V42H104V28H96V22Z" fill="#ECA900"/>
+              <path d="M124 22H136C140.4 22 144 25.6 144 30C144 33.1 142.2 35.8 139.6 37.1L145 42H137.5L132.8 37.8H130V42H124V22ZM130 27.5V32.5H135.5C136.9 32.5 138 31.4 138 30C138 28.6 136.9 27.5 135.5 27.5H130Z" fill="#ECA900"/>
+              <rect x="152" y="22" width="6" height="20" fill="#ECA900"/>
+              <path d="M166 22L174 32L166 42H174L178 37L182 42H190L182 32L190 22H182L178 27L174 22H166Z" fill="#ECA900"/>
+              <text x="18" y="54" fill="#ECA900" font-family="Arial, sans-serif" font-weight="900" font-size="8.5" letter-spacing="4">MOBILIDADE URBANA</text>
+            </svg>
+          </div>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-gray-300">
+          <a href="#bloco-video-section" class="hover:text-brand-yellow transition-colors">O Sorteio</a>
+          <a href="#bloco-cadastro-section" onclick="window.scrollToForm(); return false;" class="hover:text-brand-yellow transition-colors">Quero Participar</a>
+          <a href="#bloco-catalogo-section" onclick="window.scrollToCatalog(); return false;" class="text-brand-yellow hover:text-white transition-colors flex items-center gap-1.5">
+            <i class="fa-solid fa-tag text-xs"></i> Catálogo R$ 1.000 OFF
+          </a>
+        </nav>
+
+        <!-- BOTÃO WHATSAPP NAVBAR -->
+        <a id="nav-whatsapp-btn" href="https://wa.me/5541999999999" target="_blank" class="bg-whatsapp-green hover:bg-whatsapp-greenDark text-white font-bold px-4 py-2.5 rounded-xl text-xs uppercase tracking-normal flex items-center justify-center gap-2 shadow-md transition-all hover:scale-105">
+          <i class="fa-brands fa-whatsapp text-base"></i>
+          <span>WhatsApp</span>
+        </a>
+      </div>
+    </header>
+
+    <div id="attribution-banner" class="hidden bg-brand-yellow text-black px-4 py-2 text-center text-xs font-black tracking-wide shadow-md">
+      <span class="flex items-center justify-center gap-2">
+        <i class="fa-solid fa-qrcode text-sm"></i>
+        <span>Atendimento exclusivo com <strong id="attribution-promoter-name">Consultor Gotrix</strong> • Equipe <span id="attribution-squad-name">Stand Oficial</span></span>
+      </span>
+    </div>
+
+    <!-- BLOCO 1: VÍDEO DO PRODUTO & ESPECIFICAÇÕES RESPONSIVAS -->
+    <section id="bloco-video-section" class="relative py-8 sm:py-12 md:py-16 px-4 lg:px-8 bg-brand-black">
+      <div class="max-w-5xl mx-auto space-y-6 sm:space-y-8 text-center">
+        <div class="space-y-3 sm:space-y-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-yellow/10 border border-brand-yellow/30 text-brand-yellow text-[11px] sm:text-xs font-black uppercase tracking-wider">
+            <i class="fa-solid fa-bolt animate-pulse"></i> Sorteio Oficial Gotrix
+          </div>
+
+          <h1 id="hero-title" class="text-2xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight text-white leading-tight">
+            Concorra a uma <span class="text-brand-yellow">Scooter Elétrica 0km</span>
+          </h1>
+
+          <p id="hero-subtitle" class="text-xs sm:text-base md:text-lg text-gray-400 max-w-2xl mx-auto font-normal leading-relaxed">
+            Confira a moto que pode ser sua neste sorteio exclusivo Gotrix!
+          </p>
+        </div>
+
+        <!-- Mídia Principal do Produto -->
+        <div id="hero-media-container" class="relative rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-brand-darkBorder bg-brand-darkCard aspect-video shadow-2xl max-w-4xl mx-auto flex items-center justify-center"></div>
+
+        <!-- ESPECIFICAÇÕES RESPONSIVAS -->
+        <div id="hero-specs-container" class="grid grid-cols-3 gap-2 sm:gap-4 max-w-3xl mx-auto">
+          <div class="bg-brand-darkCard border border-brand-darkBorder p-2.5 sm:p-4 rounded-xl sm:rounded-2xl text-center flex flex-col justify-center">
+            <span id="display-spec-speed" class="block text-brand-yellow font-black text-sm sm:text-2xl leading-none sm:leading-normal">75 km/h</span>
+            <span class="text-gray-400 text-[10px] sm:text-xs uppercase font-semibold mt-1">Velocidade Máxima</span>
+          </div>
+          <div class="bg-brand-darkCard border border-brand-darkBorder p-2.5 sm:p-4 rounded-xl sm:rounded-2xl text-center flex flex-col justify-center">
+            <span id="display-spec-range" class="block text-brand-yellow font-black text-sm sm:text-2xl leading-none sm:leading-normal">60 km</span>
+            <span class="text-gray-400 text-[10px] sm:text-xs uppercase font-semibold mt-1">Autonomia por Carga</span>
+          </div>
+          <div class="bg-brand-darkCard border border-brand-darkBorder p-2.5 sm:p-4 rounded-xl sm:rounded-2xl text-center flex flex-col justify-center">
+            <span id="display-spec-power" class="block text-brand-yellow font-black text-sm sm:text-2xl leading-none sm:leading-normal">3.000W</span>
+            <span class="text-gray-400 text-[10px] sm:text-xs uppercase font-semibold mt-1">Potência do Motor</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2 sm:pt-4">
+          <button onclick="window.scrollToForm()" class="w-full sm:w-auto bg-brand-yellow hover:bg-brand-yellowDark text-black font-black uppercase tracking-wider px-8 py-3.5 sm:px-10 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm transition-all hover:scale-105 shadow-xl shadow-brand-yellow/20 flex items-center justify-center gap-3">
+            <span>Quero Participar do Sorteio</span>
+            <i class="fa-solid fa-arrow-down"></i>
+          </button>
+          
+          <!-- BOTÃO WHATSAPP DIRETO -->
+          <a id="hero-direct-whatsapp-btn" href="https://wa.me/5541999999999" target="_blank" class="w-full sm:w-auto bg-whatsapp-green hover:bg-whatsapp-greenDark text-white font-bold uppercase px-6 py-3.5 sm:px-8 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-2 hover:scale-[1.02]">
+            <i class="fa-brands fa-whatsapp text-base sm:text-lg"></i>
+            <span>Tirar Dúvidas no WhatsApp</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- BLOCO 2: FORMULÁRIO -->
+    <section id="bloco-cadastro-section" class="py-12 sm:py-16 px-4 lg:px-8 bg-brand-black border-t border-b border-brand-darkBorder">
+      <div class="max-w-xl mx-auto">
+        <div class="bg-brand-darkCard border-2 border-brand-yellow/40 rounded-3xl p-6 sm:p-10 shadow-2xl relative">
+          <div class="absolute -top-3.5 right-8 bg-brand-yellow text-black font-black text-xs uppercase tracking-wider px-4 py-1 rounded-full shadow">
+            Participação 100% Gratuita
+          </div>
+
+          <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-yellow/10 text-brand-yellow text-xl mb-3">
+              <i class="fa-solid fa-ticket"></i>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-black uppercase text-white tracking-wide">Quero Participar do Sorteio</h2>
+            <p class="text-xs sm:text-sm text-gray-400 mt-2 leading-relaxed">Cadastre-se para concorrer à Scooter Elétrica do vídeo acima e garantir o bônus de R$ 1.000.</p>
+          </div>
+
+          <form id="raffle-register-form" onsubmit="window.handleRegistrationSubmit(event)" class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold uppercase text-gray-300 mb-1.5">Seu Nome Completo</label>
+              <div class="relative">
+                <i class="fa-regular fa-user absolute left-3.5 top-3.5 text-gray-500 text-sm"></i>
+                <input type="text" id="lead-name" required placeholder="Ex: Rafael Silva" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand-yellow transition-all">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold uppercase text-gray-300 mb-1.5">WhatsApp com DDD</label>
+              <div class="relative">
+                <i class="fa-brands fa-whatsapp absolute left-3.5 top-3.5 text-gray-500 text-base"></i>
+                <input type="tel" id="lead-phone" required placeholder="(41) 99999-9999" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand-yellow transition-all">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold uppercase text-gray-300 mb-1.5">E-mail</label>
+              <div class="relative">
+                <i class="fa-regular fa-envelope absolute left-3.5 top-3.5 text-gray-500 text-sm"></i>
+                <input type="email" id="lead-email" required placeholder="seuemail@exemplo.com" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand-yellow transition-all">
+              </div>
+            </div>
+
+            <div class="p-3 bg-brand-black border border-brand-yellow/20 rounded-xl flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-brand-yellow/10 text-brand-yellow flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-motorcycle"></i>
+              </div>
+              <div class="text-[11px] sm:text-xs leading-tight">
+                <span class="text-gray-400 block font-semibold">Prêmio do Sorteio:</span>
+                <span id="form-raffle-model-display" class="font-bold text-brand-yellow">Scooter Elétrica 0km Oficial</span>
+              </div>
+            </div>
+
+            <button type="submit" id="btn-submit-raffle" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-black font-black uppercase tracking-wider py-4 rounded-xl text-sm transition-all hover:scale-[1.02] shadow-xl shadow-brand-yellow/20 flex items-center justify-center gap-2">
+              <span>Gerar Meu Número da Sorte</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+
+            <p class="text-[11px] text-gray-500 text-center">Ao se cadastrar, você concorda com o regulamento do sorteio oficial Gotrix.</p>
+          </form>
+
+          <div id="raffle-success-card" class="hidden text-center space-y-4 py-2">
+            <div class="w-16 h-16 bg-brand-yellow/20 text-brand-yellow rounded-full flex items-center justify-center mx-auto text-2xl">
+              <i class="fa-solid fa-check"></i>
+            </div>
+            <h3 class="text-xl font-black uppercase text-white">Inscrição Confirmada!</h3>
+            <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">Clique no botão verde abaixo para enviar e salvar seu comprovante na sua conversa com você mesmo no WhatsApp:</p>
+            
+            <div class="bg-brand-black border border-brand-yellow/40 rounded-2xl p-5">
+              <span class="text-xs uppercase text-gray-400 font-bold tracking-wider">Número da Sorte</span>
+              <div id="display-lucky-number" class="text-3xl font-black text-brand-yellow tracking-widest my-1.5">#00000</div>
+              <div id="display-registered-name" class="text-sm font-semibold text-white">Nome do Participante</div>
+            </div>
+
+            <div class="bg-brand-yellow/10 border border-brand-yellow/30 p-3.5 rounded-xl text-left text-xs text-brand-yellow flex items-center gap-3">
+              <i class="fa-solid fa-gift text-lg"></i>
+              <span><strong>Bônus de R$ 1.000 Ativado!</strong> Apresente este número da sorte em qualquer loja ou no WhatsApp oficial Gotrix.</span>
+            </div>
+
+            <div class="pt-2 flex flex-col gap-2.5">
+              <!-- BOTÃO WHATSAPP DO TICKET -->
+              <a id="share-whatsapp-ticket-btn" href="#" target="_blank" class="w-full bg-whatsapp-green hover:bg-whatsapp-greenDark text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm uppercase flex items-center justify-center gap-2.5 transition-all shadow-md hover:scale-[1.02]">
+                <i class="fa-brands fa-whatsapp text-lg"></i> Salvar Comprovante no Meu WhatsApp
+              </a>
+              <button type="button" onclick="window.resetRaffleForm()" class="text-xs text-gray-400 hover:text-white underline pt-1">Fazer outra inscrição</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BLOCO 3: CATÁLOGO -->
+    <section id="bloco-catalogo-section" class="py-16 px-4 lg:px-8 bg-brand-black">
+      <div class="max-w-7xl mx-auto">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+          <div class="inline-flex items-center gap-1.5 text-brand-yellow text-xs font-black uppercase tracking-widest mb-2">
+            <i class="fa-solid fa-tag"></i> Desconto Exclusivo
+          </div>
+          <h2 class="text-3xl md:text-4xl font-black uppercase text-white tracking-tight">Catálogo com R$ 1.000 OFF</h2>
+          <p class="text-sm text-gray-400 mt-2">Clique em qualquer modelo para abrir os detalhes completos e galeria interativa:</p>
+        </div>
+
+        <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+      </div>
+    </section>
+
+    <!-- Rodapé Limpo -->
+    <footer class="bg-brand-black border-t border-brand-darkBorder py-8 px-4 text-center">
+      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="brand-logo-container flex items-center">
+          <svg class="h-6 w-auto text-brand-yellow" viewBox="0 0 240 60" fill="none">
+            <path d="M42 30C42 23.37 36.63 18 30 18C23.37 18 18 23.37 18 30C18 36.63 23.37 42 30 42C33.3 42 36.3 40.65 38.5 38.5L34.2 34.2C33.1 35.3 31.6 36 30 36C26.7 36 24 33.3 24 30C24 26.7 26.7 24 30 24C33.3 24 36 26.7 36 30H30V36H42V30Z" fill="#ECA900"/>
+            <circle cx="70" cy="30" r="18" stroke="#ECA900" stroke-width="4"/>
+            <path d="M72 17L62 31H70L68 43L78 29H70L72 17Z" fill="#ECA900"/>
+            <text x="18" y="54" fill="#ECA900" font-family="Arial, sans-serif" font-weight="900" font-size="8.5" letter-spacing="4">MOBILIDADE URBANA</text>
+          </svg>
+        </div>
+
+        <p onclick="window.handleSecretClick()" class="text-xs text-gray-500 cursor-pointer select-none transition-colors hover:text-gray-400">
+          © 2026 Gotrix Mobilidade Urbana • Todos os direitos reservados
+        </p>
+
+        <span class="text-xs text-gray-600">Gotrix Oficial</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- MODAL / POP-UP DE DETALHES DO PRODUTO -->
+  <div id="product-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+    <div class="bg-brand-darkCard border-2 border-brand-yellow/40 rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl relative my-auto">
+      
+      <button onclick="window.closeProductModal()" class="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-brand-black/80 hover:bg-brand-yellow text-white hover:text-black flex items-center justify-center transition-all border border-brand-darkBorder">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-0">
+        <div class="relative bg-brand-black flex flex-col items-center justify-center p-4 min-h-[300px] sm:min-h-[400px]">
+          <div id="modal-carousel-display" class="w-full h-64 sm:h-80 flex items-center justify-center overflow-hidden"></div>
+          
+          <button onclick="window.prevModalMedia(event)" class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-brand-black/70 hover:bg-brand-yellow hover:text-black text-white flex items-center justify-center transition-all border border-brand-darkBorder">
+            <i class="fa-solid fa-chevron-left text-sm"></i>
+          </button>
+          <button onclick="window.nextModalMedia(event)" class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-brand-black/70 hover:bg-brand-yellow hover:text-black text-white flex items-center justify-center transition-all border border-brand-darkBorder">
+            <i class="fa-solid fa-chevron-right text-sm"></i>
+          </button>
+
+          <div id="modal-thumbnails" class="flex gap-2 mt-3 overflow-x-auto custom-scroll max-w-full pb-1"></div>
+        </div>
+
+        <div class="p-6 sm:p-8 flex flex-col justify-between space-y-6 bg-brand-darkCard border-t md:border-t-0 md:border-l border-brand-darkBorder">
+          <div class="space-y-4">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-yellow/10 text-brand-yellow text-xs font-black uppercase tracking-wider border border-brand-yellow/20">
+              <i class="fa-solid fa-bolt text-xs"></i> <span id="modal-prod-type">Categoria</span>
+            </div>
+
+            <h2 id="modal-prod-name" class="text-2xl sm:text-3xl font-black uppercase text-white leading-tight">Nome do Modelo</h2>
+
+            <div class="space-y-2">
+              <span class="text-xs uppercase font-bold text-gray-400 tracking-wider">Ficha Técnica & Destaques</span>
+              <p id="modal-prod-specs" class="text-sm text-gray-300 leading-relaxed bg-brand-black p-3.5 rounded-xl border border-brand-darkBorder"></p>
+            </div>
+
+            <div class="pt-2">
+              <span id="modal-prod-original-price" class="text-sm text-gray-500 line-through"></span>
+              <div class="flex items-baseline gap-2">
+                <span id="modal-prod-final-price" class="text-3xl font-black text-brand-yellow"></span>
+                <span class="text-xs uppercase font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">R$ 1.000 OFF</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2 pt-2">
+            <!-- BOTÃO WHATSAPP DO MODAL -->
+            <a id="modal-prod-whatsapp-btn" href="#" target="_blank" class="w-full bg-whatsapp-green hover:bg-whatsapp-greenDark text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm uppercase flex items-center justify-center gap-2.5 transition-all shadow-md hover:scale-[1.02]">
+              <i class="fa-brands fa-whatsapp text-lg"></i> Resgatar Desconto no WhatsApp
+            </a>
+            <button type="button" onclick="window.closeProductModal()" class="w-full bg-brand-black hover:bg-brand-darkCardAlt text-gray-400 hover:text-white font-bold py-2.5 rounded-xl text-xs border border-brand-darkBorder transition-all">
+              Voltar ao Catálogo
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 2. VISTA DO PROMOTOR -->
+  <div id="view-cracha" class="hidden w-full flex-grow flex items-center justify-center p-4 bg-brand-black">
+    <div class="w-full max-w-sm bg-brand-darkCard border-2 border-brand-yellow/40 rounded-3xl p-6 shadow-2xl text-center space-y-5">
+      <div class="brand-logo-container flex justify-center">
+        <svg class="h-8 w-auto text-brand-yellow" viewBox="0 0 240 60" fill="none">
+          <circle cx="70" cy="30" r="18" stroke="#ECA900" stroke-width="4"/>
+          <path d="M72 17L62 31H70L68 43L78 29H70L72 17Z" fill="#ECA900"/>
+          <text x="18" y="54" fill="#ECA900" font-family="Arial, sans-serif" font-weight="900" font-size="8.5" letter-spacing="4">MOBILIDADE URBANA</text>
+        </svg>
+      </div>
+
+      <div>
+        <span class="text-[10px] font-black uppercase tracking-widest text-brand-yellow bg-brand-yellow/10 px-3 py-1 rounded-full border border-brand-yellow/20">Crachá Oficial Gotrix</span>
+        <h2 id="badge-promoter-name" class="text-2xl font-black text-white uppercase mt-2">Nome Promotor</h2>
+        <p id="badge-squad-name" class="text-xs font-semibold text-gray-400">Squad 1</p>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl inline-block shadow-lg mx-auto">
+        <div id="badge-qrcode-container"></div>
+      </div>
+
+      <p class="text-xs text-gray-400">Aponte a câmera do celular para se inscrever no sorteio e resgatar o cupom de R$ 1.000.</p>
+
+      <div class="flex flex-col gap-2 pt-2">
+        <button onclick="window.downloadBadgeQrCode()" class="w-full bg-brand-darkCardAlt hover:bg-gray-800 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-all border border-brand-darkBorder">
+          <i class="fa-solid fa-download"></i> Baixar Imagem do QR Code (PNG)
+        </button>
+        <button onclick="window.copyBadgeLink()" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-black font-black py-3 rounded-xl text-xs uppercase flex items-center justify-center gap-2 transition-all">
+          <i class="fa-regular fa-copy"></i> Copiar Meu Link de Divulgação
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. ÁREA DO SUPERVISOR -->
+  <div id="view-admin" class="hidden w-full flex-grow bg-brand-black">
+    <header class="bg-brand-darkCard border-b border-brand-darkBorder px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="brand-logo-container flex items-center">
+          <svg class="h-6 w-auto text-brand-yellow" viewBox="0 0 240 60" fill="none">
+            <path d="M72 17L62 31H70L68 43L78 29H70L72 17Z" fill="#ECA900"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-black uppercase text-white tracking-wide flex items-center gap-2">
+            <span>Painel do Supervisor</span>
+            <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1.5 font-bold">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Conectado ao Supabase
+            </span>
+          </h1>
+          <p class="text-xs text-gray-400">Gestão Global em Tempo Real no Banco de Dados</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button onclick="window.exportLeadsToCsv()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow">
+          <i class="fa-solid fa-file-csv"></i> Exportar CSV
+        </button>
+        <button onclick="window.lockSupervisorPanel()" class="bg-brand-darkCardAlt hover:bg-red-900/60 border border-brand-darkBorder text-gray-300 hover:text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 transition-colors">
+          <i class="fa-solid fa-lock"></i> Bloquear Painel
+        </button>
+      </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto p-6 space-y-6 bg-brand-black">
+      <div class="flex border-b border-brand-darkBorder gap-2 overflow-x-auto custom-scroll pb-2">
+        <button onclick="window.switchAdminTab('kanban')" id="tab-btn-kanban" class="px-4 py-2.5 text-xs font-bold rounded-lg bg-brand-yellow text-black uppercase transition-all whitespace-nowrap">
+          <i class="fa-solid fa-columns mr-1.5"></i> CRM Kanban
+        </button>
+        <button onclick="window.switchAdminTab('squads')" id="tab-btn-squads" class="px-4 py-2.5 text-xs font-bold rounded-lg text-gray-400 hover:text-white uppercase transition-all whitespace-nowrap">
+          <i class="fa-solid fa-users mr-1.5"></i> Equipes & Promotores
+        </button>
+        <button onclick="window.switchAdminTab('catalog-crud')" id="tab-btn-catalog-crud" class="px-4 py-2.5 text-xs font-bold rounded-lg text-gray-400 hover:text-white uppercase transition-all whitespace-nowrap">
+          <i class="fa-solid fa-motorcycle mr-1.5"></i> Gestão do Catálogo
+        </button>
+        <button onclick="window.switchAdminTab('ranking')" id="tab-btn-ranking" class="px-4 py-2.5 text-xs font-bold rounded-lg text-gray-400 hover:text-white uppercase transition-all whitespace-nowrap">
+          <i class="fa-solid fa-trophy mr-1.5"></i> Ranking Stand
+        </button>
+        <button onclick="window.switchAdminTab('raffle')" id="tab-btn-raffle" class="px-4 py-2.5 text-xs font-bold rounded-lg text-gray-400 hover:text-white uppercase transition-all whitespace-nowrap">
+          <i class="fa-solid fa-gift mr-1.5"></i> Sorteador Ao Vivo
+        </button>
+        <button onclick="window.switchAdminTab('cms')" id="tab-btn-cms" class="px-4 py-2.5 text-xs font-bold rounded-lg text-gray-400 hover:text-white uppercase transition-all whitespace-nowrap">
+          <i class="fa-solid fa-sliders mr-1.5"></i> Configurações & Supabase
+        </button>
+      </div>
+
+      <!-- ABA 1: KANBAN -->
+      <div id="admin-tab-kanban" class="space-y-4">
+        <div class="bg-brand-darkCard p-4 rounded-2xl border border-brand-darkBorder flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="text-xs uppercase font-bold text-gray-400">Filtrar por Equipe:</span>
+            <select id="kanban-filter-squad" onchange="window.renderKanbanBoard()" class="bg-brand-black border border-brand-darkBorder rounded-lg px-3 py-1.5 text-xs text-white">
+              <option value="ALL">Todas as Equipes</option>
+            </select>
+          </div>
+          <div class="text-xs text-gray-400">
+            Total de Inscritos: <strong id="kanban-total-leads" class="text-brand-yellow font-black">0</strong>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3 items-start pb-4">
+          <div class="bg-brand-darkCard border border-brand-darkBorder rounded-2xl p-3 flex flex-col kanban-col transition-all" ondragover="window.allowDrop(event)" ondrop="window.handleDrop(event, 'NOVO')">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-brand-darkBorder text-xs font-bold text-gray-300">
+              <span>Novos</span>
+              <span id="count-col-NOVO" class="bg-brand-black px-2 py-0.5 rounded-full text-brand-yellow">0</span>
+            </div>
+            <div id="cards-col-NOVO" class="space-y-2"></div>
+          </div>
+          <div class="bg-brand-darkCard border border-brand-darkBorder rounded-2xl p-3 flex flex-col kanban-col transition-all" ondragover="window.allowDrop(event)" ondrop="window.handleDrop(event, 'CONTATADO')">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-brand-darkBorder text-xs font-bold text-blue-400">
+              <span>Contatados</span>
+              <span id="count-col-CONTATADO" class="bg-brand-black px-2 py-0.5 rounded-full text-blue-400">0</span>
+            </div>
+            <div id="cards-col-CONTATADO" class="space-y-2"></div>
+          </div>
+          <div class="bg-brand-darkCard border border-brand-darkBorder rounded-2xl p-3 flex flex-col kanban-col transition-all" ondragover="window.allowDrop(event)" ondrop="window.handleDrop(event, 'INTERESSE_CUPOM')">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-brand-darkBorder text-xs font-bold text-brand-yellow">
+              <span>Cupom</span>
+              <span id="count-col-INTERESSE_CUPOM" class="bg-brand-black px-2 py-0.5 rounded-full text-brand-yellow">0</span>
+            </div>
+            <div id="cards-col-INTERESSE_CUPOM" class="space-y-2"></div>
+          </div>
+          <div class="bg-brand-darkCard border border-brand-darkBorder rounded-2xl p-3 flex flex-col kanban-col transition-all" ondragover="window.allowDrop(event)" ondrop="window.handleDrop(event, 'NEGOCIACAO')">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-brand-darkBorder text-xs font-bold text-purple-400">
+              <span>Negociação</span>
+              <span id="count-col-NEGOCIACAO" class="bg-brand-black px-2 py-0.5 rounded-full text-purple-400">0</span>
+            </div>
+            <div id="cards-col-NEGOCIACAO" class="space-y-2"></div>
+          </div>
+          <div class="bg-brand-darkCard border border-brand-darkBorder rounded-2xl p-3 flex flex-col kanban-col transition-all" ondragover="window.allowDrop(event)" ondrop="window.handleDrop(event, 'VENDIDO')">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-brand-darkBorder text-xs font-bold text-emerald-400">
+              <span>Vendido</span>
+              <span id="count-col-VENDIDO" class="bg-brand-black px-2 py-0.5 rounded-full text-emerald-400">0</span>
+            </div>
+            <div id="cards-col-VENDIDO" class="space-y-2"></div>
+          </div>
+          <div class="bg-brand-darkCard border border-brand-darkBorder rounded-2xl p-3 flex flex-col kanban-col transition-all" ondragover="window.allowDrop(event)" ondrop="window.handleDrop(event, 'PERDIDO')">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-brand-darkBorder text-xs font-bold text-red-400">
+              <span>Perdido</span>
+              <span id="count-col-PERDIDO" class="bg-brand-black px-2 py-0.5 rounded-full text-red-400">0</span>
+            </div>
+            <div id="cards-col-PERDIDO" class="space-y-2"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA 2: EQUIPES E PROMOTORES -->
+      <div id="admin-tab-squads" class="hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="space-y-6">
+            <div class="bg-brand-darkCard p-6 rounded-2xl border border-brand-darkBorder space-y-4">
+              <h3 class="text-sm font-black uppercase text-brand-yellow tracking-wide flex items-center gap-2">
+                <i class="fa-solid fa-layer-group"></i> Criar Nova Equipe / Squad
+              </h3>
+              <form onsubmit="window.handleCreateSquad(event)" class="space-y-3">
+                <div>
+                  <label class="block text-xs text-gray-400 mb-1">Nome da Equipe</label>
+                  <input type="text" id="new-squad-name" required placeholder="Ex: Stand Pavilhão A" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl p-2.5 text-xs text-white">
+                </div>
+                <button type="submit" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-black font-black py-2.5 rounded-xl text-xs uppercase">
+                  Salvar no Supabase
+                </button>
+              </form>
+              <div class="pt-2 border-t border-brand-darkBorder space-y-2">
+                <span class="text-[11px] font-bold text-gray-400 uppercase">Equipes Ativas:</span>
+                <div id="squads-list-mini" class="space-y-1 max-h-36 overflow-y-auto custom-scroll"></div>
+              </div>
+            </div>
+
+            <div class="bg-brand-darkCard p-6 rounded-2xl border border-brand-darkBorder space-y-4">
+              <h3 class="text-sm font-black uppercase text-brand-yellow tracking-wide flex items-center gap-2">
+                <i class="fa-solid fa-user-plus"></i> Cadastrar Promotor
+              </h3>
+              <form onsubmit="window.handleCreatePromoter(event)" class="space-y-3">
+                <div>
+                  <label class="block text-xs text-gray-400 mb-1">Nome do Promotor</label>
+                  <input type="text" id="new-promoter-name" required placeholder="Ex: Carlos Santos" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl p-2.5 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-xs text-gray-400 mb-1">WhatsApp do Promotor</label>
+                  <input type="tel" id="new-promoter-phone" required placeholder="5541988887777" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl p-2.5 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-xs text-gray-400 mb-1">Vincular à Equipe (Squad)</label>
+                  <select id="new-promoter-squad" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl p-2.5 text-xs text-white"></select>
+                </div>
+                <button type="submit" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-black font-black py-2.5 rounded-xl text-xs uppercase">
+                  Salvar Promotor no Supabase
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div class="lg:col-span-2 bg-brand-darkCard p-6 rounded-2xl border border-brand-darkBorder space-y-4">
+            <h3 class="text-sm font-black uppercase text-white tracking-wide">Promotores Cadastrados no Supabase</h3>
+            <div id="promoters-list-container" class="space-y-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA 3: GESTÃO DO CATÁLOGO COM ADIÇÃO DINÂMICA DE MÍDIAS -->
+      <div id="admin-tab-catalog-crud" class="hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="bg-brand-darkCard p-6 rounded-2xl border border-brand-darkBorder space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 id="catalog-form-title" class="text-sm font-black uppercase text-brand-yellow tracking-wide">
+                <i class="fa-solid fa-plus mr-1"></i> Cadastrar Produto
+              </h3>
+              <button id="cancel-edit-prod-btn" onclick="window.resetProductForm()" class="hidden text-[11px] text-gray-400 hover:text-white underline">Cancelar</button>
+            </div>
+
+            <!-- Importador Automático via Link Oficial Gotrix -->
+            <div class="p-3.5 bg-brand-black border border-brand-yellow/30 rounded-xl space-y-2">
+              <label class="block text-xs font-black uppercase text-brand-yellow flex items-center gap-1.5">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Puxar Fotos do Site Oficial Gotrix
+              </label>
+              <p class="text-[11px] text-gray-400">Cole o link da página do produto para puxar as fotos e dados automaticamente:</p>
+              <div class="flex gap-2">
+                <input type="url" id="import-product-url" placeholder="https://gotrixoficial.com.br/veiculos/..." class="flex-grow bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white focus:border-brand-yellow outline-none">
+                <button type="button" id="btn-import-url" onclick="window.fetchProductFromUrl()" class="bg-brand-yellow hover:bg-brand-yellowDark text-black font-black px-3 py-2 rounded-lg text-xs uppercase flex items-center gap-1.5 whitespace-nowrap transition-all">
+                  <i class="fa-solid fa-cloud-arrow-down"></i> Puxar
+                </button>
+              </div>
+              <div id="import-status" class="text-[11px] font-bold hidden"></div>
+              
+              <div id="gallery-preview-container" class="hidden space-y-1 pt-2 border-t border-brand-darkBorder">
+                <span class="text-[10px] text-gray-400 font-bold uppercase block">Fotos Encontradas (Clique para incluir na lista do carrossel):</span>
+                <div id="gallery-thumbnails" class="flex gap-2 overflow-x-auto custom-scroll pb-1"></div>
+              </div>
+            </div>
+
+            <form id="product-crud-form" onsubmit="window.handleSaveProduct(event)" class="space-y-4">
+              <input type="hidden" id="prod-id">
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">Nome do Modelo</label>
+                <input type="text" id="prod-name" required placeholder="Ex: Scooter Gotrix Sport PRO" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl p-2.5 text-xs text-white">
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-xs text-gray-400 mb-1">Categoria / Potência</label>
+                  <input type="text" id="prod-type" required placeholder="Ex: 3000W • 75 km/h" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl p-2.5 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-xs text-gray-400 mb-1">Preço de Tabela (R$)</label>
+                  <input type="number" step="0.01" id="prod-price" required placeholder="14999.00" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl p-2.5 text-xs text-white">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">Tipo de Mídia Principal</label>
+                <select id="prod-media-type" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl p-2.5 text-xs text-white">
+                  <option value="image">Galeria de Imagens</option>
+                  <option value="video">Vídeo (.mp4)</option>
+                </select>
+              </div>
+
+              <!-- GERENCIADOR DE MÍDIAS DO CARROSSEL -->
+              <div class="p-3.5 bg-brand-black border border-brand-darkBorder rounded-2xl space-y-3">
+                <div class="flex items-center justify-between">
+                  <label class="block text-xs font-black uppercase text-brand-yellow">
+                    <i class="fa-solid fa-images mr-1"></i> Fotos e Vídeos do Carrossel
+                  </label>
+                  <span id="active-media-count" class="text-[10px] text-gray-400 bg-brand-darkCard px-2 py-0.5 rounded-full">0 mídias</span>
+                </div>
+
+                <div class="space-y-1">
+                  <span class="text-[11px] text-gray-400 font-semibold block">Subir arquivos do seu computador (Selecione vários de uma vez):</span>
+                  <input type="file" id="prod-media-files-input" multiple accept="image/*,video/mp4,video/webm" onchange="window.handleMultipleFileUpload(event)" class="w-full text-[11px] text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:bg-brand-yellow file:text-black file:font-bold file:cursor-pointer hover:file:bg-brand-yellowDark">
+                </div>
+
+                <div class="space-y-1 pt-2 border-t border-brand-darkBorder">
+                  <span class="text-[11px] text-gray-400 font-semibold block">Ou adicionar por Link / URL da Web:</span>
+                  <div class="flex gap-2">
+                    <input type="url" id="manual-media-url-input" placeholder="https://exemplo.com/foto.jpg" class="flex-grow bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white focus:border-brand-yellow outline-none">
+                    <button type="button" onclick="window.addManualMediaUrl()" class="bg-brand-darkCardAlt hover:bg-gray-800 text-brand-yellow border border-brand-darkBorder px-3 py-2 rounded-lg text-xs font-bold uppercase transition-all whitespace-nowrap">
+                      + Adicionar
+                    </button>
+                  </div>
+                </div>
+
+                <div class="pt-2 border-t border-brand-darkBorder space-y-1.5">
+                  <span class="text-[10px] text-gray-500 uppercase font-bold block">Fotos ativas neste produto (Clique no X para excluir):</span>
+                  <div id="active-media-preview-list" class="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto custom-scroll p-1 bg-brand-darkCard rounded-xl border border-brand-darkBorder min-h-[70px] items-center justify-center">
+                    <span class="text-[11px] text-gray-600 col-span-4 text-center py-4 font-semibold">Nenhuma foto adicionada ainda.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs text-gray-400 mb-1">Especificações Rápidas</label>
+                <input type="text" id="prod-specs" required placeholder="Ex: 75 km/h • 60 km • Bateria Lítio" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl p-2.5 text-xs text-white">
+              </div>
+
+              <button type="submit" id="prod-submit-btn" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-black font-black py-3 rounded-xl text-xs uppercase transition-all">
+                Salvar Produto no Supabase
+              </button>
+            </form>
+          </div>
+
+          <div class="lg:col-span-2 bg-brand-darkCard p-6 rounded-2xl border border-brand-darkBorder space-y-4">
+            <h3 class="text-sm font-black uppercase text-white tracking-wide">Produtos Sincronizados no Supabase</h3>
+            <div id="crud-products-list-container" class="space-y-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA 4: RANKING -->
+      <div id="admin-tab-ranking" class="hidden space-y-6">
+        <div class="bg-brand-darkCard p-6 rounded-2xl border border-brand-darkBorder">
+          <h3 class="text-sm font-black uppercase text-white mb-4">Líderes de Captação no Evento</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-brand-black text-gray-400 uppercase">
+                <tr>
+                  <th class="p-3">Posição</th>
+                  <th class="p-3">Promotor</th>
+                  <th class="p-3">Squad</th>
+                  <th class="p-3">Leads Captados</th>
+                  <th class="p-3">Vendas</th>
+                </tr>
+              </thead>
+              <tbody id="promoters-ranking-tbody" class="divide-y divide-brand-darkBorder text-gray-200"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA 5: SORTEADOR AO VIVO -->
+      <div id="admin-tab-raffle" class="hidden space-y-6">
+        <div class="bg-brand-darkCard p-8 rounded-3xl border border-brand-darkBorder text-center space-y-6 max-w-xl mx-auto">
+          <div class="w-20 h-20 bg-brand-yellow/20 text-brand-yellow rounded-full flex items-center justify-center mx-auto text-3xl">
+            <i class="fa-solid fa-gift"></i>
+          </div>
+          <div>
+            <h2 class="text-2xl font-black uppercase text-white">Sorteio Oficial Gotrix</h2>
+            <p class="text-xs text-gray-400 mt-1">Sorteio aleatório com base nos leads reais do Supabase.</p>
+          </div>
+
+          <div id="raffle-winner-box" class="bg-brand-black border-2 border-brand-yellow/30 p-6 rounded-2xl min-h-[140px] flex flex-col items-center justify-center">
+            <span class="text-xs text-gray-500 uppercase font-bold">Número Sorteado</span>
+            <div id="raffle-winner-number" class="text-4xl font-black text-brand-yellow tracking-widest my-1">#-----</div>
+            <div id="raffle-winner-name" class="text-sm font-bold text-white">Aguardando sorteio...</div>
+            <div id="raffle-winner-squad" class="text-xs text-gray-400 mt-1"></div>
+          </div>
+
+          <button onclick="window.runLiveRaffle()" class="bg-brand-yellow hover:bg-brand-yellowDark text-black font-black uppercase tracking-wider px-8 py-4 rounded-xl text-sm shadow-xl shadow-brand-yellow/20 transition-all hover:scale-105">
+            <i class="fa-solid fa-dice mr-2"></i> Realizar Sorteio Agora
+          </button>
+        </div>
+      </div>
+
+      <!-- ABA 6: CMS E CONFIGURAÇÕES DO SUPABASE -->
+      <div id="admin-tab-cms" class="hidden space-y-6">
+        <div class="bg-brand-darkCard p-6 rounded-2xl border border-brand-darkBorder space-y-5">
+          <h3 class="text-sm font-black uppercase text-white">Configurações Globais (Salvas no Supabase)</h3>
+          
+          <form onsubmit="window.handleCmsSave(event)" class="space-y-4">
+            <div class="p-4 bg-brand-black rounded-xl border border-emerald-500/40 space-y-3">
+              <div class="flex items-center gap-2 text-emerald-400 text-xs font-black uppercase">
+                <i class="fa-solid fa-cloud"></i> Conexão Supabase Ativa
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Project URL</label>
+                  <input type="text" id="supabase-url-input" class="w-full bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white" readonly>
+                </div>
+                <div>
+                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Anon Public Key</label>
+                  <input type="text" id="supabase-key-input" class="w-full bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white" readonly>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-4 bg-brand-black rounded-xl border border-brand-yellow/30 space-y-3">
+              <label class="block text-xs font-black text-brand-yellow uppercase">
+                <i class="fa-solid fa-gauge-high mr-1"></i> Especificações Rápidas (Abaixo do Vídeo)
+              </label>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Velocidade Máxima</label>
+                  <input type="text" id="cms-input-spec-speed" placeholder="Ex: 75 km/h" class="w-full bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Autonomia por Carga</label>
+                  <input type="text" id="cms-input-spec-range" placeholder="Ex: 60 km" class="w-full bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Potência do Motor</label>
+                  <input type="text" id="cms-input-spec-power" placeholder="Ex: 3.000W" class="w-full bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white">
+                </div>
+              </div>
+            </div>
+
+            <div class="p-4 bg-brand-black rounded-xl border border-brand-darkBorder space-y-3">
+              <label class="block text-xs font-black text-brand-yellow uppercase mb-1">
+                <i class="fa-solid fa-film mr-1"></i> Vídeo de Apresentação da Moto (Armazenado no Storage)
+              </label>
+              <input type="file" id="cms-video-file-input" accept="video/mp4,video/webm" class="w-full text-xs text-gray-300 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-brand-yellow file:text-black file:font-black file:uppercase file:cursor-pointer hover:file:bg-brand-yellowDark">
+              <p class="text-[11px] text-gray-500">Ou informe a URL direta de um vídeo .MP4:</p>
+              <input type="text" id="cms-input-video" placeholder="https://..." class="w-full bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Título do Banner Hero (Prêmio do Sorteio)</label>
+                <input type="text" id="cms-input-title" class="w-full bg-brand-black border border-brand-darkBorder rounded-lg p-2.5 text-xs text-white">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Subtítulo / Chamada</label>
+                <input type="text" id="cms-input-subtitle" class="w-full bg-brand-black border border-brand-darkBorder rounded-lg p-2.5 text-xs text-white">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Domínio Oficial do Evento</label>
+                <input type="text" id="cms-input-custom-domain" placeholder="https://sorteio.gotrix.com.br" class="w-full bg-brand-black border border-brand-darkBorder rounded-lg p-2.5 text-xs text-white">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Link de Atendimento WhatsApp (Navbar)</label>
+                <input type="text" id="cms-input-whatsapp-link" class="w-full bg-brand-black border border-brand-darkBorder rounded-lg p-2.5 text-xs text-white">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-300 uppercase mb-1">URL da Imagem da Logo</label>
+                <input type="text" id="cms-input-logo-url" class="w-full bg-brand-black border border-brand-darkBorder rounded-lg p-2.5 text-xs text-white">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-300 uppercase mb-1">PIN do Supervisor (4 dígitos)</label>
+                <input type="password" id="cms-input-pin" maxlength="4" class="w-full bg-brand-black border border-brand-darkBorder rounded-lg p-2.5 text-xs text-white">
+              </div>
+            </div>
+
+            <button type="submit" class="bg-brand-yellow hover:bg-brand-yellowDark text-black font-black uppercase py-3 px-6 rounded-xl text-xs">
+              Salvar Tudo no Supabase
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE PIN DO SUPERVISOR -->
+  <div id="pin-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-brand-darkCard border border-brand-darkBorder rounded-3xl p-6 w-full max-w-xs text-center space-y-4 shadow-2xl">
+      <div class="w-12 h-12 bg-brand-yellow/10 text-brand-yellow rounded-full flex items-center justify-center mx-auto text-xl">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      <div>
+        <h3 class="text-sm font-black uppercase text-white">Acesso Supervisor</h3>
+        <p class="text-xs text-gray-400 mt-1">Digite o PIN de 4 dígitos:</p>
+      </div>
+
+      <input type="password" id="supervisor-pin-input" maxlength="4" placeholder="••••" class="w-full text-center tracking-[0.5em] text-2xl font-black bg-brand-black border border-brand-darkBorder rounded-xl p-3 text-brand-yellow focus:outline-none focus:border-brand-yellow">
+      <p id="pin-error" class="hidden text-xs text-red-500 font-bold">PIN incorreto. Tente novamente.</p>
+
+      <div class="flex gap-2">
+        <button onclick="window.closePinModal()" class="w-1/2 bg-brand-darkCardAlt text-gray-300 font-bold py-2.5 rounded-xl text-xs border border-brand-darkBorder">Cancelar</button>
+        <button onclick="window.verifySupervisorPin()" class="w-1/2 bg-brand-yellow text-black font-black py-2.5 rounded-xl text-xs uppercase">Entrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- JAVASCRIPT: SUPABASE SDK, CARROSSEL & GESTÃO DINÂMICA    -->
+  <!-- ======================================================== -->
+  <script>
+    const SUPABASE_URL = "https://yjcrnwcyuujkizluuoou.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlqY3Jud2N5dXVqa2l6bHV1b291Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyMDU1MTIsImV4cCI6MjEwNTc4MTUxMn0.PUqirc_6r6CE9WBd1kzl66LkWttT6S1KOFrese-KNKA";
+
+    var supabaseClient = null;
+    try {
+      if (window.supabase && typeof window.supabase.createClient === 'function') {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      }
+    } catch (e) {
+      console.warn("Supabase client fallback:", e);
+    }
+
+    function getSafeImageUrl(rawUrl) {
+      if (!rawUrl) return '';
+      const clean = rawUrl.trim();
+      if (clean.includes('images.weserv.nl') || clean.startsWith('data:') || clean.includes('placehold.co')) {
+        return clean;
+      }
+      return `https://images.weserv.nl/?url=${encodeURIComponent(clean)}&default=${encodeURIComponent('https://placehold.co/400x260/0d0d0d/eca900?text=Gotrix')}`;
+    }
+
+    function parseMediaList(mediaUrl) {
+      if (!mediaUrl) return [];
+      if (Array.isArray(mediaUrl)) return mediaUrl;
+      return mediaUrl.split(',').map(s => s.trim()).filter(Boolean);
+    }
+
+    window.currentEditingMediaList = [];
+
+    // Catálogo nativo oficial Gotrix
+    const GOTRIX_OFFICIAL_DB = {
+      'g8': {
+        name: 'Scooter Elétrica Gotrix G8 PRO',
+        type: '3000W • 75 km/h',
+        price: '16499.00',
+        specs: '75 km/h • Autonomia 65 km • Bateria Lítio 60V Removível • Painel Digital',
+        images: [
+          'https://gotrixoficial.com.br/wp-content/uploads/2024/02/g8-amarela.jpg',
+          'https://gotrixoficial.com.br/wp-content/uploads/2024/02/g8-preta.jpg',
+          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/sport-pro-amarela.jpg'
+        ]
+      },
+      'x13': {
+        name: 'Scooter Elétrica Gotrix X13 Plus',
+        type: '3000W • 75 km/h',
+        price: '15899.00',
+        specs: '75 km/h • Autonomia até 60 km • Bateria Lítio 60V • Painel Digital',
+        images: [
+          'https://gotrixoficial.com.br/wp-content/uploads/2024/02/x13-plus-amarela.jpg',
+          'https://gotrixoficial.com.br/wp-content/uploads/2024/02/x13-plus-preta.jpg',
+          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/sport-pro-amarela.jpg'
+        ]
+      },
+      'sport-pro': {
+        name: 'Scooter Elétrica Sport PRO',
+        type: '3000W • 75 km/h',
+        price: '16699.99',
+        specs: '75 km/h • Autonomia 60 km • Tecnologia NFC • Motor 3000W',
+        images: [
+          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/sport-pro-amarela.jpg',
+          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/sport-pro-preta.jpg'
+        ]
+      },
+      'sport-701': {
+        name: 'Scooter Elétrica Sport 701',
+        type: '3000W • 70 km/h',
+        price: '15299.99',
+        specs: '70 km/h • Autonomia 50 km • Bateria Lítio Removível',
+        images: [
+          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/sport-701.jpg',
+          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/sport-pro-amarela.jpg'
+        ]
+      },
+      'x11': {
+        name: 'Scooter Elétrica Gotrix X11',
+        type: '2000W • 60 km/h',
+        price: '12299.99',
+        specs: '60 km/h • 40 km • Bateria Removível • Alarme',
+        images: [
+          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/x11-amarela.jpg'
+        ]
+      },
+      'v8': {
+        name: 'Bike Elétrica Gotrix V8 PRO',
+        type: '1000W • Fat Tire',
+        price: '10099.99',
+        specs: '32 km/h • 50 km • Câmbio Shimano • Pedal Assistido',
+        images: [
+          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/v8-pro.jpg'
+        ]
+      },
+      'x15': {
+        name: 'Scooter Elétrica Gotrix X15 PRO',
+        type: 'Autopropelido • Sem CNH',
+        price: '11999.99',
+        specs: '32 km/h • 45 km • Bateria Lítio • Compacta',
+        images: [
+          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/x15-pro.jpg'
+        ]
+      },
+      'n15': {
+        name: 'Scooter Elétrica Gotrix N15',
+        type: '1000W • 32 km/h',
+        price: '11899.99',
+        specs: '32 km/h • Autonomia até 60 km • Baú • Bluetooth',
+        images: [
+          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/n15.jpg'
+        ]
+      },
+      'gt1': {
+        name: 'Scooter Elétrica GT1 PRO',
+        type: '1000W • 32 km/h',
+        price: '12199.99',
+        specs: '32 km/h • 40 km • Freios Hidráulicos • USB',
+        images: [
+          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/gt1-pro.jpg'
+        ]
+      }
+    };
+
+    window.appState = {
+      cms: {
+        title: "Scooter Elétrica Gotrix Sport PRO 0km",
+        subtitle: "Confira a moto que pode ser sua neste sorteio exclusivo Gotrix!",
+        spec_speed: "75 km/h",
+        spec_range: "60 km",
+        spec_power: "3.000W",
+        video_url: "https://assets.mixkit.co/videos/preview/mixkit-motorcyclist-riding-a-motorbike-on-a-road-in-the-countryside-41662-large.mp4",
+        custom_domain: "",
+        whatsapp_link: "https://wa.me/5541999999999?text=Ol%C3%A1%2C%20gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20o%20sorteio%20Gotrix!",
+        pin: "1234",
+        custom_logo_url: ""
+      },
+      leads: [],
+      catalog: [
+        {
+          id: "sport-pro-3000w",
+          name: "Scooter Gotrix Sport PRO",
+          type: "3000W • 75 km/h",
+          media_type: "image",
+          media_url: "https://gotrixoficial.com.br/wp-content/uploads/2023/11/sport-pro-amarela.jpg, https://gotrixoficial.com.br/wp-content/uploads/2023/11/sport-pro-preta.jpg",
+          original_price: 16699.99,
+          specs_summary: "75 km/h • 60 km • Tecnologia NFC"
+        },
+        {
+          id: "scooter-x11-2000w",
+          name: "Scooter Gotrix X11",
+          type: "2000W • 60 km/h",
+          media_type: "image",
+          media_url: "https://gotrixoficial.com.br/wp-content/uploads/2023/11/x11-amarela.jpg",
+          original_price: 12299.99,
+          specs_summary: "60 km/h • 40 km • Bateria Removível"
+        },
+        {
+          id: "bike-v8-pro",
+          name: "Bike Elétrica V8 PRO",
+          type: "1000W • Fat Tire",
+          media_type: "image",
+          media_url: "https://gotrixoficial.com.br/wp-content/uploads/2023/11/v8-pro.jpg",
+          original_price: 10099.99,
+          specs_summary: "32 km/h • 50 km • Câmbio Shimano"
+        },
+        {
+          id: "scooter-x15-pro",
+          name: "Scooter Gotrix X15 PRO",
+          type: "Autopropelido • Sem CNH",
+          media_type: "image",
+          media_url: "https://gotrixoficial.com.br/wp-content/uploads/2023/11/x15-pro.jpg",
+          original_price: 11999.99,
+          specs_summary: "32 km/h • 45 km • Bateria Lítio"
+        }
+      ],
+      squads: [
+        { id: "SQUAD_STAND_A", name: "Stand Principal Gotrix" },
+        { id: "SQUAD_EXTERNO", name: "Equipe Externa Pavilhão" }
+      ],
+      promoters: [
+        { id: "PROMO_RAFAEL", name: "Rafael Silva", phone: "5541999999999", squad_id: "SQUAD_STAND_A" },
+        { id: "PROMO_CAMILA", name: "Camila Santos", phone: "5541988888888", squad_id: "SQUAD_EXTERNO" }
+      ]
+    };
+
+    window.cardCarouselIndexes = {};
+    window.activeModalProduct = null;
+    window.modalCarouselIndex = 0;
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      await fetchAllDataFromSupabase();
+      applyLogoToAllViews();
+      applyCmsSettings();
+      renderCatalogCards();
+      setupRouting();
+      setupKeyboardShortcuts();
+      setupSupabaseRealtime();
+    });
+
+    async function fetchAllDataFromSupabase() {
+      if (!supabaseClient) return;
+      try {
+        const { data: cmsData } = await supabaseClient.from('cms_settings').select('*').eq('id', 'main_config').maybeSingle();
+        if (cmsData) window.appState.cms = { ...window.appState.cms, ...cmsData };
+
+        const { data: squadsData } = await supabaseClient.from('squads').select('*').order('created_at', { ascending: true });
+        if (squadsData && squadsData.length > 0) window.appState.squads = squadsData;
+
+        const { data: promoData } = await supabaseClient.from('promoters').select('*').order('created_at', { ascending: true });
+        if (promoData && promoData.length > 0) window.appState.promoters = promoData;
+
+        const { data: catData } = await supabaseClient.from('catalog_products').select('*').order('created_at', { ascending: true });
+        if (catData && catData.length > 0) window.appState.catalog = catData;
+
+        const { data: leadsData } = await supabaseClient.from('leads').select('*').order('created_at', { ascending: false });
+        if (leadsData) window.appState.leads = leadsData;
+      } catch (err) {
+        console.warn("Supabase fetch fallback:", err);
+      }
+    }
+
+    function setupSupabaseRealtime() {
+      if (!supabaseClient) return;
+      try {
+        supabaseClient.channel('public:leads')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, payload => {
+            if (payload.eventType === 'INSERT') {
+              window.appState.leads.unshift(payload.new);
+            } else if (payload.eventType === 'UPDATE') {
+              const index = window.appState.leads.findIndex(l => l.id === payload.new.id);
+              if (index !== -1) window.appState.leads[index] = payload.new;
+            } else if (payload.eventType === 'DELETE') {
+              window.appState.leads = window.appState.leads.filter(l => l.id !== payload.old.id);
+            }
+            renderKanbanBoard();
+            renderRanking();
+          })
+          .subscribe();
+
+        supabaseClient.channel('public:catalog_products')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'catalog_products' }, async () => {
+            const { data } = await supabaseClient.from('catalog_products').select('*').order('created_at', { ascending: true });
+            if (data) {
+              window.appState.catalog = data;
+              renderCatalogCards();
+              renderCrudProductsList();
+            }
+          })
+          .subscribe();
+
+        supabaseClient.channel('public:cms_settings')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'cms_settings' }, payload => {
+            if (payload.new) {
+              window.appState.cms = { ...window.appState.cms, ...payload.new };
+              applyCmsSettings();
+              applyLogoToAllViews();
+            }
+          })
+          .subscribe();
+      } catch (e) {
+        console.warn("Realtime fallback:", e);
+      }
+    }
+
+    async function uploadFileToSupabaseStorage(file, folder = 'media') {
+      if (!supabaseClient) return null;
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${folder}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+      const { data, error } = await supabaseClient.storage
+        .from('gotrix-media')
+        .upload(fileName, file, { cacheControl: '3600', upsert: true });
+
+      if (error) {
+        alert("Erro no upload para o Storage: " + error.message);
+        return null;
+      }
+
+      const { data: publicData } = supabaseClient.storage
+        .from('gotrix-media')
+        .getPublicUrl(fileName);
+
+      return publicData.publicUrl;
+    }
+
+    function renderActiveMediaPreviewList() {
+      const container = document.getElementById('active-media-preview-list');
+      const countLabel = document.getElementById('active-media-count');
+      if (!container) return;
+
+      countLabel.innerText = `${window.currentEditingMediaList.length} mídias`;
+
+      if (window.currentEditingMediaList.length === 0) {
+        container.innerHTML = `<span class="text-[11px] text-gray-600 col-span-4 text-center py-4 font-semibold">Nenhuma foto adicionada ainda.</span>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      window.currentEditingMediaList.forEach((url, index) => {
+        const itemBox = document.createElement('div');
+        itemBox.className = "relative group h-16 w-full rounded-lg bg-brand-black border border-brand-darkBorder overflow-hidden flex items-center justify-center p-1";
+        
+        if (url.endsWith('.mp4') || url.endsWith('.webm')) {
+          itemBox.innerHTML = `
+            <div class="text-brand-yellow text-base"><i class="fa-solid fa-play"></i></div>
+            <button type="button" onclick="window.removeMediaFromEditing(${index})" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center text-[10px] shadow" title="Remover">✕</button>
+          `;
+        } else {
+          itemBox.innerHTML = `
+            <img src="${getSafeImageUrl(url)}" class="h-full w-full object-contain">
+            <button type="button" onclick="window.removeMediaFromEditing(${index})" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center text-[10px] shadow" title="Remover">✕</button>
+          `;
+        }
+        container.appendChild(itemBox);
+      });
+    }
+
+    window.addManualMediaUrl = function() {
+      const input = document.getElementById('manual-media-url-input');
+      const url = input ? input.value.trim() : '';
+      if (!url) return;
+
+      const items = parseMediaList(url);
+      items.forEach(u => {
+        if (!window.currentEditingMediaList.includes(u)) {
+          window.currentEditingMediaList.push(u);
+        }
+      });
+      input.value = '';
+      renderActiveMediaPreviewList();
+    };
+
+    window.removeMediaFromEditing = function(index) {
+      window.currentEditingMediaList.splice(index, 1);
+      renderActiveMediaPreviewList();
+    };
+
+    window.handleMultipleFileUpload = async function(e) {
+      const files = e.target.files;
+      if (!files || files.length === 0) return;
+
+      const statusEl = document.getElementById('import-status');
+      if (statusEl) {
+        statusEl.className = "text-[11px] font-bold text-brand-yellow block";
+        statusEl.innerText = `Enviando ${files.length} arquivos para a nuvem...`;
+      }
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const uploadedUrl = await uploadFileToSupabaseStorage(file, 'catalog');
+        if (uploadedUrl && !window.currentEditingMediaList.includes(uploadedUrl)) {
+          window.currentEditingMediaList.push(uploadedUrl);
+        }
+      }
+
+      if (statusEl) {
+        statusEl.className = "text-[11px] font-bold text-emerald-400 block";
+        statusEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${files.length} arquivos enviados com sucesso!`;
+      }
+      renderActiveMediaPreviewList();
+      e.target.value = '';
+    };
+
+    function renderCatalogCards() {
+      const grid = document.getElementById('catalog-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      window.appState.catalog.forEach(item => {
+        const priceNum = parseFloat(item.original_price) || 0;
+        const discountedPrice = Math.max(0, priceNum - 1000.00);
+        const zapMsg = encodeURIComponent(`Olá! Estou participando do sorteio da Gotrix e quero garantir meu cupom de R$ 1.000 de desconto no modelo: ${item.name}!`);
+        const zapHref = `${window.appState.cms.whatsapp_link.split('?')[0]}?text=${zapMsg}`;
+
+        const mediaList = parseMediaList(item.media_url);
+        if (!window.cardCarouselIndexes[item.id]) {
+          window.cardCarouselIndexes[item.id] = 0;
+        }
+
+        const card = document.createElement('div');
+        card.className = "bg-brand-darkCard border border-brand-darkBorder rounded-2xl overflow-hidden shadow-lg flex flex-col justify-between hover:border-brand-yellow/50 transition-all cursor-pointer group";
+        
+        card.onclick = function(e) {
+          if (e.target.closest('.carousel-nav-btn') || e.target.closest('.direct-zap-btn')) return;
+          window.openProductModal(item.id);
+        };
+
+        const hasMultiple = mediaList.length > 1;
+
+        card.innerHTML = `
+          <div>
+            <div class="h-52 bg-brand-black flex items-center justify-center p-2 relative overflow-hidden select-none">
+              <span class="absolute top-3 left-3 bg-brand-yellow text-black font-black text-[10px] uppercase px-2.5 py-0.5 rounded-full shadow z-10">R$ 1.000 OFF</span>
+              
+              <div id="card-media-display-${item.id}" class="w-full h-full flex items-center justify-center"></div>
+
+              ${hasMultiple ? `
+                <button onclick="window.prevCardMedia('${item.id}', event)" class="carousel-nav-btn absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/70 hover:bg-brand-yellow hover:text-black text-white flex items-center justify-center transition-all z-10 opacity-0 group-hover:opacity-100">
+                  <i class="fa-solid fa-chevron-left text-xs"></i>
+                </button>
+                <button onclick="window.nextCardMedia('${item.id}', event)" class="carousel-nav-btn absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/70 hover:bg-brand-yellow hover:text-black text-white flex items-center justify-center transition-all z-10 opacity-0 group-hover:opacity-100">
+                  <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
+                
+                <div id="card-dots-${item.id}" class="absolute bottom-2 inset-x-0 flex justify-center gap-1.5 z-10"></div>
+              ` : ''}
+            </div>
+
+            <div class="p-5 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold uppercase text-brand-yellow">${item.type}</span>
+                <span class="text-[10px] text-gray-500 font-semibold flex items-center gap-1">
+                  <i class="fa-regular fa-eye"></i> Ver Detalhes
+                </span>
+              </div>
+              
+              <h3 class="text-base font-black uppercase text-white group-hover:text-brand-yellow transition-colors">${item.name}</h3>
+              <p class="text-xs text-gray-400 line-clamp-2">${item.specs_summary}</p>
+              
+              <div class="pt-3">
+                <span class="text-xs text-gray-500 line-through">De R$ ${priceNum.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                <div class="text-xl font-black text-brand-yellow">
+                  R$ ${discountedPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-5 pt-0">
+            <!-- BOTÃO WHATSAPP DO CATÁLOGO -->
+            <a href="${zapHref}" target="_blank" class="direct-zap-btn w-full bg-whatsapp-green hover:bg-whatsapp-greenDark text-white font-bold py-3 rounded-xl text-xs uppercase flex items-center justify-center gap-2 transition-all shadow-md hover:scale-[1.02]">
+              <i class="fa-brands fa-whatsapp text-base"></i> Garantir Meu Desconto
+            </a>
+          </div>
+        `;
+        grid.appendChild(card);
+        updateCardMediaDisplay(item.id);
+      });
+    }
+
+    function updateCardMediaDisplay(itemId) {
+      const item = window.appState.catalog.find(c => c.id === itemId);
+      if (!item) return;
+
+      const mediaList = parseMediaList(item.media_url);
+      const currentIndex = window.cardCarouselIndexes[itemId] || 0;
+      const currentUrl = mediaList[currentIndex] || '';
+
+      const container = document.getElementById(`card-media-display-${itemId}`);
+      if (!container) return;
+
+      if (currentUrl.endsWith('.mp4') || currentUrl.endsWith('.webm')) {
+        container.innerHTML = `<video src="${currentUrl}" class="h-full w-full object-contain" autoplay loop muted playsinline></video>`;
+      } else {
+        const safeImg = getSafeImageUrl(currentUrl);
+        container.innerHTML = `<img src="${safeImg}" alt="${item.name}" onerror="this.src='https://placehold.co/400x260/0d0d0d/eca900?text=${encodeURIComponent(item.name)}'" class="h-full w-full object-contain transition-all duration-300">`;
+      }
+
+      const dotsContainer = document.getElementById(`card-dots-${itemId}`);
+      if (dotsContainer && mediaList.length > 1) {
+        dotsContainer.innerHTML = '';
+        mediaList.forEach((_, idx) => {
+          const dot = document.createElement('span');
+          dot.className = `w-1.5 h-1.5 rounded-full transition-all ${idx === currentIndex ? 'bg-brand-yellow w-3' : 'bg-white/40'}`;
+          dotsContainer.appendChild(dot);
+        });
+      }
+    }
+
+    window.nextCardMedia = function(itemId, e) {
+      if (e) e.stopPropagation();
+      const item = window.appState.catalog.find(c => c.id === itemId);
+      if (!item) return;
+      const mediaList = parseMediaList(item.media_url);
+      if (mediaList.length <= 1) return;
+
+      window.cardCarouselIndexes[itemId] = (window.cardCarouselIndexes[itemId] + 1) % mediaList.length;
+      updateCardMediaDisplay(itemId);
+    };
+
+    window.prevCardMedia = function(itemId, e) {
+      if (e) e.stopPropagation();
+      const item = window.appState.catalog.find(c => c.id === itemId);
+      if (!item) return;
+      const mediaList = parseMediaList(item.media_url);
+      if (mediaList.length <= 1) return;
+
+      window.cardCarouselIndexes[itemId] = (window.cardCarouselIndexes[itemId] - 1 + mediaList.length) % mediaList.length;
+      updateCardMediaDisplay(itemId);
+    };
+
+    window.openProductModal = function(productId) {
+      const item = window.appState.catalog.find(c => c.id === productId);
+      if (!item) return;
+
+      window.activeModalProduct = item;
+      window.modalCarouselIndex = 0;
+
+      const priceNum = parseFloat(item.original_price) || 0;
+      const discountedPrice = Math.max(0, priceNum - 1000.00);
+
+      document.getElementById('modal-prod-type').innerText = item.type;
+      document.getElementById('modal-prod-name').innerText = item.name;
+      document.getElementById('modal-prod-specs').innerText = item.specs_summary;
+      document.getElementById('modal-prod-original-price').innerText = `De R$ ${priceNum.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      document.getElementById('modal-prod-final-price').innerText = `R$ ${discountedPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+
+      const zapMsg = encodeURIComponent(`Olá! Vi os detalhes do modelo ${item.name} no site e quero resgatar meu bônus exclusivo de R$ 1.000 OFF para compra!`);
+      document.getElementById('modal-prod-whatsapp-btn').href = `${window.appState.cms.whatsapp_link.split('?')[0]}?text=${zapMsg}`;
+
+      updateModalMediaDisplay();
+      document.getElementById('product-modal').classList.remove('hidden');
+    };
+
+    window.closeProductModal = function() {
+      document.getElementById('product-modal').classList.add('hidden');
+      window.activeModalProduct = null;
+    };
+
+    function updateModalMediaDisplay() {
+      if (!window.activeModalProduct) return;
+      const mediaList = parseMediaList(window.activeModalProduct.media_url);
+      const display = document.getElementById('modal-carousel-display');
+      const thumbsContainer = document.getElementById('modal-thumbnails');
+      
+      const currentUrl = mediaList[window.modalCarouselIndex] || '';
+
+      if (currentUrl.endsWith('.mp4') || currentUrl.endsWith('.webm')) {
+        display.innerHTML = `<video src="${currentUrl}" class="w-full h-full object-contain" controls autoplay loop muted playsinline></video>`;
+      } else {
+        const safeImg = getSafeImageUrl(currentUrl);
+        display.innerHTML = `<img src="${safeImg}" alt="${window.activeModalProduct.name}" class="w-full h-full object-contain transition-all duration-300">`;
+      }
+
+      thumbsContainer.innerHTML = '';
+      if (mediaList.length > 1) {
+        mediaList.forEach((url, idx) => {
+          const isCurrent = idx === window.modalCarouselIndex;
+          const thumb = document.createElement('div');
+          thumb.className = `w-14 h-14 rounded-xl border-2 overflow-hidden flex-shrink-0 cursor-pointer p-0.5 bg-brand-black transition-all ${isCurrent ? 'border-brand-yellow scale-105' : 'border-brand-darkBorder opacity-60 hover:opacity-100'}`;
+          
+          if (url.endsWith('.mp4')) {
+            thumb.innerHTML = `<div class="w-full h-full flex items-center justify-center text-brand-yellow text-xs"><i class="fa-solid fa-play"></i></div>`;
+          } else {
+            thumb.innerHTML = `<img src="${getSafeImageUrl(url)}" class="w-full h-full object-contain">`;
+          }
+
+          thumb.onclick = () => {
+            window.modalCarouselIndex = idx;
+            updateModalMediaDisplay();
+          };
+          thumbsContainer.appendChild(thumb);
+        });
+      }
+    }
+
+    window.nextModalMedia = function(e) {
+      if (e) e.stopPropagation();
+      if (!window.activeModalProduct) return;
+      const mediaList = parseMediaList(window.activeModalProduct.media_url);
+      if (mediaList.length <= 1) return;
+      window.modalCarouselIndex = (window.modalCarouselIndex + 1) % mediaList.length;
+      updateModalMediaDisplay();
+    };
+
+    window.prevModalMedia = function(e) {
+      if (e) e.stopPropagation();
+      if (!window.activeModalProduct) return;
+      const mediaList = parseMediaList(window.activeModalProduct.media_url);
+      if (mediaList.length <= 1) return;
+      window.modalCarouselIndex = (window.modalCarouselIndex - 1 + mediaList.length) % mediaList.length;
+      updateModalMediaDisplay();
+    };
+
+    // EXTRATOR BLINDADO COM SUPORTE À G8 E MULTI-PROXY
+    window.fetchProductFromUrl = async function() {
+      const urlInput = document.getElementById('import-product-url');
+      const statusEl = document.getElementById('import-status');
+      const btn = document.getElementById('btn-import-url');
+      const galleryContainer = document.getElementById('gallery-preview-container');
+      const galleryThumbs = document.getElementById('gallery-thumbnails');
+
+      let rawUrl = urlInput ? urlInput.value.trim() : '';
+      if (!rawUrl) {
+        alert("Por favor, cole a URL do produto primeiro!");
+        return;
+      }
+
+      if (rawUrl.lastIndexOf('https://') > 0) {
+        rawUrl = rawUrl.substring(rawUrl.lastIndexOf('https://'));
+      } else if (rawUrl.lastIndexOf('http://') > 0) {
+        rawUrl = rawUrl.substring(rawUrl.lastIndexOf('http://'));
+      }
+      urlInput.value = rawUrl;
+
+      statusEl.className = "text-[11px] font-bold text-brand-yellow block";
+      statusEl.innerText = "Consultando catálogo oficial Gotrix...";
+      btn.disabled = true;
+
+      const lowerUrl = rawUrl.toLowerCase();
+      let matchedKey = null;
+      for (const key of Object.keys(GOTRIX_OFFICIAL_DB)) {
+        if (lowerUrl.includes(key)) {
+          matchedKey = key;
+          break;
+        }
+      }
+
+      function applyVehicleData(data) {
+        if (data.name) document.getElementById('prod-name').value = data.name;
+        if (data.type) document.getElementById('prod-type').value = data.type;
+        if (data.price) document.getElementById('prod-price').value = data.price;
+        if (data.specs) document.getElementById('prod-specs').value = data.specs;
+
+        if (data.images && data.images.length > 0) {
+          data.images.forEach(img => {
+            if (!window.currentEditingMediaList.includes(img)) {
+              window.currentEditingMediaList.push(img);
+            }
+          });
+          renderActiveMediaPreviewList();
+
+          galleryThumbs.innerHTML = '';
+          data.images.forEach((imgUrl) => {
+            const safeThumb = getSafeImageUrl(imgUrl);
+            const thumb = document.createElement('img');
+            thumb.src = safeThumb;
+            thumb.className = `h-14 w-14 object-contain bg-brand-black p-1 rounded-lg border-2 cursor-pointer transition-all hover:scale-105 border-brand-darkBorder`;
+            thumb.onclick = function() {
+              if (!window.currentEditingMediaList.includes(imgUrl)) {
+                window.currentEditingMediaList.push(imgUrl);
+                renderActiveMediaPreviewList();
+              }
+            };
+            galleryThumbs.appendChild(thumb);
+          });
+          galleryContainer.classList.remove('hidden');
+        }
+      }
+
+      if (matchedKey) {
+        applyVehicleData(GOTRIX_OFFICIAL_DB[matchedKey]);
+        statusEl.className = "text-[11px] font-bold text-emerald-400 block";
+        statusEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> Modelo identificado! Fotos adicionadas à lista do produto com sucesso!`;
+        btn.disabled = false;
+        return;
+      }
+
+      const proxies = [
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rawUrl)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(rawUrl)}`
+      ];
+
+      let htmlText = null;
+      for (const pUrl of proxies) {
+        try {
+          const res = await fetch(pUrl, { signal: AbortSignal.timeout(3500) });
+          if (res.ok) {
+            htmlText = await res.text();
+            if (htmlText && htmlText.length > 100 && !htmlText.includes("Oops...")) break;
+          }
+        } catch (e) {}
+      }
+
+      if (!htmlText) {
+        statusEl.className = "text-[11px] font-bold text-yellow-400 block";
+        statusEl.innerText = "Link processado! Adicione as fotos nos campos abaixo.";
+        btn.disabled = false;
+        return;
+      }
+
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, 'text/html');
+
+        const ogTitle = doc.querySelector('meta[property="og:title"]')?.content;
+        const pageTitle = doc.querySelector('h1.product_title, h1.entry-title, h1')?.innerText;
+        const finalTitle = (ogTitle || pageTitle || '').replace(/[-|–].*Gotrix.*/i, '').trim();
+        if (finalTitle) document.getElementById('prod-name').value = finalTitle;
+
+        const ogPrice = doc.querySelector('meta[property="product:price:amount"]')?.content;
+        const priceText = doc.querySelector('.price .amount, span.woocommerce-Price-amount, .current-price')?.innerText;
+        if (ogPrice) {
+          document.getElementById('prod-price').value = parseFloat(ogPrice).toFixed(2);
+        } else if (priceText) {
+          const cleanPrice = priceText.replace(/\D/g, '');
+          if (cleanPrice) document.getElementById('prod-price').value = (parseFloat(cleanPrice) / 100).toFixed(2);
+        }
+
+        const ogDesc = doc.querySelector('meta[property="og:description"]')?.content;
+        const shortDesc = doc.querySelector('.woocommerce-product-details__short-description, .product-short-description')?.innerText;
+        if (ogDesc || shortDesc) {
+          document.getElementById('prod-specs').value = (shortDesc || ogDesc).replace(/\s+/g, ' ').trim().slice(0, 90);
+        }
+
+        const imagesFound = new Set();
+        const ogImage = doc.querySelector('meta[property="og:image"]')?.content;
+        if (ogImage) imagesFound.add(ogImage);
+
+        doc.querySelectorAll('.woocommerce-product-gallery img, .product-images img, img.wp-post-image, .entry-content img').forEach(img => {
+          const src = img.getAttribute('data-large_image') || img.getAttribute('data-src') || img.src;
+          if (src && src.startsWith('http') && !src.includes('logo') && !src.includes('icon')) {
+            imagesFound.add(src);
+          }
+        });
+
+        const list = Array.from(imagesFound);
+        if (list.length > 0) {
+          applyVehicleData({ images: list });
+          statusEl.className = "text-[11px] font-bold text-emerald-400 block";
+          statusEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> Fotos encontradas adicionadas à lista!`;
+        } else {
+          statusEl.className = "text-[11px] font-bold text-yellow-400 block";
+          statusEl.innerText = "Dados puxados! Nenhuma foto com metadados encontrada.";
+        }
+      } catch (err) {
+        statusEl.className = "text-[11px] font-bold text-yellow-400 block";
+        statusEl.innerText = "Página lida! Complete os campos caso necessário.";
+      } finally {
+        btn.disabled = false;
+      }
+    };
+
+    function applyLogoToAllViews() {
+      const logoContainers = document.querySelectorAll('.brand-logo-container');
+      const customLogo = window.appState.cms.custom_logo_url;
+
+      logoContainers.forEach(container => {
+        if (customLogo && customLogo.trim() !== '') {
+          container.innerHTML = `<img src="${getSafeImageUrl(customLogo)}" alt="Gotrix" class="h-9 w-auto object-contain max-w-[200px]">`;
+        } else {
+          container.innerHTML = `
+            <svg class="h-9 w-auto text-brand-yellow" viewBox="0 0 240 60" fill="none">
+              <path d="M42 30C42 23.37 36.63 18 30 18C23.37 18 18 23.37 18 30C18 36.63 23.37 42 30 42C33.3 42 36.3 40.65 38.5 38.5L34.2 34.2C33.1 35.3 31.6 36 30 36C26.7 36 24 33.3 24 30C24 26.7 26.7 24 30 24C33.3 24 36 26.7 36 30H30V36H42V30Z" fill="#ECA900"/>
+              <circle cx="70" cy="30" r="18" stroke="#ECA900" stroke-width="4"/>
+              <path d="M72 17L62 31H70L68 43L78 29H70L72 17Z" fill="#ECA900"/>
+              <text x="18" y="54" fill="#ECA900" font-family="Arial, sans-serif" font-weight="900" font-size="8.5" letter-spacing="4">MOBILIDADE URBANA</text>
+            </svg>
+          `;
+        }
+      });
+
+      const preview = document.getElementById('cms-logo-preview');
+      if (preview) {
+        if (customLogo) {
+          preview.innerHTML = `<img src="${getSafeImageUrl(customLogo)}" class="h-10 object-contain">`;
+        } else {
+          preview.innerHTML = `<span class="text-xs text-gray-500">Logo Padrão Vetorial</span>`;
+        }
+      }
+    }
+
+    function applyCmsSettings() {
+      const heroTitle = document.getElementById('hero-title');
+      if (heroTitle) {
+        heroTitle.innerHTML = window.appState.cms.title.replace("Scooter Elétrica 0km", "<span class='text-brand-yellow'>Scooter Elétrica 0km</span>");
+      }
+      const heroSubtitle = document.getElementById('hero-subtitle');
+      if (heroSubtitle) heroSubtitle.innerText = window.appState.cms.subtitle;
+      
+      const modelDisplay = document.getElementById('form-raffle-model-display');
+      if (modelDisplay) {
+        modelDisplay.innerText = window.appState.cms.title || "Scooter Elétrica 0km Oficial";
+      }
+
+      const specSpeed = document.getElementById('display-spec-speed');
+      if (specSpeed) specSpeed.innerText = window.appState.cms.spec_speed || "75 km/h";
+
+      const specRange = document.getElementById('display-spec-range');
+      if (specRange) specRange.innerText = window.appState.cms.spec_range || "60 km";
+
+      const specPower = document.getElementById('display-spec-power');
+      if (specPower) specPower.innerText = window.appState.cms.spec_power || "3.000W";
+
+      const container = document.getElementById('hero-media-container');
+      const vUrl = window.appState.cms.video_url;
+      if (vUrl && container) {
+        container.innerHTML = `
+          <video src="${vUrl}" class="w-full h-full object-cover" autoplay loop muted playsinline controls></video>
+        `;
+        const v = container.querySelector('video');
+        if (v) v.play().catch(() => {});
+      }
+
+      const navZap = document.getElementById('nav-whatsapp-btn');
+      if (navZap) navZap.href = window.appState.cms.whatsapp_link;
+      const directZap = document.getElementById('hero-direct-whatsapp-btn');
+      if (directZap) directZap.href = window.appState.cms.whatsapp_link;
+
+      const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+      setVal('cms-input-title', window.appState.cms.title);
+      setVal('cms-input-subtitle', window.appState.cms.subtitle);
+      setVal('cms-input-spec-speed', window.appState.cms.spec_speed || "75 km/h");
+      setVal('cms-input-spec-range', window.appState.cms.spec_range || "60 km");
+      setVal('cms-input-spec-power', window.appState.cms.spec_power || "3.000W");
+      setVal('cms-input-video', window.appState.cms.video_url);
+      setVal('cms-input-custom-domain', window.appState.cms.custom_domain);
+      setVal('cms-input-whatsapp-link', window.appState.cms.whatsapp_link);
+      setVal('cms-input-pin', window.appState.cms.pin);
+      setVal('cms-input-logo-url', window.appState.cms.custom_logo_url);
+      setVal('supabase-url-input', SUPABASE_URL);
+      setVal('supabase-key-input', SUPABASE_KEY);
+    }
+
+    // CADASTRO AUTOMÁTICO
+    window.handleRegistrationSubmit = async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-submit-raffle');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = "Gravando na Nuvem...";
+      }
+
+      const name = document.getElementById('lead-name').value.trim();
+      const phone = document.getElementById('lead-phone').value.trim();
+      const email = document.getElementById('lead-email').value.trim();
+      const modelInterest = window.appState.cms.title || "Scooter Elétrica 0km";
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const promoterId = urlParams.get('promoter') || null;
+      const squadId = urlParams.get('squad') || null;
+      const luckyNumber = '#' + Math.floor(10000 + Math.random() * 90000);
+
+      const leadPayload = {
+        id: 'LEAD_' + Date.now(),
+        name,
+        phone,
+        email,
+        model_interest: modelInterest,
+        lucky_number: luckyNumber,
+        promoter_id: promoterId,
+        squad_id: squadId,
+        stage: 'NOVO'
+      };
+
+      if (supabaseClient) {
+        await supabaseClient.from('leads').insert([leadPayload]);
+      }
+      window.appState.leads.unshift(leadPayload);
+
+      let cleanLeadPhone = phone.replace(/\D/g, '');
+      if (!cleanLeadPhone.startsWith('55')) cleanLeadPhone = '55' + cleanLeadPhone;
+
+      const ticketText = `*COMPROVANTE OFICIAL GOTRIX 0KM*\n\n` +
+        `👤 *Participante:* ${name}\n` +
+        `🎟️ *Meu Número da Sorte:* ${luckyNumber}\n` +
+        `⚡ *Prêmio do Sorteio:* ${modelInterest}\n\n` +
+        `🎁 *Bônus Ativado:* Cupom de R$ 1.000 OFF para compra.\n` +
+        `Guarde esta mensagem para conferência no dia da apuração!`;
+
+      const zapTicketBtn = document.getElementById('share-whatsapp-ticket-btn');
+      if (zapTicketBtn) {
+        zapTicketBtn.href = `https://wa.me/${cleanLeadPhone}?text=${encodeURIComponent(ticketText)}`;
+      }
+
+      document.getElementById('raffle-register-form').classList.add('hidden');
+      document.getElementById('display-lucky-number').innerText = luckyNumber;
+      document.getElementById('display-registered-name').innerText = name;
+      document.getElementById('raffle-success-card').classList.remove('hidden');
+
+      if (window.confetti) confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = "Gerar Meu Número da Sorte";
+      }
+    };
+
+    window.resetRaffleForm = function() {
+      const form = document.getElementById('raffle-register-form');
+      if (form) {
+        form.reset();
+        form.classList.remove('hidden');
+      }
+      const card = document.getElementById('raffle-success-card');
+      if (card) card.classList.add('hidden');
+    };
+
+    function setupRouting() {
+      window.addEventListener('hashchange', handleRoute);
+      handleRoute();
+    }
+
+    function handleRoute() {
+      const hash = window.location.hash;
+      const viewLanding = document.getElementById('view-landing');
+      const viewCracha = document.getElementById('view-cracha');
+      const viewAdmin = document.getElementById('view-admin');
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const pToken = urlParams.get('promoter');
+      if (pToken) {
+        const promoter = window.appState.promoters.find(p => p.id === pToken);
+        if (promoter) {
+          const squad = window.appState.squads.find(s => s.id === promoter.squad_id);
+          document.getElementById('attribution-promoter-name').innerText = promoter.name;
+          document.getElementById('attribution-squad-name').innerText = squad ? squad.name : 'Gotrix Stand';
+          document.getElementById('attribution-banner').classList.remove('hidden');
+        }
+      }
+
+      if (hash.startsWith('#cracha')) {
+        viewLanding.classList.add('hidden');
+        viewAdmin.classList.add('hidden');
+        viewCracha.classList.remove('hidden');
+        const token = hash.split('token=')[1];
+        loadBadgeView(token);
+        return;
+      }
+
+      if (hash === '#painel' || hash === '#admin') {
+        const authed = sessionStorage.getItem('gotrix_supervisor_auth');
+        if (authed === 'true') {
+          viewLanding.classList.add('hidden');
+          viewCracha.classList.add('hidden');
+          viewAdmin.classList.remove('hidden');
+          renderSupervisorPanel();
+        } else {
+          window.promptSupervisorPin();
+        }
+        return;
+      }
+
+      viewCracha.classList.add('hidden');
+      viewAdmin.classList.add('hidden');
+      viewLanding.classList.remove('hidden');
+    }
+
+    function setupKeyboardShortcuts() {
+      window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 's') || (e.altKey && e.key.toLowerCase() === 'a')) {
+          e.preventDefault();
+          window.promptSupervisorPin();
+        }
+      });
+    }
+
+    function loadBadgeView(token) {
+      const promoter = window.appState.promoters.find(p => p.id === token) || window.appState.promoters[0];
+      if (!promoter) return;
+
+      const squad = window.appState.squads.find(s => s.id === promoter.squad_id);
+      document.getElementById('badge-promoter-name').innerText = promoter.name;
+      document.getElementById('badge-squad-name').innerText = squad ? squad.name : 'Equipe Stand';
+
+      const baseUrl = window.appState.cms.custom_domain && window.appState.cms.custom_domain.trim() !== ''
+        ? window.appState.cms.custom_domain.replace(/\/$/, '')
+        : window.location.origin + window.location.pathname;
+
+      const fullShareUrl = `${baseUrl}?promoter=${promoter.id}&squad=${promoter.squad_id}#bloco-cadastro-section`;
+
+      const qrContainer = document.getElementById('badge-qrcode-container');
+      qrContainer.innerHTML = '';
+      new QRCode(qrContainer, {
+        text: fullShareUrl,
+        width: 190,
+        height: 190,
+        colorDark: "#000000",
+        colorLight: "#FFFFFF",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      window.currentBadgeUrl = fullShareUrl;
+    }
+
+    window.copyBadgeLink = function() {
+      if (window.currentBadgeUrl) {
+        navigator.clipboard.writeText(window.currentBadgeUrl).then(() => {
+          alert("Link copiado! Pode enviar pelo WhatsApp.");
+        });
+      }
+    };
+
+    window.downloadBadgeQrCode = function() {
+      const img = document.querySelector('#badge-qrcode-container img');
+      if (img && img.src) {
+        const link = document.createElement('a');
+        link.download = `qrcode-gotrix-${Date.now()}.png`;
+        link.href = img.src;
+        link.click();
+      }
+    };
+
+    function renderSupervisorPanel() {
+      populateSquadSelects();
+      renderMiniSquadsList();
+      renderKanbanBoard();
+      renderPromotersList();
+      renderCrudProductsList();
+      renderRanking();
+      renderActiveMediaPreviewList();
+    }
+
+    window.switchAdminTab = function(tabName) {
+      ['kanban', 'squads', 'catalog-crud', 'ranking', 'raffle', 'cms'].forEach(t => {
+        const tabEl = document.getElementById(`admin-tab-${t}`);
+        const btnEl = document.getElementById(`tab-btn-${t}`);
+        if (tabEl) tabEl.classList.add('hidden');
+        if (btnEl) btnEl.className = "px-4 py-2.5 text-xs font-bold rounded-lg text-gray-400 hover:text-white uppercase transition-all whitespace-nowrap";
+      });
+      const activeTab = document.getElementById(`admin-tab-${tabName}`);
+      const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+      if (activeTab) activeTab.classList.remove('hidden');
+      if (activeBtn) activeBtn.className = "px-4 py-2.5 text-xs font-bold rounded-lg bg-brand-yellow text-black uppercase transition-all whitespace-nowrap";
+    };
+
+    window.handleCreateSquad = async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('new-squad-name').value.trim();
+      const id = 'SQUAD_' + name.toUpperCase().replace(/\s+/g, '_') + '_' + Math.floor(Math.random() * 900);
+
+      const newSquad = { id, name };
+      if (supabaseClient) {
+        await supabaseClient.from('squads').insert([newSquad]);
+      }
+      window.appState.squads.push(newSquad);
+
+      document.getElementById('new-squad-name').value = '';
+      populateSquadSelects();
+      renderMiniSquadsList();
+      alert(`Equipe "${name}" salva no Supabase com sucesso!`);
+    };
+
+    window.deleteSquad = async function(squadId) {
+      if (window.appState.squads.length <= 1) {
+        alert("Você deve manter pelo menos uma equipe ativa.");
+        return;
+      }
+      if (confirm("Deseja excluir esta equipe no Supabase?")) {
+        if (supabaseClient) {
+          await supabaseClient.from('squads').delete().eq('id', squadId);
+        }
+        window.appState.squads = window.appState.squads.filter(s => s.id !== squadId);
+        populateSquadSelects();
+        renderMiniSquadsList();
+        renderPromotersList();
+        renderKanbanBoard();
+      }
+    };
+
+    function renderMiniSquadsList() {
+      const container = document.getElementById('squads-list-mini');
+      if (!container) return;
+      container.innerHTML = '';
+
+      window.appState.squads.forEach(s => {
+        const count = window.appState.promoters.filter(p => p.squad_id === s.id).length;
+        const div = document.createElement('div');
+        div.className = "flex items-center justify-between p-2 rounded-lg bg-brand-black border border-brand-darkBorder text-xs";
+        div.innerHTML = `
+          <div>
+            <span class="font-bold text-white">${s.name}</span>
+            <span class="text-[10px] text-gray-500 ml-1.5">(${count} promotores)</span>
+          </div>
+          <button onclick="window.deleteSquad('${s.id}')" class="text-red-500 hover:text-red-400 p-1" title="Excluir Equipe">
+            <i class="fa-regular fa-trash-can"></i>
+          </button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function populateSquadSelects() {
+      const filter = document.getElementById('kanban-filter-squad');
+      const promoSquad = document.getElementById('new-promoter-squad');
+      if (!filter || !promoSquad) return;
+      filter.innerHTML = '<option value="ALL">Todas as Equipes</option>';
+      promoSquad.innerHTML = '';
+
+      window.appState.squads.forEach(s => {
+        filter.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+        promoSquad.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+      });
+    }
+
+    window.handleCreatePromoter = async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('new-promoter-name').value.trim();
+      const phone = document.getElementById('new-promoter-phone').value.trim();
+      const squad_id = document.getElementById('new-promoter-squad').value;
+
+      const id = 'PROMO_' + name.toUpperCase().replace(/\s+/g, '_') + '_' + Math.floor(Math.random()*900);
+      const newPromo = { id, name, phone, squad_id };
+
+      if (supabaseClient) {
+        await supabaseClient.from('promoters').insert([newPromo]);
+      }
+      window.appState.promoters.push(newPromo);
+
+      document.getElementById('new-promoter-name').value = '';
+      document.getElementById('new-promoter-phone').value = '';
+      renderPromotersList();
+      renderMiniSquadsList();
+      renderRanking();
+      alert("Promotor cadastrado no Supabase com sucesso!");
+    };
+
+    window.deletePromoter = async function(promoterId) {
+      if (confirm("Deseja realmente remover este promotor no Supabase?")) {
+        if (supabaseClient) {
+          await supabaseClient.from('promoters').delete().eq('id', promoterId);
+        }
+        window.appState.promoters = window.appState.promoters.filter(p => p.id !== promoterId);
+        renderPromotersList();
+        renderMiniSquadsList();
+        renderRanking();
+        renderKanbanBoard();
+      }
+    };
+
+    function renderPromotersList() {
+      const container = document.getElementById('promoters-list-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const baseUrl = window.appState.cms.custom_domain && window.appState.cms.custom_domain.trim() !== ''
+        ? window.appState.cms.custom_domain.replace(/\/$/, '')
+        : window.location.origin + window.location.pathname;
+
+      window.appState.promoters.forEach(p => {
+        const squad = window.appState.squads.find(s => s.id === p.squad_id);
+        const badgeUrl = `${baseUrl}#cracha?token=${p.id}`;
+        const zapShare = `https://wa.me/${p.phone.replace(/\D/g,'')}?text=${encodeURIComponent(`Olá ${p.name}! Aqui está o link do seu Crachá Oficial Gotrix com QR Code:\n${badgeUrl}`)}`;
+
+        const card = document.createElement('div');
+        card.className = "bg-brand-black border border-brand-darkBorder p-3.5 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs";
+        card.innerHTML = `
+          <div>
+            <span class="font-bold text-white text-sm">${p.name}</span>
+            <div class="text-[11px] text-gray-400">Squad: <span class="text-brand-yellow font-semibold">${squad ? squad.name : 'Stand'}</span> • Tel: ${p.phone}</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <a href="${badgeUrl}" target="_blank" class="bg-brand-darkCardAlt hover:bg-gray-800 text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-semibold border border-brand-darkBorder">
+              <i class="fa-solid fa-qrcode"></i> Abrir Crachá
+            </a>
+            <a href="${zapShare}" target="_blank" class="bg-whatsapp-green hover:bg-whatsapp-greenDark text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-bold">
+              <i class="fa-brands fa-whatsapp"></i> Enviar Link
+            </a>
+            <button onclick="window.deletePromoter('${p.id}')" class="text-red-500 hover:text-red-400 p-1.5 ml-1" title="Excluir">
+              <i class="fa-regular fa-trash-can"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // SALVAR PRODUTO COM LISTA DE MÍDIAS CONSOLIDADA
+    window.handleSaveProduct = async function(e) {
+      e.preventDefault();
+      const id = document.getElementById('prod-id').value;
+      const name = document.getElementById('prod-name').value.trim();
+      const type = document.getElementById('prod-type').value.trim();
+      const original_price = parseFloat(document.getElementById('prod-price').value) || 0;
+      const media_type = document.getElementById('prod-media-type').value;
+      const specs_summary = document.getElementById('prod-specs').value.trim();
+
+      if (window.currentEditingMediaList.length === 0) {
+        alert("Por favor, adicione pelo menos 1 foto ou vídeo para este produto!");
+        return;
+      }
+
+      const media_url = window.currentEditingMediaList.join(', ');
+
+      const productPayload = {
+        name,
+        type,
+        original_price,
+        media_type,
+        media_url,
+        specs_summary
+      };
+
+      if (id) {
+        if (supabaseClient) await supabaseClient.from('catalog_products').update(productPayload).eq('id', id);
+        const index = window.appState.catalog.findIndex(p => p.id === id);
+        if (index !== -1) window.appState.catalog[index] = { id, ...productPayload };
+      } else {
+        const newId = 'PROD_' + Date.now();
+        if (supabaseClient) await supabaseClient.from('catalog_products').insert([{ id: newId, ...productPayload }]);
+        window.appState.catalog.push({ id: newId, ...productPayload });
+      }
+
+      renderCatalogCards();
+      renderCrudProductsList();
+      window.resetProductForm();
+      alert("Produto e fotos salvos no Supabase com sucesso!");
+    };
+
+    window.editProduct = function(productId) {
+      const prod = window.appState.catalog.find(p => p.id === productId);
+      if (!prod) return;
+
+      document.getElementById('prod-id').value = prod.id;
+      document.getElementById('prod-name').value = prod.name;
+      document.getElementById('prod-type').value = prod.type;
+      document.getElementById('prod-price').value = prod.original_price;
+      document.getElementById('prod-media-type').value = prod.media_type || 'image';
+      document.getElementById('prod-specs').value = prod.specs_summary;
+
+      window.currentEditingMediaList = parseMediaList(prod.media_url);
+      renderActiveMediaPreviewList();
+      
+      document.getElementById('catalog-form-title').innerHTML = '<i class="fa-solid fa-pen-to-square mr-1"></i> Editar Produto';
+      document.getElementById('prod-submit-btn').innerText = 'Atualizar no Supabase';
+      document.getElementById('cancel-edit-prod-btn').classList.remove('hidden');
+    };
+
+    window.deleteProduct = async function(productId) {
+      if (window.appState.catalog.length <= 1) {
+        alert("O catálogo precisa ter pelo menos 1 modelo para exibição.");
+        return;
+      }
+      if (confirm("Deseja remover este produto no Supabase?")) {
+        if (supabaseClient) await supabaseClient.from('catalog_products').delete().eq('id', productId);
+        window.appState.catalog = window.appState.catalog.filter(p => p.id !== productId);
+        renderCatalogCards();
+        renderCrudProductsList();
+      }
+    };
+
+    window.resetProductForm = function() {
+      document.getElementById('product-crud-form').reset();
+      document.getElementById('prod-id').value = '';
+      document.getElementById('import-product-url').value = '';
+      document.getElementById('import-status').classList.add('hidden');
+      document.getElementById('gallery-preview-container').classList.add('hidden');
+      window.currentEditingMediaList = [];
+      renderActiveMediaPreviewList();
+      document.getElementById('catalog-form-title').innerHTML = '<i class="fa-solid fa-plus mr-1"></i> Cadastrar Produto';
+      document.getElementById('prod-submit-btn').innerText = 'Salvar Produto no Supabase';
+      document.getElementById('cancel-edit-prod-btn').classList.add('hidden');
+    };
+
+    function renderCrudProductsList() {
+      const container = document.getElementById('crud-products-list-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      window.appState.catalog.forEach(item => {
+        const discounted = Math.max(0, item.original_price - 1000);
+        const card = document.createElement('div');
+        card.className = "bg-brand-black border border-brand-darkBorder p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-xs";
+        
+        let preview = '';
+        const list = parseMediaList(item.media_url);
+        const first = list[0] || '';
+
+        if (item.media_type === 'video' || first.endsWith('.mp4')) {
+          preview = `<div class="w-16 h-12 bg-brand-darkCard rounded flex items-center justify-center text-brand-yellow"><i class="fa-solid fa-play"></i></div>`;
+        } else {
+          const safeImg = getSafeImageUrl(first);
+          preview = `<img src="${safeImg}" class="w-16 h-12 object-contain bg-brand-darkCard rounded p-1" onerror="this.src='https://placehold.co/100x70/000000/eca900?text=Gotrix'">`;
+        }
+
+        card.innerHTML = `
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+            ${preview}
+            <div>
+              <div class="font-black text-white text-sm">${item.name} <span class="text-[10px] text-gray-500 font-normal">(${list.length} fotos)</span></div>
+              <div class="text-[11px] text-gray-400">${item.type} • ${item.specs_summary}</div>
+              <div class="text-[11px] mt-0.5">
+                <span class="text-gray-500 line-through">R$ ${Number(item.original_price).toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
+                <span class="text-brand-yellow font-bold ml-2">Com cupom: R$ ${discounted.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <button onclick="window.editProduct('${item.id}')" class="bg-brand-darkCardAlt hover:bg-gray-800 text-brand-yellow border border-brand-darkBorder px-3 py-1.5 rounded-lg flex items-center gap-1 font-bold">
+              <i class="fa-solid fa-pen"></i> Editar
+            </button>
+            <button onclick="window.deleteProduct('${item.id}')" class="bg-red-950 hover:bg-red-900 text-red-300 px-3 py-1.5 rounded-lg flex items-center gap-1 font-bold">
+              <i class="fa-solid fa-trash"></i> Excluir
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    window.renderKanbanBoard = function() {
+      const filterEl = document.getElementById('kanban-filter-squad');
+      const selectedSquad = filterEl ? filterEl.value : 'ALL';
+      const stages = ['NOVO', 'CONTATADO', 'INTERESSE_CUPOM', 'NEGOCIACAO', 'VENDIDO', 'PERDIDO'];
+      
+      const filteredLeads = selectedSquad === 'ALL' 
+        ? window.appState.leads 
+        : window.appState.leads.filter(l => l.squad_id === selectedSquad);
+
+      const totalLeadsSpan = document.getElementById('kanban-total-leads');
+      if (totalLeadsSpan) totalLeadsSpan.innerText = filteredLeads.length;
+
+      stages.forEach(st => {
+        const container = document.getElementById(`cards-col-${st}`);
+        const countSpan = document.getElementById(`count-col-${st}`);
+        if (!container || !countSpan) return;
+
+        const leadsInStage = filteredLeads.filter(l => l.stage === st);
+        countSpan.innerText = leadsInStage.length;
+        container.innerHTML = '';
+
+        leadsInStage.forEach(lead => {
+          const promo = window.appState.promoters.find(p => p.id === lead.promoter_id);
+          const promoName = promo ? promo.name : 'Stand';
+
+          const card = document.createElement('div');
+          card.className = "bg-brand-black border border-brand-darkBorder p-3 rounded-xl space-y-2 cursor-grab active:cursor-grabbing hover:border-brand-yellow/40 transition-all text-xs";
+          card.draggable = true;
+          card.ondragstart = (e) => e.dataTransfer.setData('text/plain', lead.id);
+
+          const cleanPhone = (lead.phone || '').replace(/\D/g, '');
+          const zapLink = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(`Olá ${lead.name}! Sou consultor Gotrix. Vi que você gerou o número da sorte ${lead.lucky_number} para o sorteio da nossa moto!`)}`;
+
+          card.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="font-black text-brand-yellow">${lead.lucky_number}</span>
+              <span class="text-[10px] text-gray-500">${lead.created_at ? new Date(lead.created_at).toLocaleDateString('pt-BR') : ''}</span>
+            </div>
+            <div class="font-bold text-white text-sm truncate">${lead.name}</div>
+            <div class="text-gray-400 text-[11px] truncate"><i class="fa-solid fa-motorcycle text-brand-yellow mr-1"></i>${lead.model_interest}</div>
+            <div class="text-[10px] text-gray-500">Promotor: <span class="text-gray-300 font-semibold">${promoName}</span></div>
+            <div class="pt-2 flex items-center justify-between border-t border-brand-darkBorder">
+              <a href="${zapLink}" target="_blank" class="text-whatsapp-green hover:text-emerald-400 font-bold flex items-center gap-1">
+                <i class="fa-brands fa-whatsapp"></i> Chamar
+              </a>
+              <select onchange="window.updateLeadStage('${lead.id}', this.value)" class="bg-brand-darkCard text-[10px] text-gray-300 rounded px-1.5 py-0.5 border border-brand-darkBorder">
+                <option value="NOVO" ${lead.stage==='NOVO'?'selected':''}>Novo</option>
+                <option value="CONTATADO" ${lead.stage==='CONTATADO'?'selected':''}>Contatado</option>
+                <option value="INTERESSE_CUPOM" ${lead.stage==='INTERESSE_CUPOM'?'selected':''}>Cupom</option>
+                <option value="NEGOCIACAO" ${lead.stage==='NEGOCIACAO'?'selected':''}>Negociação</option>
+                <option value="VENDIDO" ${lead.stage==='VENDIDO'?'selected':''}>Vendido</option>
+                <option value="PERDIDO" ${lead.stage==='PERDIDO'?'selected':''}>Perdido</option>
+              </select>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      });
+    };
+
+    window.allowDrop = function(e) { e.preventDefault(); };
+    window.handleDrop = function(e, stage) {
+      e.preventDefault();
+      const leadId = e.dataTransfer.getData('text/plain');
+      window.updateLeadStage(leadId, stage);
+    };
+
+    window.updateLeadStage = async function(leadId, newStage) {
+      const lead = window.appState.leads.find(l => l.id === leadId);
+      if (lead) {
+        lead.stage = newStage;
+        if (supabaseClient) {
+          await supabaseClient.from('leads').update({ stage: newStage }).eq('id', leadId);
+        }
+        window.renderKanbanBoard();
+        renderRanking();
+      }
+    };
+
+    function renderRanking() {
+      const tbody = document.getElementById('promoters-ranking-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const stats = window.appState.promoters.map(p => {
+        const leads = window.appState.leads.filter(l => l.promoter_id === p.id);
+        const sales = leads.filter(l => l.stage === 'VENDIDO').length;
+        const squad = window.appState.squads.find(s => s.id === p.squad_id);
+        return { name: p.name, squadName: squad ? squad.name : '', count: leads.length, sales };
+      }).sort((a, b) => b.count - a.count);
+
+      stats.forEach((st, idx) => {
+        const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx+1}`;
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-brand-darkCardAlt/40";
+        tr.innerHTML = `
+          <td class="p-3 font-bold">${medal}</td>
+          <td class="p-3 font-bold text-white">${st.name}</td>
+          <td class="p-3 text-gray-400">${st.squadName}</td>
+          <td class="p-3 font-black text-brand-yellow">${st.count}</td>
+          <td class="p-3 font-bold text-emerald-400">${st.sales}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.runLiveRaffle = function() {
+      if (window.appState.leads.length === 0) {
+        alert("Nenhum lead cadastrado ainda!");
+        return;
+      }
+
+      const numEl = document.getElementById('raffle-winner-number');
+      const nameEl = document.getElementById('raffle-winner-name');
+      const squadEl = document.getElementById('raffle-winner-squad');
+
+      let counter = 0;
+      const interval = setInterval(() => {
+        const rand = window.appState.leads[Math.floor(Math.random() * window.appState.leads.length)];
+        numEl.innerText = rand.lucky_number;
+        nameEl.innerText = rand.name;
+        counter++;
+        if (counter > 25) {
+          clearInterval(interval);
+          const winner = window.appState.leads[Math.floor(Math.random() * window.appState.leads.length)];
+          numEl.innerText = winner.lucky_number;
+          nameEl.innerText = `🎉 Vencedor(a): ${winner.name}`;
+          const promo = window.appState.promoters.find(p => p.id === winner.promoter_id);
+          squadEl.innerText = `Atendido por: ${promo ? promo.name : 'Stand Oficial'}`;
+
+          if (window.confetti) {
+            confetti({ particleCount: 200, spread: 90, origin: { y: 0.5 } });
+          }
+        }
+      }, 80);
+    };
+
+    window.handleCmsSave = async function(e) {
+      e.preventDefault();
+
+      let video_url = document.getElementById('cms-input-video').value.trim();
+      const videoFileInput = document.getElementById('cms-video-file-input');
+
+      if (videoFileInput && videoFileInput.files[0]) {
+        const uploadedVid = await uploadFileToSupabaseStorage(videoFileInput.files[0], 'videos');
+        if (uploadedVid) video_url = uploadedVid;
+      }
+
+      const cmsPayload = {
+        title: document.getElementById('cms-input-title').value.trim(),
+        subtitle: document.getElementById('cms-input-subtitle').value.trim(),
+        spec_speed: document.getElementById('cms-input-spec-speed').value.trim() || "75 km/h",
+        spec_range: document.getElementById('cms-input-spec-range').value.trim() || "60 km",
+        spec_power: document.getElementById('cms-input-spec-power').value.trim() || "3.000W",
+        video_url,
+        custom_domain: document.getElementById('cms-input-custom-domain').value.trim(),
+        whatsapp_link: document.getElementById('cms-input-whatsapp-link').value.trim(),
+        pin: document.getElementById('cms-input-pin').value.trim() || '1234',
+        custom_logo_url: document.getElementById('cms-input-logo-url').value.trim()
+      };
+
+      if (supabaseClient) {
+        await supabaseClient.from('cms_settings').upsert({ id: 'main_config', ...cmsPayload });
+      }
+      window.appState.cms = { ...window.appState.cms, ...cmsPayload };
+
+      applyLogoToAllViews();
+      applyCmsSettings();
+      renderPromotersList();
+      alert("Configurações e especificações salvas no Supabase com sucesso!");
+    };
+
+    window.exportLeadsToCsv = function() {
+      if (window.appState.leads.length === 0) {
+        alert("Nenhum lead para exportar.");
+        return;
+      }
+
+      let csv = "ID,Nome,WhatsApp,Email,NumeroSorte,ModeloInteresse,EtapaCRM,Promotor,Squad,Data\n";
+      window.appState.leads.forEach(l => {
+        const promo = window.appState.promoters.find(p => p.id === l.promoter_id);
+        const squad = window.appState.squads.find(s => s.id === l.squad_id);
+        csv += `"${l.id}","${l.name}","${l.phone}","${l.email}","${l.lucky_number}","${l.model_interest}","${l.stage}","${promo ? promo.name : ''}","${squad ? squad.name : ''}","${l.created_at || ''}"\n`;
+      });
+
+      const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `gotrix_leads_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+  </script>
+</body>
+</html>
