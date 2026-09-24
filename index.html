@@ -40,7 +40,7 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- SCRIPT BASE ESSENCIAL -->
+  <!-- SCRIPT DE NAVEGAÇÃO E PIN -->
   <script>
     window.scrollToForm = function() {
       const el = document.getElementById('bloco-cadastro-section');
@@ -63,10 +63,8 @@
       }
     };
 
-    // Lógica do Contador Regressivo para 30/10/2026 00:00:00 (Inscrições)
     function startCountdown() {
       const countDownDate = new Date("October 30, 2026 00:00:00").getTime();
-
       const x = setInterval(function() {
         const now = new Date().getTime();
         const distance = countDownDate - now;
@@ -892,7 +890,7 @@
               </div>
             </div>
 
-            <!-- CAMPO EDITÁVEL DE MENSAGENS E LINKS DO WHATSAPP / INSTAGRAM -->
+            <!-- CAMPOS EDITÁVEIS DE MENSAGENS E LINKS -->
             <div class="p-4 bg-brand-black rounded-xl border border-brand-yellow/30 space-y-3">
               <label class="block text-xs font-black text-brand-yellow uppercase">
                 <i class="fa-solid fa-comments mr-1"></i> Gestão de Mensagens e Links de WhatsApp / Instagram
@@ -1555,7 +1553,6 @@
       updateModalMediaDisplay();
     };
 
-    // EXTRATOR BLINDADO COM SUPORTE À G8 E MULTI-PROXY
     window.fetchProductFromUrl = async function() {
       const urlInput = document.getElementById('import-product-url');
       const statusEl = document.getElementById('import-status');
@@ -1722,15 +1719,6 @@
           `;
         }
       });
-
-      const preview = document.getElementById('cms-logo-preview');
-      if (preview) {
-        if (customLogo) {
-          preview.innerHTML = `<img src="${getSafeImageUrl(customLogo)}" class="h-10 object-contain">`;
-        } else {
-          preview.innerHTML = `<span class="text-xs text-gray-500">Logo Padrão Vetorial</span>`;
-        }
-      }
     }
 
     function applyCmsSettings() {
@@ -2136,27 +2124,311 @@
       });
     }
 
-    window.exportLeadsToCsv = function() {
-      if (window.appState.leads.length === 0) {
-        alert("Nenhum lead para exportar.");
+    window.handleSaveProduct = async function(e) {
+      e.preventDefault();
+      const id = document.getElementById('prod-id').value;
+      const name = document.getElementById('prod-name').value.trim();
+      const type = document.getElementById('prod-type').value.trim();
+      const original_price = parseFloat(document.getElementById('prod-price').value) || 0;
+      const media_type = document.getElementById('prod-media-type').value;
+      const specs_summary = document.getElementById('prod-specs').value.trim();
+
+      if (window.currentEditingMediaList.length === 0) {
+        alert("Por favor, adicione pelo menos 1 foto ou vídeo para este produto!");
         return;
       }
 
-      let csv = "ID,Nome,WhatsApp,Email,NumeroSorte,ModeloInteresse,EtapaCRM,Promotor,Squad,Data\n";
-      window.appState.leads.forEach(l => {
-        const promo = window.appState.promoters.find(p => p.id === l.promoter_id);
-        const squad = window.appState.squads.find(s => s.id === l.squad_id);
-        csv += `"${l.id}","${l.name}","${l.phone}","${l.email}","${l.lucky_number}","${l.model_interest}","${l.stage}","${promo ? promo.name : ''}","${squad ? squad.name : ''}","${l.created_at || ''}"\n`;
-      });
+      const media_url = window.currentEditingMediaList.join(', ');
 
-      const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `gotrix_leads_${Date.now()}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const productPayload = {
+        name,
+        type,
+        original_price,
+        media_type,
+        media_url,
+        specs_summary
+      };
+
+      if (id) {
+        if (supabaseClient) await supabaseClient.from('catalog_products').update(productPayload).eq('id', id);
+        const index = window.appState.catalog.findIndex(p => p.id === id);
+        if (index !== -1) window.appState.catalog[index] = { id, ...productPayload };
+      } else {
+        const newId = 'PROD_' + Date.now();
+        if (supabaseClient) await supabaseClient.from('catalog_products').insert([{ id: newId, ...productPayload }]);
+        window.appState.catalog.push({ id: newId, ...productPayload });
+      }
+
+      renderCatalogCards();
+      renderCrudProductsList();
+      window.resetProductForm();
+      alert("Produto e fotos salvos no Supabase com sucesso!");
+    };
+
+    window.editProduct = function(productId) {
+      const prod = window.appState.catalog.find(p => p.id === productId);
+      if (!prod) return;
+
+      document.getElementById('prod-id').value = prod.id;
+      document.getElementById('prod-name').value = prod.name;
+      document.getElementById('prod-type').value = prod.type;
+      document.getElementById('prod-price').value = prod.original_price;
+      document.getElementById('prod-media-type').value = prod.media_type || 'image';
+      document.getElementById('prod-specs').value = prod.specs_summary;
+
+      window.currentEditingMediaList = parseMediaList(prod.media_url);
+      renderActiveMediaPreviewList();
+      
+      document.getElementById('catalog-form-title').innerHTML = '<i class="fa-solid fa-pen-to-square mr-1"></i> Editar Produto';
+      document.getElementById('prod-submit-btn').innerText = 'Atualizar no Supabase';
+      document.getElementById('cancel-edit-prod-btn').classList.remove('hidden');
+    };
+
+    window.deleteProduct = async function(productId) {
+      if (window.appState.catalog.length <= 1) {
+        alert("O catálogo precisa ter pelo menos 1 modelo para exibição.");
+        return;
+      }
+      if (confirm("Deseja remover este produto no Supabase?")) {
+        if (supabaseClient) await supabaseClient.from('catalog_products').delete().eq('id', productId);
+        window.appState.catalog = window.appState.catalog.filter(p => p.id !== productId);
+        renderCatalogCards();
+        renderCrudProductsList();
+      }
+    };
+
+    window.resetProductForm = function() {
+      document.getElementById('product-crud-form').reset();
+      document.getElementById('prod-id').value = '';
+      document.getElementById('import-product-url').value = '';
+      document.getElementById('import-status').classList.add('hidden');
+      document.getElementById('gallery-preview-container').classList.add('hidden');
+      window.currentEditingMediaList = [];
+      renderActiveMediaPreviewList();
+      document.getElementById('catalog-form-title').innerHTML = '<i class="fa-solid fa-plus mr-1"></i> Cadastrar Produto';
+      document.getElementById('prod-submit-btn').innerText = 'Salvar Produto no Supabase';
+      document.getElementById('cancel-edit-prod-btn').classList.add('hidden');
+    };
+
+    function renderCrudProductsList() {
+      const container = document.getElementById('crud-products-list-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      window.appState.catalog.forEach(item => {
+        const discounted = Math.max(0, item.original_price - 1000);
+        const card = document.createElement('div');
+        card.className = "bg-brand-black border border-brand-darkBorder p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-xs";
+        
+        let preview = '';
+        const list = parseMediaList(item.media_url);
+        const first = list[0] || '';
+
+        if (item.media_type === 'video' || first.endsWith('.mp4')) {
+          preview = `<div class="w-16 h-12 bg-brand-darkCard rounded flex items-center justify-center text-brand-yellow"><i class="fa-solid fa-play"></i></div>`;
+        } else {
+          const safeImg = getSafeImageUrl(first);
+          preview = `<img src="${safeImg}" class="w-16 h-12 object-contain bg-brand-darkCard rounded p-1" onerror="this.src='https://placehold.co/100x70/000000/eca900?text=Gotrix'">`;
+        }
+
+        card.innerHTML = `
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+            ${preview}
+            <div>
+              <div class="font-black text-white text-sm">${item.name} <span class="text-[10px] text-gray-500 font-normal">(${list.length} fotos)</span></div>
+              <div class="text-[11px] text-gray-400">${item.type} • ${item.specs_summary}</div>
+              <div class="text-[11px] mt-0.5">
+                <span class="text-gray-500 line-through">R$ ${Number(item.original_price).toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
+                <span class="text-brand-yellow font-bold ml-2">Com cupom: R$ ${discounted.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <button onclick="window.editProduct('${item.id}')" class="bg-brand-darkCardAlt hover:bg-gray-800 text-brand-yellow border border-brand-darkBorder px-3 py-1.5 rounded-lg flex items-center gap-1 font-bold">
+              <i class="fa-solid fa-pen"></i> Editar
+            </button>
+            <button onclick="window.deleteProduct('${item.id}')" class="bg-red-950 hover:bg-red-900 text-red-300 px-3 py-1.5 rounded-lg flex items-center gap-1 font-bold">
+              <i class="fa-solid fa-trash"></i> Excluir
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    window.renderKanbanBoard = function() {
+      const filterEl = document.getElementById('kanban-filter-squad');
+      const selectedSquad = filterEl ? filterEl.value : 'ALL';
+      const stages = ['NOVO', 'CONTATADO', 'INTERESSE_CUPOM', 'NEGOCIACAO', 'VENDIDO', 'PERDIDO'];
+      
+      const filteredLeads = selectedSquad === 'ALL' 
+        ? window.appState.leads 
+        : window.appState.leads.filter(l => l.squad_id === selectedSquad);
+
+      const totalLeadsSpan = document.getElementById('kanban-total-leads');
+      if (totalLeadsSpan) totalLeadsSpan.innerText = filteredLeads.length;
+
+      stages.forEach(st => {
+        const container = document.getElementById(`cards-col-${st}`);
+        const countSpan = document.getElementById(`count-col-${st}`);
+        if (!container || !countSpan) return;
+
+        const leadsInStage = filteredLeads.filter(l => l.stage === st);
+        countSpan.innerText = leadsInStage.length;
+        container.innerHTML = '';
+
+        leadsInStage.forEach(lead => {
+          const promo = window.appState.promoters.find(p => p.id === lead.promoter_id);
+          const promoName = promo ? promo.name : 'Stand';
+
+          const card = document.createElement('div');
+          card.className = "bg-brand-black border border-brand-darkBorder p-3 rounded-xl space-y-2 cursor-grab active:cursor-grabbing hover:border-brand-yellow/40 transition-all text-xs";
+          card.draggable = true;
+          card.ondragstart = (e) => e.dataTransfer.setData('text/plain', lead.id);
+
+          const cleanPhone = (lead.phone || '').replace(/\D/g, '');
+          const zapLink = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(`Olá ${lead.name}! Sou consultor Gotrix. Vi que você gerou o número da sorte ${lead.lucky_number} para o sorteio da nossa moto!`)}`;
+
+          card.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="font-black text-brand-yellow">${lead.lucky_number}</span>
+              <span class="text-[10px] text-gray-500">${lead.created_at ? new Date(lead.created_at).toLocaleDateString('pt-BR') : ''}</span>
+            </div>
+            <div class="font-bold text-white text-sm truncate">${lead.name}</div>
+            <div class="text-gray-400 text-[11px] truncate"><i class="fa-solid fa-motorcycle text-brand-yellow mr-1"></i>${lead.model_interest}</div>
+            <div class="text-[10px] text-gray-500">Promotor: <span class="text-gray-300 font-semibold">${promoName}</span></div>
+            <div class="pt-2 flex items-center justify-between border-t border-brand-darkBorder">
+              <a href="${zapLink}" target="_blank" class="text-whatsapp-green hover:text-emerald-400 font-bold flex items-center gap-1">
+                <i class="fa-brands fa-whatsapp"></i> Chamar
+              </a>
+              <select onchange="window.updateLeadStage('${lead.id}', this.value)" class="bg-brand-darkCard text-[10px] text-gray-300 rounded px-1.5 py-0.5 border border-brand-darkBorder">
+                <option value="NOVO" ${lead.stage==='NOVO'?'selected':''}>Novo</option>
+                <option value="CONTATADO" ${lead.stage==='CONTATADO'?'selected':''}>Contatado</option>
+                <option value="INTERESSE_CUPOM" ${lead.stage==='INTERESSE_CUPOM'?'selected':''}>Cupom</option>
+                <option value="NEGOCIACAO" ${lead.stage==='NEGOCIACAO'?'selected':''}>Negociação</option>
+                <option value="VENDIDO" ${lead.stage==='VENDIDO'?'selected':''}>Vendido</option>
+                <option value="PERDIDO" ${lead.stage==='PERDIDO'?'selected':''}>Perdido</option>
+              </select>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      });
+    };
+
+    window.allowDrop = function(e) { e.preventDefault(); };
+    window.handleDrop = function(e, stage) {
+      e.preventDefault();
+      const leadId = e.dataTransfer.getData('text/plain');
+      window.updateLeadStage(leadId, stage);
+    };
+
+    window.updateLeadStage = async function(leadId, newStage) {
+      const lead = window.appState.leads.find(l => l.id === leadId);
+      if (lead) {
+        lead.stage = newStage;
+        if (supabaseClient) {
+          await supabaseClient.from('leads').update({ stage: newStage }).eq('id', leadId);
+        }
+        window.renderKanbanBoard();
+        renderRanking();
+      }
+    };
+
+    function renderRanking() {
+      const tbody = document.getElementById('promoters-ranking-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const stats = window.appState.promoters.map(p => {
+        const leads = window.appState.leads.filter(l => l.promoter_id === p.id);
+        const sales = leads.filter(l => l.stage === 'VENDIDO').length;
+        const squad = window.appState.squads.find(s => s.id === p.squad_id);
+        return { name: p.name, squadName: squad ? squad.name : '', count: leads.length, sales };
+      }).sort((a, b) => b.count - a.count);
+
+      stats.forEach((st, idx) => {
+        const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx+1}`;
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-brand-darkCardAlt/40";
+        tr.innerHTML = `
+          <td class="p-3 font-bold">${medal}</td>
+          <td class="p-3 font-bold text-white">${st.name}</td>
+          <td class="p-3 text-gray-400">${st.squadName}</td>
+          <td class="p-3 font-black text-brand-yellow">${st.count}</td>
+          <td class="p-3 font-bold text-emerald-400">${st.sales}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.runLiveRaffle = function() {
+      if (window.appState.leads.length === 0) {
+        alert("Nenhum lead cadastrado ainda!");
+        return;
+      }
+
+      const numEl = document.getElementById('raffle-winner-number');
+      const nameEl = document.getElementById('raffle-winner-name');
+      const squadEl = document.getElementById('raffle-winner-squad');
+
+      let counter = 0;
+      const interval = setInterval(() => {
+        const rand = window.appState.leads[Math.floor(Math.random() * window.appState.leads.length)];
+        numEl.innerText = rand.lucky_number;
+        nameEl.innerText = rand.name;
+        counter++;
+        if (counter > 25) {
+          clearInterval(interval);
+          const winner = window.appState.leads[Math.floor(Math.random() * window.appState.leads.length)];
+          numEl.innerText = winner.lucky_number;
+          nameEl.innerText = `🎉 Vencedor(a): ${winner.name}`;
+          const promo = window.appState.promoters.find(p => p.id === winner.promoter_id);
+          squadEl.innerText = `Atendido por: ${promo ? promo.name : 'Stand Oficial'}`;
+
+          if (window.confetti) {
+            confetti({ particleCount: 200, spread: 90, origin: { y: 0.5 } });
+          }
+        }
+      }, 80);
+    };
+
+    window.handleCmsSave = async function(e) {
+      e.preventDefault();
+
+      let video_url = document.getElementById('cms-input-video').value.trim();
+      const videoFileInput = document.getElementById('cms-video-file-input');
+
+      if (videoFileInput && videoFileInput.files[0]) {
+        const uploadedVid = await uploadFileToSupabaseStorage(videoFileInput.files[0], 'videos');
+        if (uploadedVid) video_url = uploadedVid;
+      }
+
+      const cmsPayload = {
+        title: document.getElementById('cms-input-title').value.trim(),
+        subtitle: document.getElementById('cms-input-subtitle').value.trim(),
+        spec_speed: document.getElementById('cms-input-spec-speed').value.trim() || "75 km/h",
+        spec_range: document.getElementById('cms-input-spec-range').value.trim() || "60 km",
+        spec_power: document.getElementById('cms-input-spec-power').value.trim() || "3.000W",
+        video_url,
+        custom_domain: document.getElementById('cms-input-custom-domain').value.trim(),
+        whatsapp_link: document.getElementById('cms-input-whatsapp-link').value.trim(),
+        instagram_link: document.getElementById('cms-input-instagram-link').value.trim() || "https://instagram.com/gotrix.curitiba",
+        whatsapp_ticket_text: document.getElementById('cms-input-whatsapp-ticket-text').value.trim(),
+        pin: document.getElementById('cms-input-pin').value.trim() || '1234',
+        custom_logo_url: document.getElementById('cms-input-logo-url').value.trim()
+      };
+
+      if (supabaseClient) {
+        await supabaseClient.from('cms_settings').upsert({ id: 'main_config', ...cmsPayload });
+      }
+      window.appState.cms = { ...window.appState.cms, ...cmsPayload };
+
+      applyLogoToAllViews();
+      applyCmsSettings();
+      renderPromotersList();
+      alert("Configurações e mensagens salvas no Supabase com sucesso!");
     };
   </script>
 </body>
