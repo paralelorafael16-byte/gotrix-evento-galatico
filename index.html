@@ -892,7 +892,7 @@
               </div>
             </div>
 
-            <!-- NOVOS CAMPOS: EDIÇÃO DE MENSAGENS E LINKS DO WHATSAPP E INSTAGRAM -->
+            <!-- CAMPO EDITÁVEL DE MENSAGENS E LINKS DO WHATSAPP / INSTAGRAM -->
             <div class="p-4 bg-brand-black rounded-xl border border-brand-yellow/30 space-y-3">
               <label class="block text-xs font-black text-brand-yellow uppercase">
                 <i class="fa-solid fa-comments mr-1"></i> Gestão de Mensagens e Links de WhatsApp / Instagram
@@ -909,6 +909,7 @@
                 <div>
                   <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Texto do Comprovante do WhatsApp (Gerado no Sorteio)</label>
                   <textarea id="cms-input-whatsapp-ticket-text" rows="4" class="w-full bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white" placeholder="*COMPROVANTE OFICIAL*..."></textarea>
+                  <span class="text-[10px] text-gray-500">Dica: Use <code class="text-brand-yellow">{name}</code> para o nome e <code class="text-brand-yellow">{lucky_number}</code> para o número da sorte.</span>
                 </div>
               </div>
             </div>
@@ -1832,7 +1833,6 @@
       let cleanLeadPhone = phone.replace(/\D/g, '');
       if (!cleanLeadPhone.startsWith('55')) cleanLeadPhone = '55' + cleanLeadPhone;
 
-      // Pega o template salvo no CMS ou usa o padrão, substituindo as tags automaticamente
       let ticketTemplate = window.appState.cms.whatsapp_ticket_text || "*COMPROVANTE OFICIAL GOTRIX 0KM*\n\n👤 *Participante:* {name}\n🎟️ *Meu Número da Sorte:* {lucky_number}\n⚡ *Prêmio do Sorteio:* {model_interest}\n\n🎁 *Bônus Ativado:* Cupom de R$ 1.000 OFF para compra.\nSiga nosso Instagram: https://instagram.com/gotrix.curitiba\nGuarde esta mensagem para conferência no dia da apuração!";
       
       const ticketText = ticketTemplate
@@ -2135,43 +2135,6 @@
         container.appendChild(card);
       });
     }
-
-    window.handleCmsSave = async function(e) {
-      e.preventDefault();
-
-      let video_url = document.getElementById('cms-input-video').value.trim();
-      const videoFileInput = document.getElementById('cms-video-file-input');
-
-      if (videoFileInput && videoFileInput.files[0]) {
-        const uploadedVid = await uploadFileToSupabaseStorage(videoFileInput.files[0], 'videos');
-        if (uploadedVid) video_url = uploadedVid;
-      }
-
-      const cmsPayload = {
-        title: document.getElementById('cms-input-title').value.trim(),
-        subtitle: document.getElementById('cms-input-subtitle').value.trim(),
-        spec_speed: document.getElementById('cms-input-spec-speed').value.trim() || "75 km/h",
-        spec_range: document.getElementById('cms-input-spec-range').value.trim() || "60 km",
-        spec_power: document.getElementById('cms-input-spec-power').value.trim() || "3.000W",
-        video_url,
-        custom_domain: document.getElementById('cms-input-custom-domain').value.trim(),
-        whatsapp_link: document.getElementById('cms-input-whatsapp-link').value.trim(),
-        instagram_link: document.getElementById('cms-input-instagram-link').value.trim() || "https://instagram.com/gotrix.curitiba",
-        whatsapp_ticket_text: document.getElementById('cms-input-whatsapp-ticket-text').value.trim(),
-        pin: document.getElementById('cms-input-pin').value.trim() || '1234',
-        custom_logo_url: document.getElementById('cms-input-logo-url').value.trim()
-      };
-
-      if (supabaseClient) {
-        await supabaseClient.from('cms_settings').upsert({ id: 'main_config', ...cmsPayload });
-      }
-      window.appState.cms = { ...window.appState.cms, ...cmsPayload };
-
-      applyLogoToAllViews();
-      applyCmsSettings();
-      renderPromotersList();
-      alert("Configurações e mensagens salvas no Supabase com sucesso!");
-    };
 
     window.exportLeadsToCsv = function() {
       if (window.appState.leads.length === 0) {
