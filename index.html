@@ -23,6 +23,10 @@
             whatsapp: {
               green: '#25D366',
               greenDark: '#1EBE5D'
+            },
+            instagram: {
+              pink: '#E1306C',
+              purple: '#833AB4'
             }
           }
         }
@@ -49,6 +53,47 @@
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       else window.location.hash = '#bloco-catalogo-section';
     };
+
+    window.toggleRegulamentoDropdown = function() {
+      const content = document.getElementById('regulamento-dropdown-content');
+      const icon = document.getElementById('regulamento-chevron');
+      if (content && icon) {
+        content.classList.toggle('hidden');
+        icon.classList.toggle('rotate-180');
+      }
+    };
+
+    // Lógica do Contador Regressivo para 30/10/2026 00:00:00 (Inscrições)
+    function startCountdown() {
+      const countDownDate = new Date("October 30, 2026 00:00:00").getTime();
+
+      const x = setInterval(function() {
+        const now = new Date().getTime();
+        const distance = countDownDate - now;
+
+        if (distance < 0) {
+          clearInterval(x);
+          const timerEl = document.getElementById("countdown-timer-box");
+          if (timerEl) timerEl.innerHTML = "<span class='text-brand-yellow font-black uppercase text-xs sm:text-sm tracking-wider'>Inscrições encerradas! Sorteio dia 05/11 às 15h!</span>";
+          return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        const dEl = document.getElementById("cd-days");
+        const hEl = document.getElementById("cd-hours");
+        const mEl = document.getElementById("cd-minutes");
+        const sEl = document.getElementById("cd-seconds");
+
+        if (dEl) dEl.innerText = String(days).padStart(2, '0');
+        if (hEl) hEl.innerText = String(hours).padStart(2, '0');
+        if (mEl) mEl.innerText = String(minutes).padStart(2, '0');
+        if (sEl) sEl.innerText = String(seconds).padStart(2, '0');
+      }, 1000);
+    }
 
     var _secretCount = 0;
     var _secretTimer = null;
@@ -109,7 +154,7 @@
     .custom-scroll::-webkit-scrollbar-thumb:hover { background: #ECA900; }
   </style>
 </head>
-<body class="bg-brand-black text-gray-100 font-sans antialiased min-h-screen flex flex-col justify-between custom-scroll">
+<body class="bg-brand-black text-gray-100 font-sans antialiased min-h-screen flex flex-col justify-between custom-scroll" onload="startCountdown()">
 
   <!-- ======================================================== -->
   <!-- 1. VISTA PÚBLICA (LANDING PAGE - 3 BLOCOS)               -->
@@ -141,11 +186,16 @@
           </a>
         </nav>
 
-        <!-- BOTÃO WHATSAPP NAVBAR -->
-        <a id="nav-whatsapp-btn" href="https://wa.me/5541999999999" target="_blank" class="bg-whatsapp-green hover:bg-whatsapp-greenDark text-white font-bold px-4 py-2.5 rounded-xl text-xs uppercase tracking-normal flex items-center justify-center gap-2 shadow-md transition-all hover:scale-105">
-          <i class="fa-brands fa-whatsapp text-base"></i>
-          <span>WhatsApp</span>
-        </a>
+        <div class="flex items-center gap-2">
+          <a id="nav-whatsapp-btn" href="https://wa.me/5541999999999" target="_blank" class="bg-whatsapp-green hover:bg-whatsapp-greenDark text-white font-bold px-3.5 py-2 rounded-xl text-xs uppercase flex items-center gap-1.5 shadow transition-all hover:scale-105">
+            <i class="fa-brands fa-whatsapp text-sm"></i>
+            <span class="hidden sm:inline">WhatsApp</span>
+          </a>
+          <a id="nav-instagram-btn" href="https://instagram.com/gotrix.curitiba" target="_blank" class="bg-gradient-to-r from-instagram-pink to-instagram-purple hover:opacity-90 text-white font-bold px-3.5 py-2 rounded-xl text-xs uppercase flex items-center gap-1.5 shadow transition-all hover:scale-105">
+            <i class="fa-brands fa-instagram text-sm"></i>
+            <span class="hidden sm:inline">Instagram</span>
+          </a>
+        </div>
       </div>
     </header>
 
@@ -173,10 +223,8 @@
           </p>
         </div>
 
-        <!-- Mídia Principal do Produto -->
         <div id="hero-media-container" class="relative rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-brand-darkBorder bg-brand-darkCard aspect-video shadow-2xl max-w-4xl mx-auto flex items-center justify-center"></div>
 
-        <!-- ESPECIFICAÇÕES RESPONSIVAS -->
         <div id="hero-specs-container" class="grid grid-cols-3 gap-2 sm:gap-4 max-w-3xl mx-auto">
           <div class="bg-brand-darkCard border border-brand-darkBorder p-2.5 sm:p-4 rounded-xl sm:rounded-2xl text-center flex flex-col justify-center">
             <span id="display-spec-speed" class="block text-brand-yellow font-black text-sm sm:text-2xl leading-none sm:leading-normal">75 km/h</span>
@@ -192,17 +240,53 @@
           </div>
         </div>
 
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2 sm:pt-4">
-          <button onclick="window.scrollToForm()" class="w-full sm:w-auto bg-brand-yellow hover:bg-brand-yellowDark text-black font-black uppercase tracking-wider px-8 py-3.5 sm:px-10 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm transition-all hover:scale-105 shadow-xl shadow-brand-yellow/20 flex items-center justify-center gap-3">
+        <!-- CONTADOR REGRESSIVO DE ESCASSEZ + CTA SORTEIO 05/11/2026 -->
+        <div id="countdown-timer-box" class="bg-brand-darkCard border-2 border-brand-yellow/40 rounded-2xl p-4 sm:p-5 max-w-3xl mx-auto shadow-2xl space-y-3">
+          <div class="flex items-center justify-center gap-2 text-brand-yellow text-xs sm:text-sm font-black uppercase tracking-wider">
+            <i class="fa-solid fa-hourglass-end animate-bounce"></i>
+            <span>⚠️ Últimas Vagas • O Tempo p/ o Sorteio está Acabando!</span>
+          </div>
+          
+          <div class="grid grid-cols-4 gap-2 text-center max-w-xl mx-auto">
+            <div class="bg-brand-black p-2.5 rounded-xl border border-brand-darkBorder shadow-inner">
+              <span id="cd-days" class="block text-brand-yellow font-black text-2xl sm:text-3xl">00</span>
+              <span class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-bold">Dias</span>
+            </div>
+            <div class="bg-brand-black p-2.5 rounded-xl border border-brand-darkBorder shadow-inner">
+              <span id="cd-hours" class="block text-brand-yellow font-black text-2xl sm:text-3xl">00</span>
+              <span class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-bold">Horas</span>
+            </div>
+            <div class="bg-brand-black p-2.5 rounded-xl border border-brand-darkBorder shadow-inner">
+              <span id="cd-minutes" class="block text-brand-yellow font-black text-2xl sm:text-3xl">00</span>
+              <span class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-bold">Minutos</span>
+            </div>
+            <div class="bg-brand-black p-2.5 rounded-xl border border-brand-darkBorder shadow-inner">
+              <span id="cd-seconds" class="block text-brand-yellow font-black text-2xl sm:text-3xl">00</span>
+              <span class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-bold">Segundos</span>
+            </div>
+          </div>
+
+          <div class="pt-1 text-[11px] sm:text-xs text-gray-300 font-semibold bg-brand-black/60 py-1.5 px-3 rounded-lg border border-brand-darkBorder inline-block">
+            🎁 Sorteio Oficial ao vivo em <strong>05/11/2026 às 15:00</strong> no Instagram <span class="text-brand-yellow font-bold">@gotrix.curitiba</span>!
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center justify-center gap-3 max-w-3xl mx-auto pt-2 sm:pt-4">
+          <button onclick="window.scrollToForm()" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-black font-black uppercase tracking-wider py-4 rounded-2xl text-sm sm:text-base transition-all hover:scale-[1.01] shadow-xl shadow-brand-yellow/20 flex items-center justify-center gap-3">
             <span>Quero Participar do Sorteio</span>
             <i class="fa-solid fa-arrow-down"></i>
           </button>
           
-          <!-- BOTÃO WHATSAPP DIRETO -->
-          <a id="hero-direct-whatsapp-btn" href="https://wa.me/5541999999999" target="_blank" class="w-full sm:w-auto bg-whatsapp-green hover:bg-whatsapp-greenDark text-white font-bold uppercase px-6 py-3.5 sm:px-8 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-2 hover:scale-[1.02]">
-            <i class="fa-brands fa-whatsapp text-base sm:text-lg"></i>
-            <span>Tirar Dúvidas no WhatsApp</span>
-          </a>
+          <div class="grid grid-cols-2 gap-3 w-full">
+            <a id="hero-direct-whatsapp-btn" href="https://wa.me/5541999999999" target="_blank" class="w-full bg-whatsapp-green hover:bg-whatsapp-greenDark text-white font-bold uppercase py-3.5 px-3 rounded-xl text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-2 hover:scale-[1.01] whitespace-nowrap">
+              <i class="fa-brands fa-whatsapp text-base sm:text-lg"></i>
+              <span>WhatsApp</span>
+            </a>
+            <a id="hero-direct-instagram-btn" href="https://instagram.com/gotrix.curitiba" target="_blank" class="w-full bg-gradient-to-r from-instagram-pink to-instagram-purple hover:opacity-90 text-white font-bold uppercase py-3.5 px-3 rounded-xl text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-2 hover:scale-[1.01] whitespace-nowrap">
+              <i class="fa-brands fa-instagram text-base sm:text-lg"></i>
+              <span>Instagram</span>
+            </a>
+          </div>
         </div>
       </div>
     </section>
@@ -240,14 +324,6 @@
               </div>
             </div>
 
-            <div>
-              <label class="block text-xs font-bold uppercase text-gray-300 mb-1.5">E-mail</label>
-              <div class="relative">
-                <i class="fa-regular fa-envelope absolute left-3.5 top-3.5 text-gray-500 text-sm"></i>
-                <input type="email" id="lead-email" required placeholder="seuemail@exemplo.com" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand-yellow transition-all">
-              </div>
-            </div>
-
             <div class="p-3 bg-brand-black border border-brand-yellow/20 rounded-xl flex items-center gap-3">
               <div class="w-8 h-8 rounded-lg bg-brand-yellow/10 text-brand-yellow flex items-center justify-center flex-shrink-0">
                 <i class="fa-solid fa-motorcycle"></i>
@@ -258,12 +334,39 @@
               </div>
             </div>
 
+            <!-- REGULAMENTO EM DROPDOWN & CHECKBOX DE PROTEÇÃO DE DADOS -->
+            <div class="bg-brand-black border border-brand-darkBorder rounded-2xl p-4 space-y-3">
+              <button type="button" onclick="window.toggleRegulamentoDropdown()" class="w-full flex items-center justify-between text-left text-xs font-bold uppercase text-brand-yellow focus:outline-none">
+                <span class="flex items-center gap-2"><i class="fa-solid fa-file-lines"></i> Ler Regulamento Oficial e Termos</span>
+                <i id="regulamento-chevron" class="fa-solid fa-chevron-down transition-transform"></i>
+              </button>
+
+              <div id="regulamento-dropdown-content" class="hidden text-[11px] text-gray-400 space-y-2 pt-2 border-t border-brand-darkBorder leading-relaxed max-h-48 overflow-y-auto custom-scroll pr-1">
+                <p class="font-bold text-gray-300">REGULAMENTO DO SORTEIO:</p>
+                <ol class="space-y-1 list-decimal pl-4">
+                  <li>Preenchimento do formulário;</li>
+                  <li>Aceite do compartilhamento das informações e proteção de dados;</li>
+                  <li>Seguir instagram da Gotrix Curitiba;</li>
+                  <li>Inscrição do dia 03/10/26 até o dia 30/10/26 às 00h00;</li>
+                  <li>Sorteio será realizado no dia 05/11/26 às 15h através de live no instagram @gotrix.curitiba;</li>
+                  <li>O sorteado deverá cumprir todos os quesitos acima;</li>
+                  <li>O contemplado deverá retirar o prêmio diretamente na Gotrix Curitiba (Rua Mariano Torres, 401, Centro, Curitiba);</li>
+                  <li>Nenhum custo extra é de responsabilidade da empresa e sim do contemplado.</li>
+                </ol>
+              </div>
+
+              <div class="pt-2 border-t border-brand-darkBorder flex items-start gap-2.5">
+                <input type="checkbox" id="accept-regulamento" required class="mt-0.5 accent-brand-yellow w-4 h-4 cursor-pointer flex-shrink-0">
+                <label for="accept-regulamento" class="text-[11px] text-gray-300 leading-tight cursor-pointer">
+                  Li e concordo com o <strong class="text-brand-yellow">Regulamento</strong> e autorizo o tratamento dos meus dados para fins de participação e comunicação do sorteio (LGPD).
+                </label>
+              </div>
+            </div>
+
             <button type="submit" id="btn-submit-raffle" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-black font-black uppercase tracking-wider py-4 rounded-xl text-sm transition-all hover:scale-[1.02] shadow-xl shadow-brand-yellow/20 flex items-center justify-center gap-2">
               <span>Gerar Meu Número da Sorte</span>
               <i class="fa-solid fa-arrow-right"></i>
             </button>
-
-            <p class="text-[11px] text-gray-500 text-center">Ao se cadastrar, você concorda com o regulamento do sorteio oficial Gotrix.</p>
           </form>
 
           <div id="raffle-success-card" class="hidden text-center space-y-4 py-2">
@@ -285,10 +388,14 @@
             </div>
 
             <div class="pt-2 flex flex-col gap-2.5">
-              <!-- BOTÃO WHATSAPP DO TICKET -->
               <a id="share-whatsapp-ticket-btn" href="#" target="_blank" class="w-full bg-whatsapp-green hover:bg-whatsapp-greenDark text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm uppercase flex items-center justify-center gap-2.5 transition-all shadow-md hover:scale-[1.02]">
                 <i class="fa-brands fa-whatsapp text-lg"></i> Salvar Comprovante no Meu WhatsApp
               </a>
+
+              <a id="success-instagram-btn" href="https://instagram.com/gotrix.curitiba" target="_blank" class="w-full bg-gradient-to-r from-instagram-pink to-instagram-purple hover:opacity-90 text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm uppercase flex items-center justify-center gap-2.5 transition-all shadow-md hover:scale-[1.02]">
+                <i class="fa-brands fa-instagram text-lg"></i> <span>Siga o Instagram @gotrix.curitiba</span>
+              </a>
+
               <button type="button" onclick="window.resetRaffleForm()" class="text-xs text-gray-400 hover:text-white underline pt-1">Fazer outra inscrição</button>
             </div>
           </div>
@@ -377,7 +484,6 @@
           </div>
 
           <div class="space-y-2 pt-2">
-            <!-- BOTÃO WHATSAPP DO MODAL -->
             <a id="modal-prod-whatsapp-btn" href="#" target="_blank" class="w-full bg-whatsapp-green hover:bg-whatsapp-greenDark text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm uppercase flex items-center justify-center gap-2.5 transition-all shadow-md hover:scale-[1.02]">
               <i class="fa-brands fa-whatsapp text-lg"></i> Resgatar Desconto no WhatsApp
             </a>
@@ -592,7 +698,7 @@
         </div>
       </div>
 
-      <!-- ABA 3: GESTÃO DO CATÁLOGO COM ADIÇÃO DINÂMICA DE MÍDIAS -->
+      <!-- ABA 3: GESTÃO DO CATÁLOGO -->
       <div id="admin-tab-catalog-crud" class="hidden space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div class="bg-brand-darkCard p-6 rounded-2xl border border-brand-darkBorder space-y-4">
@@ -786,6 +892,27 @@
               </div>
             </div>
 
+            <!-- NOVOS CAMPOS: EDIÇÃO DE MENSAGENS E LINKS DO WHATSAPP E INSTAGRAM -->
+            <div class="p-4 bg-brand-black rounded-xl border border-brand-yellow/30 space-y-3">
+              <label class="block text-xs font-black text-brand-yellow uppercase">
+                <i class="fa-solid fa-comments mr-1"></i> Gestão de Mensagens e Links de WhatsApp / Instagram
+              </label>
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Link Base do WhatsApp (Atendimento e Catálogo)</label>
+                  <input type="text" id="cms-input-whatsapp-link" placeholder="https://wa.me/5541999999999?text=..." class="w-full bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Link do Instagram (Perfil / Live)</label>
+                  <input type="text" id="cms-input-instagram-link" placeholder="https://instagram.com/gotrix.curitiba" class="w-full bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Texto do Comprovante do WhatsApp (Gerado no Sorteio)</label>
+                  <textarea id="cms-input-whatsapp-ticket-text" rows="4" class="w-full bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white" placeholder="*COMPROVANTE OFICIAL*..."></textarea>
+                </div>
+              </div>
+            </div>
+
             <div class="p-4 bg-brand-black rounded-xl border border-brand-darkBorder space-y-3">
               <label class="block text-xs font-black text-brand-yellow uppercase mb-1">
                 <i class="fa-solid fa-film mr-1"></i> Vídeo de Apresentação da Moto (Armazenado no Storage)
@@ -812,20 +939,14 @@
                 <input type="text" id="cms-input-custom-domain" placeholder="https://sorteio.gotrix.com.br" class="w-full bg-brand-black border border-brand-darkBorder rounded-lg p-2.5 text-xs text-white">
               </div>
               <div>
-                <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Link de Atendimento WhatsApp (Navbar)</label>
-                <input type="text" id="cms-input-whatsapp-link" class="w-full bg-brand-black border border-brand-darkBorder rounded-lg p-2.5 text-xs text-white">
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-bold text-gray-300 uppercase mb-1">URL da Imagem da Logo</label>
-                <input type="text" id="cms-input-logo-url" class="w-full bg-brand-black border border-brand-darkBorder rounded-lg p-2.5 text-xs text-white">
-              </div>
-              <div>
                 <label class="block text-xs font-bold text-gray-300 uppercase mb-1">PIN do Supervisor (4 dígitos)</label>
                 <input type="password" id="cms-input-pin" maxlength="4" class="w-full bg-brand-black border border-brand-darkBorder rounded-lg p-2.5 text-xs text-white">
               </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-300 uppercase mb-1">URL da Imagem da Logo</label>
+              <input type="text" id="cms-input-logo-url" class="w-full bg-brand-black border border-brand-darkBorder rounded-lg p-2.5 text-xs text-white">
             </div>
 
             <button type="submit" class="bg-brand-yellow hover:bg-brand-yellowDark text-black font-black uppercase py-3 px-6 rounded-xl text-xs">
@@ -891,7 +1012,6 @@
 
     window.currentEditingMediaList = [];
 
-    // Catálogo nativo oficial Gotrix
     const GOTRIX_OFFICIAL_DB = {
       'g8': {
         name: 'Scooter Elétrica Gotrix G8 PRO',
@@ -992,6 +1112,8 @@
         video_url: "https://assets.mixkit.co/videos/preview/mixkit-motorcyclist-riding-a-motorbike-on-a-road-in-the-countryside-41662-large.mp4",
         custom_domain: "",
         whatsapp_link: "https://wa.me/5541999999999?text=Ol%C3%A1%2C%20gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20o%20sorteio%20Gotrix!",
+        instagram_link: "https://instagram.com/gotrix.curitiba",
+        whatsapp_ticket_text: "*COMPROVANTE OFICIAL GOTRIX 0KM*\n\n👤 *Participante:* {name}\n🎟️ *Meu Número da Sorte:* {lucky_number}\n⚡ *Prêmio do Sorteio:* {model_interest}\n\n🎁 *Bônus Ativado:* Cupom de R$ 1.000 OFF para compra.\nSiga nosso Instagram: https://instagram.com/gotrix.curitiba\nGuarde esta mensagem para conferência no dia da apuração!",
         pin: "1234",
         custom_logo_url: ""
       },
@@ -1288,7 +1410,6 @@
           </div>
 
           <div class="p-5 pt-0">
-            <!-- BOTÃO WHATSAPP DO CATÁLOGO -->
             <a href="${zapHref}" target="_blank" class="direct-zap-btn w-full bg-whatsapp-green hover:bg-whatsapp-greenDark text-white font-bold py-3 rounded-xl text-xs uppercase flex items-center justify-center gap-2 transition-all shadow-md hover:scale-[1.02]">
               <i class="fa-brands fa-whatsapp text-base"></i> Garantir Meu Desconto
             </a>
@@ -1648,6 +1769,14 @@
       const directZap = document.getElementById('hero-direct-whatsapp-btn');
       if (directZap) directZap.href = window.appState.cms.whatsapp_link;
 
+      const igLink = window.appState.cms.instagram_link || "https://instagram.com/gotrix.curitiba";
+      const navIg = document.getElementById('nav-instagram-btn');
+      if (navIg) navIg.href = igLink;
+      const directIg = document.getElementById('hero-direct-instagram-btn');
+      if (directIg) directIg.href = igLink;
+      const successIg = document.getElementById('success-instagram-btn');
+      if (successIg) successIg.href = igLink;
+
       const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
       setVal('cms-input-title', window.appState.cms.title);
       setVal('cms-input-subtitle', window.appState.cms.subtitle);
@@ -1657,13 +1786,15 @@
       setVal('cms-input-video', window.appState.cms.video_url);
       setVal('cms-input-custom-domain', window.appState.cms.custom_domain);
       setVal('cms-input-whatsapp-link', window.appState.cms.whatsapp_link);
+      setVal('cms-input-instagram-link', window.appState.cms.instagram_link || "https://instagram.com/gotrix.curitiba");
+      setVal('cms-input-whatsapp-ticket-text', window.appState.cms.whatsapp_ticket_text || "*COMPROVANTE OFICIAL GOTRIX 0KM*\n\n👤 *Participante:* {name}\n🎟️ *Meu Número da Sorte:* {lucky_number}\n⚡ *Prêmio do Sorteio:* {model_interest}\n\n🎁 *Bônus Ativado:* Cupom de R$ 1.000 OFF para compra.\nSiga nosso Instagram: https://instagram.com/gotrix.curitiba\nGuarde esta mensagem para conferência no dia da apuração!");
       setVal('cms-input-pin', window.appState.cms.pin);
       setVal('cms-input-logo-url', window.appState.cms.custom_logo_url);
       setVal('supabase-url-input', SUPABASE_URL);
       setVal('supabase-key-input', SUPABASE_KEY);
     }
 
-    // CADASTRO AUTOMÁTICO
+    // CADASTRO AUTOMÁTICO COM MENSAGEM DINÂMICA EDITÁVEL
     window.handleRegistrationSubmit = async function(e) {
       e.preventDefault();
       const btn = document.getElementById('btn-submit-raffle');
@@ -1674,7 +1805,6 @@
 
       const name = document.getElementById('lead-name').value.trim();
       const phone = document.getElementById('lead-phone').value.trim();
-      const email = document.getElementById('lead-email').value.trim();
       const modelInterest = window.appState.cms.title || "Scooter Elétrica 0km";
 
       const urlParams = new URLSearchParams(window.location.search);
@@ -1686,7 +1816,7 @@
         id: 'LEAD_' + Date.now(),
         name,
         phone,
-        email,
+        email: 'naoinformado@gotrix.com',
         model_interest: modelInterest,
         lucky_number: luckyNumber,
         promoter_id: promoterId,
@@ -1702,12 +1832,13 @@
       let cleanLeadPhone = phone.replace(/\D/g, '');
       if (!cleanLeadPhone.startsWith('55')) cleanLeadPhone = '55' + cleanLeadPhone;
 
-      const ticketText = `*COMPROVANTE OFICIAL GOTRIX 0KM*\n\n` +
-        `👤 *Participante:* ${name}\n` +
-        `🎟️ *Meu Número da Sorte:* ${luckyNumber}\n` +
-        `⚡ *Prêmio do Sorteio:* ${modelInterest}\n\n` +
-        `🎁 *Bônus Ativado:* Cupom de R$ 1.000 OFF para compra.\n` +
-        `Guarde esta mensagem para conferência no dia da apuração!`;
+      // Pega o template salvo no CMS ou usa o padrão, substituindo as tags automaticamente
+      let ticketTemplate = window.appState.cms.whatsapp_ticket_text || "*COMPROVANTE OFICIAL GOTRIX 0KM*\n\n👤 *Participante:* {name}\n🎟️ *Meu Número da Sorte:* {lucky_number}\n⚡ *Prêmio do Sorteio:* {model_interest}\n\n🎁 *Bônus Ativado:* Cupom de R$ 1.000 OFF para compra.\nSiga nosso Instagram: https://instagram.com/gotrix.curitiba\nGuarde esta mensagem para conferência no dia da apuração!";
+      
+      const ticketText = ticketTemplate
+        .replace(/{name}/g, name)
+        .replace(/{lucky_number}/g, luckyNumber)
+        .replace(/{model_interest}/g, modelInterest);
 
       const zapTicketBtn = document.getElementById('share-whatsapp-ticket-btn');
       if (zapTicketBtn) {
@@ -2005,277 +2136,6 @@
       });
     }
 
-    // SALVAR PRODUTO COM LISTA DE MÍDIAS CONSOLIDADA
-    window.handleSaveProduct = async function(e) {
-      e.preventDefault();
-      const id = document.getElementById('prod-id').value;
-      const name = document.getElementById('prod-name').value.trim();
-      const type = document.getElementById('prod-type').value.trim();
-      const original_price = parseFloat(document.getElementById('prod-price').value) || 0;
-      const media_type = document.getElementById('prod-media-type').value;
-      const specs_summary = document.getElementById('prod-specs').value.trim();
-
-      if (window.currentEditingMediaList.length === 0) {
-        alert("Por favor, adicione pelo menos 1 foto ou vídeo para este produto!");
-        return;
-      }
-
-      const media_url = window.currentEditingMediaList.join(', ');
-
-      const productPayload = {
-        name,
-        type,
-        original_price,
-        media_type,
-        media_url,
-        specs_summary
-      };
-
-      if (id) {
-        if (supabaseClient) await supabaseClient.from('catalog_products').update(productPayload).eq('id', id);
-        const index = window.appState.catalog.findIndex(p => p.id === id);
-        if (index !== -1) window.appState.catalog[index] = { id, ...productPayload };
-      } else {
-        const newId = 'PROD_' + Date.now();
-        if (supabaseClient) await supabaseClient.from('catalog_products').insert([{ id: newId, ...productPayload }]);
-        window.appState.catalog.push({ id: newId, ...productPayload });
-      }
-
-      renderCatalogCards();
-      renderCrudProductsList();
-      window.resetProductForm();
-      alert("Produto e fotos salvos no Supabase com sucesso!");
-    };
-
-    window.editProduct = function(productId) {
-      const prod = window.appState.catalog.find(p => p.id === productId);
-      if (!prod) return;
-
-      document.getElementById('prod-id').value = prod.id;
-      document.getElementById('prod-name').value = prod.name;
-      document.getElementById('prod-type').value = prod.type;
-      document.getElementById('prod-price').value = prod.original_price;
-      document.getElementById('prod-media-type').value = prod.media_type || 'image';
-      document.getElementById('prod-specs').value = prod.specs_summary;
-
-      window.currentEditingMediaList = parseMediaList(prod.media_url);
-      renderActiveMediaPreviewList();
-      
-      document.getElementById('catalog-form-title').innerHTML = '<i class="fa-solid fa-pen-to-square mr-1"></i> Editar Produto';
-      document.getElementById('prod-submit-btn').innerText = 'Atualizar no Supabase';
-      document.getElementById('cancel-edit-prod-btn').classList.remove('hidden');
-    };
-
-    window.deleteProduct = async function(productId) {
-      if (window.appState.catalog.length <= 1) {
-        alert("O catálogo precisa ter pelo menos 1 modelo para exibição.");
-        return;
-      }
-      if (confirm("Deseja remover este produto no Supabase?")) {
-        if (supabaseClient) await supabaseClient.from('catalog_products').delete().eq('id', productId);
-        window.appState.catalog = window.appState.catalog.filter(p => p.id !== productId);
-        renderCatalogCards();
-        renderCrudProductsList();
-      }
-    };
-
-    window.resetProductForm = function() {
-      document.getElementById('product-crud-form').reset();
-      document.getElementById('prod-id').value = '';
-      document.getElementById('import-product-url').value = '';
-      document.getElementById('import-status').classList.add('hidden');
-      document.getElementById('gallery-preview-container').classList.add('hidden');
-      window.currentEditingMediaList = [];
-      renderActiveMediaPreviewList();
-      document.getElementById('catalog-form-title').innerHTML = '<i class="fa-solid fa-plus mr-1"></i> Cadastrar Produto';
-      document.getElementById('prod-submit-btn').innerText = 'Salvar Produto no Supabase';
-      document.getElementById('cancel-edit-prod-btn').classList.add('hidden');
-    };
-
-    function renderCrudProductsList() {
-      const container = document.getElementById('crud-products-list-container');
-      if (!container) return;
-      container.innerHTML = '';
-
-      window.appState.catalog.forEach(item => {
-        const discounted = Math.max(0, item.original_price - 1000);
-        const card = document.createElement('div');
-        card.className = "bg-brand-black border border-brand-darkBorder p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-xs";
-        
-        let preview = '';
-        const list = parseMediaList(item.media_url);
-        const first = list[0] || '';
-
-        if (item.media_type === 'video' || first.endsWith('.mp4')) {
-          preview = `<div class="w-16 h-12 bg-brand-darkCard rounded flex items-center justify-center text-brand-yellow"><i class="fa-solid fa-play"></i></div>`;
-        } else {
-          const safeImg = getSafeImageUrl(first);
-          preview = `<img src="${safeImg}" class="w-16 h-12 object-contain bg-brand-darkCard rounded p-1" onerror="this.src='https://placehold.co/100x70/000000/eca900?text=Gotrix'">`;
-        }
-
-        card.innerHTML = `
-          <div class="flex items-center gap-3 w-full sm:w-auto">
-            ${preview}
-            <div>
-              <div class="font-black text-white text-sm">${item.name} <span class="text-[10px] text-gray-500 font-normal">(${list.length} fotos)</span></div>
-              <div class="text-[11px] text-gray-400">${item.type} • ${item.specs_summary}</div>
-              <div class="text-[11px] mt-0.5">
-                <span class="text-gray-500 line-through">R$ ${Number(item.original_price).toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
-                <span class="text-brand-yellow font-bold ml-2">Com cupom: R$ ${discounted.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-            <button onclick="window.editProduct('${item.id}')" class="bg-brand-darkCardAlt hover:bg-gray-800 text-brand-yellow border border-brand-darkBorder px-3 py-1.5 rounded-lg flex items-center gap-1 font-bold">
-              <i class="fa-solid fa-pen"></i> Editar
-            </button>
-            <button onclick="window.deleteProduct('${item.id}')" class="bg-red-950 hover:bg-red-900 text-red-300 px-3 py-1.5 rounded-lg flex items-center gap-1 font-bold">
-              <i class="fa-solid fa-trash"></i> Excluir
-            </button>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    window.renderKanbanBoard = function() {
-      const filterEl = document.getElementById('kanban-filter-squad');
-      const selectedSquad = filterEl ? filterEl.value : 'ALL';
-      const stages = ['NOVO', 'CONTATADO', 'INTERESSE_CUPOM', 'NEGOCIACAO', 'VENDIDO', 'PERDIDO'];
-      
-      const filteredLeads = selectedSquad === 'ALL' 
-        ? window.appState.leads 
-        : window.appState.leads.filter(l => l.squad_id === selectedSquad);
-
-      const totalLeadsSpan = document.getElementById('kanban-total-leads');
-      if (totalLeadsSpan) totalLeadsSpan.innerText = filteredLeads.length;
-
-      stages.forEach(st => {
-        const container = document.getElementById(`cards-col-${st}`);
-        const countSpan = document.getElementById(`count-col-${st}`);
-        if (!container || !countSpan) return;
-
-        const leadsInStage = filteredLeads.filter(l => l.stage === st);
-        countSpan.innerText = leadsInStage.length;
-        container.innerHTML = '';
-
-        leadsInStage.forEach(lead => {
-          const promo = window.appState.promoters.find(p => p.id === lead.promoter_id);
-          const promoName = promo ? promo.name : 'Stand';
-
-          const card = document.createElement('div');
-          card.className = "bg-brand-black border border-brand-darkBorder p-3 rounded-xl space-y-2 cursor-grab active:cursor-grabbing hover:border-brand-yellow/40 transition-all text-xs";
-          card.draggable = true;
-          card.ondragstart = (e) => e.dataTransfer.setData('text/plain', lead.id);
-
-          const cleanPhone = (lead.phone || '').replace(/\D/g, '');
-          const zapLink = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(`Olá ${lead.name}! Sou consultor Gotrix. Vi que você gerou o número da sorte ${lead.lucky_number} para o sorteio da nossa moto!`)}`;
-
-          card.innerHTML = `
-            <div class="flex items-center justify-between">
-              <span class="font-black text-brand-yellow">${lead.lucky_number}</span>
-              <span class="text-[10px] text-gray-500">${lead.created_at ? new Date(lead.created_at).toLocaleDateString('pt-BR') : ''}</span>
-            </div>
-            <div class="font-bold text-white text-sm truncate">${lead.name}</div>
-            <div class="text-gray-400 text-[11px] truncate"><i class="fa-solid fa-motorcycle text-brand-yellow mr-1"></i>${lead.model_interest}</div>
-            <div class="text-[10px] text-gray-500">Promotor: <span class="text-gray-300 font-semibold">${promoName}</span></div>
-            <div class="pt-2 flex items-center justify-between border-t border-brand-darkBorder">
-              <a href="${zapLink}" target="_blank" class="text-whatsapp-green hover:text-emerald-400 font-bold flex items-center gap-1">
-                <i class="fa-brands fa-whatsapp"></i> Chamar
-              </a>
-              <select onchange="window.updateLeadStage('${lead.id}', this.value)" class="bg-brand-darkCard text-[10px] text-gray-300 rounded px-1.5 py-0.5 border border-brand-darkBorder">
-                <option value="NOVO" ${lead.stage==='NOVO'?'selected':''}>Novo</option>
-                <option value="CONTATADO" ${lead.stage==='CONTATADO'?'selected':''}>Contatado</option>
-                <option value="INTERESSE_CUPOM" ${lead.stage==='INTERESSE_CUPOM'?'selected':''}>Cupom</option>
-                <option value="NEGOCIACAO" ${lead.stage==='NEGOCIACAO'?'selected':''}>Negociação</option>
-                <option value="VENDIDO" ${lead.stage==='VENDIDO'?'selected':''}>Vendido</option>
-                <option value="PERDIDO" ${lead.stage==='PERDIDO'?'selected':''}>Perdido</option>
-              </select>
-            </div>
-          `;
-          container.appendChild(card);
-        });
-      });
-    };
-
-    window.allowDrop = function(e) { e.preventDefault(); };
-    window.handleDrop = function(e, stage) {
-      e.preventDefault();
-      const leadId = e.dataTransfer.getData('text/plain');
-      window.updateLeadStage(leadId, stage);
-    };
-
-    window.updateLeadStage = async function(leadId, newStage) {
-      const lead = window.appState.leads.find(l => l.id === leadId);
-      if (lead) {
-        lead.stage = newStage;
-        if (supabaseClient) {
-          await supabaseClient.from('leads').update({ stage: newStage }).eq('id', leadId);
-        }
-        window.renderKanbanBoard();
-        renderRanking();
-      }
-    };
-
-    function renderRanking() {
-      const tbody = document.getElementById('promoters-ranking-tbody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-
-      const stats = window.appState.promoters.map(p => {
-        const leads = window.appState.leads.filter(l => l.promoter_id === p.id);
-        const sales = leads.filter(l => l.stage === 'VENDIDO').length;
-        const squad = window.appState.squads.find(s => s.id === p.squad_id);
-        return { name: p.name, squadName: squad ? squad.name : '', count: leads.length, sales };
-      }).sort((a, b) => b.count - a.count);
-
-      stats.forEach((st, idx) => {
-        const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx+1}`;
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-brand-darkCardAlt/40";
-        tr.innerHTML = `
-          <td class="p-3 font-bold">${medal}</td>
-          <td class="p-3 font-bold text-white">${st.name}</td>
-          <td class="p-3 text-gray-400">${st.squadName}</td>
-          <td class="p-3 font-black text-brand-yellow">${st.count}</td>
-          <td class="p-3 font-bold text-emerald-400">${st.sales}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    window.runLiveRaffle = function() {
-      if (window.appState.leads.length === 0) {
-        alert("Nenhum lead cadastrado ainda!");
-        return;
-      }
-
-      const numEl = document.getElementById('raffle-winner-number');
-      const nameEl = document.getElementById('raffle-winner-name');
-      const squadEl = document.getElementById('raffle-winner-squad');
-
-      let counter = 0;
-      const interval = setInterval(() => {
-        const rand = window.appState.leads[Math.floor(Math.random() * window.appState.leads.length)];
-        numEl.innerText = rand.lucky_number;
-        nameEl.innerText = rand.name;
-        counter++;
-        if (counter > 25) {
-          clearInterval(interval);
-          const winner = window.appState.leads[Math.floor(Math.random() * window.appState.leads.length)];
-          numEl.innerText = winner.lucky_number;
-          nameEl.innerText = `🎉 Vencedor(a): ${winner.name}`;
-          const promo = window.appState.promoters.find(p => p.id === winner.promoter_id);
-          squadEl.innerText = `Atendido por: ${promo ? promo.name : 'Stand Oficial'}`;
-
-          if (window.confetti) {
-            confetti({ particleCount: 200, spread: 90, origin: { y: 0.5 } });
-          }
-        }
-      }, 80);
-    };
-
     window.handleCmsSave = async function(e) {
       e.preventDefault();
 
@@ -2296,6 +2156,8 @@
         video_url,
         custom_domain: document.getElementById('cms-input-custom-domain').value.trim(),
         whatsapp_link: document.getElementById('cms-input-whatsapp-link').value.trim(),
+        instagram_link: document.getElementById('cms-input-instagram-link').value.trim() || "https://instagram.com/gotrix.curitiba",
+        whatsapp_ticket_text: document.getElementById('cms-input-whatsapp-ticket-text').value.trim(),
         pin: document.getElementById('cms-input-pin').value.trim() || '1234',
         custom_logo_url: document.getElementById('cms-input-logo-url').value.trim()
       };
@@ -2308,7 +2170,7 @@
       applyLogoToAllViews();
       applyCmsSettings();
       renderPromotersList();
-      alert("Configurações e especificações salvas no Supabase com sucesso!");
+      alert("Configurações e mensagens salvas no Supabase com sucesso!");
     };
 
     window.exportLeadsToCsv = function() {
