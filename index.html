@@ -212,7 +212,7 @@
   <!-- 1. VISTA PÚBLICA -->
   <div id="view-landing" class="w-full flex-grow">
     
-    <!-- HEADER COMPACTO -->
+    <!-- CABEÇALHO -->
     <header class="sticky top-0 z-40 bg-brand-surface/90 backdrop-blur-xl border-b border-white/5 px-3 sm:px-6 py-2.5 transition-all">
       <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
         
@@ -252,16 +252,16 @@
       </span>
     </div>
 
-    <!-- BLOCO 1: PLAYER ESTILO TIKTOK / SHORTS 9:16 -->
+    <!-- BLOCO 1: PLAYER ESTILO TIKTOK / SHORTS 9:16 (SEM CORTES) -->
     <section id="bloco-video-section" class="py-4 sm:py-8 px-2 sm:px-4 flex justify-center">
       
-      <!-- CARD VERTICAL SHORTS -->
-      <div class="relative w-full max-w-[375px] sm:max-w-[400px] h-[78vh] min-h-[580px] max-h-[750px] bg-brand-black rounded-[36px] overflow-hidden border border-white/10 shadow-[0_15px_45px_rgba(0,0,0,0.9)] flex items-center justify-center">
+      <!-- CARD VERTICAL SHORTS COM PROPORÇÃO 9:16 RIGOROSA -->
+      <div class="relative w-full max-w-[375px] sm:max-w-[400px] aspect-[9/16] max-h-[82vh] bg-black rounded-[32px] sm:rounded-[36px] overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.95)] flex items-center justify-center">
         
-        <!-- CONTAINER DO VÍDEO (BACKGROUND) -->
+        <!-- CONTAINER DO VÍDEO (OBJETO TOTAL SEM CORTAR A IMAGEM) -->
         <div id="hero-media-container" class="absolute inset-0 w-full h-full z-0 flex items-center justify-center bg-black"></div>
 
-        <!-- GRADIENTE DE PROTEÇÃO CONTRA O TEXTO -->
+        <!-- GRADIENTE SUAVE DE LEITURA (NÃO TAPA O VÍDEO) -->
         <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/90 pointer-events-none z-10"></div>
 
         <!-- TAG SUPERIOR FLUTUANTE -->
@@ -271,10 +271,18 @@
           </span>
         </div>
 
-        <!-- BARRA LATERAL DIREITA DE INTERAÇÕES (ESTILO TIKTOK) -->
-        <div class="absolute right-3 bottom-24 z-30 flex flex-col items-center gap-4">
+        <!-- BARRA LATERAL DIREITA (CONTROLO DE SOM, INSTAGRAM E WHATSAPP) -->
+        <div class="absolute right-3 bottom-24 z-30 flex flex-col items-center gap-3.5">
           
-          <!-- Botão Instagram Curitiba -->
+          <!-- BOTÃO DE ALTERNAR SOM (MUTE / UNMUTE) -->
+          <button type="button" onclick="window.toggleVideoSound()" class="flex flex-col items-center gap-1 group">
+            <div id="sound-btn-icon-wrapper" class="w-11 h-11 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-lg transition-transform active:scale-90">
+              <i id="sound-btn-icon" class="fa-solid fa-volume-xmark text-lg text-brand-yellow"></i>
+            </div>
+            <span id="sound-btn-label" class="text-[9px] font-bold text-white uppercase drop-shadow">Sem Som</span>
+          </button>
+
+          <!-- BOTÃO INSTAGRAM -->
           <a id="hero-direct-instagram-btn-1" href="https://instagram.com/gotrix.curitiba" target="_blank" class="flex flex-col items-center gap-1 group">
             <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center shadow-lg transition-transform active:scale-90 border border-white/20">
               <i class="fa-brands fa-instagram text-xl"></i>
@@ -282,7 +290,7 @@
             <span class="text-[9px] font-bold text-white uppercase drop-shadow">Perfil</span>
           </a>
 
-          <!-- Botão WhatsApp -->
+          <!-- BOTÃO WHATSAPP -->
           <a id="hero-direct-whatsapp-btn" href="https://wa.me/5541999999999" target="_blank" class="flex flex-col items-center gap-1 group">
             <div class="w-11 h-11 rounded-full bg-whatsapp text-white flex items-center justify-center shadow-lg transition-transform active:scale-90 border border-white/20">
               <i class="fa-brands fa-whatsapp text-2xl"></i>
@@ -290,8 +298,8 @@
             <span class="text-[9px] font-bold text-white uppercase drop-shadow">Contato</span>
           </a>
 
-          <!-- Botão Catálogo -->
-          <button onclick="window.scrollToCatalog()" class="flex flex-col items-center gap-1 group">
+          <!-- BOTÃO MOTOS DO CATÁLOGO -->
+          <button type="button" onclick="window.scrollToCatalog()" class="flex flex-col items-center gap-1 group">
             <div class="w-11 h-11 rounded-full bg-brand-surfaceAlt/90 backdrop-blur-md border border-brand-yellow/30 text-brand-yellow flex items-center justify-center shadow-lg transition-transform active:scale-90">
               <i class="fa-solid fa-motorcycle text-lg"></i>
             </div>
@@ -299,7 +307,7 @@
           </button>
         </div>
 
-        <!-- INFORMAÇÕES SOBREPOSTAS NA PARTE INFERIOR (LEGENDA SHORTS) -->
+        <!-- INFORMAÇÕES SOBREPOSTAS NA PARTE INFERIOR (ESTILO SHORTS/TIKTOK) -->
         <div class="absolute bottom-4 left-4 right-16 z-20 space-y-2 pointer-events-auto text-left">
           
           <div>
@@ -311,7 +319,7 @@
             </p>
           </div>
 
-          <!-- MINI ESPECIFICAÇÕES HORIZONTAIS -->
+          <!-- ESPECIFICAÇÕES HORIZONTAIS -->
           <div class="flex items-center gap-1.5 flex-wrap pt-0.5">
             <span class="px-2 py-0.5 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-[10px] text-gray-300 font-bold">
               ⚡ <span id="display-spec-speed" class="text-brand-yellow">75 km/h</span>
@@ -1055,6 +1063,9 @@
       return null;
     }
 
+    window.isVideoMuted = true;
+
+    // RENDERIZADOR UNIVERSAL COM OBJECT-CONTAIN (NÃO CORTA O VÍDEO)
     function renderMediaElement(url) {
       if (!url || url.trim() === '') {
         return `<div class="text-xs text-gray-500 flex flex-col items-center justify-center p-4 text-center"><i class="fa-solid fa-video-slash text-xl mb-1 text-brand-yellow"></i>Sem vídeo configurado.</div>`;
@@ -1064,8 +1075,9 @@
       if (ytId) {
         return `
           <iframe 
-            class="w-full h-full object-cover scale-[1.35] sm:scale-100" 
-            src="https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&controls=0&playsinline=1&loop=1&playlist=${ytId}&rel=0&modestbranding=1" 
+            id="tiktok-iframe-player"
+            class="w-full h-full object-contain pointer-events-auto" 
+            src="https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&controls=0&playsinline=1&loop=1&playlist=${ytId}&enablejsapi=1&rel=0&modestbranding=1" 
             title="Vídeo Gotrix"
             frameborder="0" 
             referrerpolicy="strict-origin-when-cross-origin"
@@ -1077,16 +1089,48 @@
 
       return `
         <video 
+          id="tiktok-native-player"
           src="${url}" 
-          class="w-full h-full object-cover" 
+          class="w-full h-full object-contain" 
           autoplay 
           loop 
           muted 
-          playsinline 
-          controls>
+          playsinline>
         </video>
       `;
     }
+
+    // ALTERNADOR DE SOM (MUTE / UNMUTE)
+    window.toggleVideoSound = function() {
+      window.isVideoMuted = !window.isVideoMuted;
+      
+      const icon = document.getElementById('sound-btn-icon');
+      const label = document.getElementById('sound-btn-label');
+      const ytIframe = document.getElementById('tiktok-iframe-player');
+      const nativeVid = document.getElementById('tiktok-native-player');
+
+      if (window.isVideoMuted) {
+        if (ytIframe && ytIframe.contentWindow) {
+          ytIframe.contentWindow.postMessage('{"event":"command","func":"mute","args":""}', '*');
+        }
+        if (nativeVid) {
+          nativeVid.muted = true;
+        }
+        if (icon) icon.className = "fa-solid fa-volume-xmark text-lg text-brand-yellow";
+        if (label) label.innerText = "Sem Som";
+      } else {
+        if (ytIframe && ytIframe.contentWindow) {
+          ytIframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+          ytIframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[100]}', '*');
+        }
+        if (nativeVid) {
+          nativeVid.muted = false;
+          nativeVid.volume = 1.0;
+        }
+        if (icon) icon.className = "fa-solid fa-volume-high text-lg text-emerald-400";
+        if (label) label.innerText = "Com Som";
+      }
+    };
 
     function parseMediaList(mediaUrl) {
       if (!mediaUrl) return [];
@@ -1384,7 +1428,7 @@
                 <button onclick="window.prevCardMedia('${item.id}', event)" class="carousel-nav-btn absolute left-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-brand-surfaceAlt/80 hover:bg-brand-yellow hover:text-black text-white flex items-center justify-center transition-all z-10 border border-white/5">
                   <i class="fa-solid fa-chevron-left text-[10px]"></i>
                 </button>
-                <button onclick="window.nextCardMedia('${item.id}', event)" class="carousel-nav-btn absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-brand-surfaceAlt/80 hover:bg-brand-yellow hover:text-black text-white flex items-center justify-center transition-all z-10 border border-white/5">
+                <button onclick="window.nextCardMedia('${item.id}', event)" class="carousel-nav-btn absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-brand-surfaceAlt/80 hover:bg-brand-yellow hover:text-black text-white flex items-center justify-center transition-all z-10 border border-white/5">
                   <i class="fa-solid fa-chevron-right text-[10px]"></i>
                 </button>
                 <div id="card-dots-${item.id}" class="absolute bottom-2 inset-x-0 flex justify-center gap-1 z-10"></div>
@@ -1668,6 +1712,9 @@
       }
     };
 
+    // ==========================================
+    // FUNÇÕES DO PAINEL ADMINISTRATIVO
+    // ==========================================
     function renderSupervisorPanel() {
       populateSquadSelects();
       renderMiniSquadsList();
@@ -2303,7 +2350,7 @@
       const specPower = document.getElementById('display-spec-power');
       if (specPower) specPower.innerText = window.appState.cms.spec_power || "3.000W";
 
-      // VÍDEO NO CONTAINER TIKTOK
+      // VÍDEO NO CONTAINER TIKTOK (SEM CORTE)
       const container = document.getElementById('hero-media-container');
       const vUrl = window.appState.cms.video_url;
       if (container) {
