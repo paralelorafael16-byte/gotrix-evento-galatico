@@ -3,31 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sorteio Gotrix 0km | Gotrix Mobilidade Urbana</title>
+  <!-- DIRETIVA OFICIAL EXIGIDA PELO YOUTUBE PARA CORRIGIR O ERRO 153 (HTTP REFERER) -->
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Sorteio Oficial Gotrix 0km | Mobilidade Urbana</title>
   
-  <!-- Tailwind CSS CDN com Paleta Oficial Gotrix -->
+  <!-- Fontes Google: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
           colors: {
             brand: {
-              yellow: '#ECA900',
+              yellow: '#F5B301',
               yellowDark: '#D49500',
-              black: '#000000',
-              darkCard: '#0D0D0D',
-              darkCardAlt: '#141414',
-              darkBorder: '#26210A'
+              yellowGlow: 'rgba(245, 179, 1, 0.15)',
+              black: '#070708',
+              surface: '#0E0F12',
+              surfaceAlt: '#14161C',
+              border: '#1F232D',
+              borderLight: '#2C3240'
             },
             whatsapp: {
-              green: '#25D366',
-              greenDark: '#1EBE5D'
-            },
-            instagram: {
-              pink: '#E1306C',
-              purple: '#833AB4'
+              DEFAULT: '#25D366',
+              dark: '#1EBE5D'
             }
+          },
+          boxShadow: {
+            'glow-yellow': '0 0 35px -5px rgba(245, 179, 1, 0.3)',
+            'glow-card': '0 10px 40px -10px rgba(0, 0, 0, 0.7)',
           }
         }
       }
@@ -40,7 +52,59 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- SCRIPT DE NAVEGAÇÃO E PIN -->
+  <style>
+    body {
+      background-color: #070708;
+      background-image: 
+        radial-gradient(circle at 50% -10%, rgba(245, 179, 1, 0.12) 0%, transparent 60%),
+        radial-gradient(circle at 100% 40%, rgba(245, 179, 1, 0.05) 0%, transparent 40%);
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #070708; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #262a36; border-radius: 999px; }
+    .custom-scroll::-webkit-scrollbar-thumb:hover { background: #F5B301; }
+    
+    .glass-card {
+      background: rgba(14, 15, 18, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    
+    .glass-card-hover {
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-card-hover:hover {
+      transform: translateY(-3px);
+      border-color: rgba(245, 179, 1, 0.35);
+      box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.8), 0 0 25px -5px rgba(245, 179, 1, 0.15);
+    }
+    
+    .btn-glow {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-glow::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      transform: rotate(30deg);
+      animation: shine 4s infinite linear;
+    }
+    @keyframes shine {
+      0% { transform: translate(-100%, -100%) rotate(30deg); }
+      100% { transform: translate(100%, 100%) rotate(30deg); }
+    }
+  </style>
+
+  <!-- NAVEGAÇÃO E SESSÃO -->
   <script>
     window.scrollToForm = function() {
       const el = document.getElementById('bloco-cadastro-section');
@@ -72,13 +136,13 @@
         if (distance < 0) {
           clearInterval(x);
           const timerEl = document.getElementById("countdown-timer-box");
-          if (timerEl) timerEl.innerHTML = "<span class='text-brand-yellow font-black uppercase text-xs sm:text-sm tracking-wider'>Inscrições encerradas! Sorteio dia 05/11 às 15h!</span>";
+          if (timerEl) timerEl.innerHTML = "<span class='text-brand-yellow font-bold uppercase text-xs tracking-wider'>Inscrições encerradas! Sorteio dia 05/11 às 15h ao vivo!</span>";
           return;
         }
 
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
         const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const minutes = Math.floor((distance % (1000 * 60)) / (1000 * 60));
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
         const dEl = document.getElementById("cd-days");
@@ -141,290 +205,302 @@
       sessionStorage.removeItem('gotrix_supervisor_auth');
       window.location.hash = '#landing';
     };
-  </script>
 
-  <style>
-    body { background-color: #000000; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
-    .kanban-col { min-height: auto; height: fit-content; }
-    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-    .custom-scroll::-webkit-scrollbar-track { background: #000000; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: #26210A; border-radius: 4px; }
-    .custom-scroll::-webkit-scrollbar-thumb:hover { background: #ECA900; }
-  </style>
+    function applyPhoneMask(e) {
+      let v = e.target.value.replace(/\D/g, '');
+      if (v.length > 11) v = v.slice(0, 11);
+      if (v.length > 6) {
+        e.target.value = `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
+      } else if (v.length > 2) {
+        e.target.value = `(${v.slice(0, 2)}) ${v.slice(2)}`;
+      } else if (v.length > 0) {
+        e.target.value = `(${v}`;
+      } else {
+        e.target.value = '';
+      }
+    }
+  </script>
 </head>
 <body class="bg-brand-black text-gray-100 font-sans antialiased min-h-screen flex flex-col justify-between custom-scroll" onload="startCountdown()">
 
-  <!-- ======================================================== -->
-  <!-- 1. VISTA PÚBLICA (LANDING PAGE - 3 BLOCOS)               -->
-  <!-- ======================================================== -->
-  <div id="view-landing" class="w-full flex-grow bg-brand-black">
+  <!-- 1. VISTA PÚBLICA -->
+  <div id="view-landing" class="w-full flex-grow">
     
-    <header class="sticky top-0 z-40 bg-brand-black/95 backdrop-blur border-b border-brand-darkBorder px-4 lg:px-8 py-3.5 transition-all">
+    <header class="sticky top-0 z-40 bg-brand-surface/85 backdrop-blur-xl border-b border-white/5 px-4 lg:px-8 py-3.5 transition-all">
       <div class="max-w-7xl mx-auto flex items-center justify-between">
-        <a href="#landing" class="flex items-center gap-2 group cursor-pointer">
+        
+        <a href="#landing" class="flex items-center gap-3 sm:gap-4 group cursor-pointer">
           <div class="brand-logo-container flex items-center">
             <svg class="h-8 sm:h-9 w-auto text-brand-yellow" viewBox="0 0 240 60" fill="none">
-              <path d="M42 30C42 23.37 36.63 18 30 18C23.37 18 18 23.37 18 30C18 36.63 23.37 42 30 42C33.3 42 36.3 40.65 38.5 38.5L34.2 34.2C33.1 35.3 31.6 36 30 36C26.7 36 24 33.3 24 30C24 26.7 26.7 24 30 24C33.3 24 36 26.7 36 30H30V36H42V30Z" fill="#ECA900"/>
-              <circle cx="70" cy="30" r="18" stroke="#ECA900" stroke-width="4"/>
-              <path d="M72 17L62 31H70L68 43L78 29H70L72 17Z" fill="#ECA900"/>
-              <path d="M96 22H118V28H110V42H104V28H96V22Z" fill="#ECA900"/>
-              <path d="M124 22H136C140.4 22 144 25.6 144 30C144 33.1 142.2 35.8 139.6 37.1L145 42H137.5L132.8 37.8H130V42H124V22ZM130 27.5V32.5H135.5C136.9 32.5 138 31.4 138 30C138 28.6 136.9 27.5 135.5 27.5H130Z" fill="#ECA900"/>
-              <rect x="152" y="22" width="6" height="20" fill="#ECA900"/>
-              <path d="M166 22L174 32L166 42H174L178 37L182 42H190L182 32L190 22H182L178 27L174 22H166Z" fill="#ECA900"/>
-              <text x="18" y="54" fill="#ECA900" font-family="Arial, sans-serif" font-weight="900" font-size="8.5" letter-spacing="4">MOBILIDADE URBANA</text>
+              <path d="M42 30C42 23.37 36.63 18 30 18C23.37 18 18 23.37 18 30C18 36.63 23.37 42 30 42C33.3 42 36.3 40.65 38.5 38.5L34.2 34.2C33.1 35.3 31.6 36 30 36C26.7 36 24 33.3 24 30C24 26.7 26.7 24 30 24C33.3 24 36 26.7 36 30H30V36H42V30Z" fill="#F5B301"/>
+              <circle cx="70" cy="30" r="18" stroke="#F5B301" stroke-width="4"/>
+              <path d="M72 17L62 31H70L68 43L78 29H70L72 17Z" fill="#F5B301"/>
+              <path d="M96 22H118V28H110V42H104V28H96V22Z" fill="#F5B301"/>
+              <path d="M124 22H136C140.4 22 144 25.6 144 30C144 33.1 142.2 35.8 139.6 37.1L145 42H137.5L132.8 37.8H130V42H124V22ZM130 27.5V32.5H135.5C136.9 32.5 138 31.4 138 30C138 28.6 136.9 27.5 135.5 27.5H130Z" fill="#F5B301"/>
+              <rect x="152" y="22" width="6" height="20" fill="#F5B301"/>
+              <path d="M166 22L174 32L166 42H174L178 37L182 42H190L182 32L190 22H182L178 27L174 22H166Z" fill="#F5B301"/>
+              <text x="18" y="54" fill="#F5B301" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="8.5" letter-spacing="4">MOBILIDADE URBANA</text>
             </svg>
+          </div>
+
+          <div id="secondary-logo-wrapper" class="hidden items-center gap-3">
+            <span class="h-6 w-px bg-white/20"></span>
+            <div id="secondary-logo-container" class="flex items-center"></div>
           </div>
         </a>
 
-        <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-gray-300">
-          <a href="#bloco-video-section" class="hover:text-brand-yellow transition-colors">O Sorteio</a>
+        <nav class="flex items-center gap-6 sm:gap-8 text-xs font-semibold text-gray-400">
+          <a href="#bloco-video-section" class="hover:text-brand-yellow transition-colors hidden sm:inline">O Sorteio</a>
           <a href="#bloco-cadastro-section" onclick="window.scrollToForm(); return false;" class="hover:text-brand-yellow transition-colors">Quero Participar</a>
-          <a href="#bloco-catalogo-section" onclick="window.scrollToCatalog(); return false;" class="text-brand-yellow hover:text-white transition-colors flex items-center gap-1.5">
-            <i class="fa-solid fa-tag text-xs"></i> Catálogo R$ 1.000 OFF
+          <a href="#bloco-catalogo-section" onclick="window.scrollToCatalog(); return false;" class="text-brand-yellow/90 hover:text-brand-yellow transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-brand-yellow/10 border border-brand-yellow/20 shadow-sm">
+            <i class="fa-solid fa-tag text-[10px]"></i> Catálogo R$ 1.000 OFF
           </a>
         </nav>
-
-        <div class="flex items-center gap-2">
-          <a id="nav-whatsapp-btn" href="https://wa.me/5541999999999" target="_blank" class="bg-whatsapp-green hover:bg-whatsapp-greenDark text-white font-bold px-3.5 py-2 rounded-xl text-xs uppercase flex items-center gap-1.5 shadow transition-all hover:scale-105">
-            <i class="fa-brands fa-whatsapp text-sm"></i>
-            <span class="hidden sm:inline">WhatsApp</span>
-          </a>
-          <a id="nav-instagram-btn" href="https://instagram.com/gotrix.curitiba" target="_blank" class="bg-gradient-to-r from-instagram-pink to-instagram-purple hover:opacity-90 text-white font-bold px-3.5 py-2 rounded-xl text-xs uppercase flex items-center gap-1.5 shadow transition-all hover:scale-105">
-            <i class="fa-brands fa-instagram text-sm"></i>
-            <span class="hidden sm:inline">Instagram</span>
-          </a>
-        </div>
       </div>
     </header>
 
-    <div id="attribution-banner" class="hidden bg-brand-yellow text-black px-4 py-2 text-center text-xs font-black tracking-wide shadow-md">
+    <!-- BANNER DE CONSULTOR -->
+    <div id="attribution-banner" class="hidden bg-brand-yellow text-brand-black px-4 py-2.5 text-center text-xs font-bold shadow-md">
       <span class="flex items-center justify-center gap-2">
         <i class="fa-solid fa-qrcode text-sm"></i>
         <span>Atendimento exclusivo com <strong id="attribution-promoter-name">Consultor Gotrix</strong> • Equipe <span id="attribution-squad-name">Stand Oficial</span></span>
       </span>
     </div>
 
-    <!-- BLOCO 1: VÍDEO DO PRODUTO & ESPECIFICAÇÕES RESPONSIVAS -->
-    <section id="bloco-video-section" class="relative py-8 sm:py-12 md:py-16 px-4 lg:px-8 bg-brand-black">
-      <div class="max-w-5xl mx-auto space-y-6 sm:space-y-8 text-center">
-        <div class="space-y-3 sm:space-y-4">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-yellow/10 border border-brand-yellow/30 text-brand-yellow text-[11px] sm:text-xs font-black uppercase tracking-wider">
-            <i class="fa-solid fa-bolt animate-pulse"></i> Sorteio Oficial Gotrix
+    <!-- BLOCO HERO & VÍDEO -->
+    <section id="bloco-video-section" class="relative py-10 sm:py-16 px-4 lg:px-8">
+      <div class="max-w-5xl mx-auto space-y-8 text-center">
+        
+        <div class="space-y-4">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-yellow/10 border border-brand-yellow/30 text-brand-yellow text-xs font-bold uppercase tracking-wider">
+            <i class="fa-solid fa-bolt text-xs animate-pulse"></i> Sorteio Oficial Gotrix 2026
           </div>
 
-          <h1 id="hero-title" class="text-2xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight text-white leading-tight">
-            Concorra a uma <span class="text-brand-yellow">Scooter Elétrica 0km</span>
+          <h1 id="hero-title" class="text-3xl sm:text-5xl lg:text-6xl font-extrabold uppercase tracking-tight text-white leading-tight">
+            Concorra a uma <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-yellow to-amber-200">Scooter Gotrix 0km</span>
           </h1>
 
-          <p id="hero-subtitle" class="text-xs sm:text-base md:text-lg text-gray-400 max-w-2xl mx-auto font-normal leading-relaxed">
+          <p id="hero-subtitle" class="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto font-normal leading-relaxed">
             Confira a moto que pode ser sua neste sorteio exclusivo Gotrix!
           </p>
         </div>
 
-        <div id="hero-media-container" class="relative rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-brand-darkBorder bg-brand-darkCard aspect-video shadow-2xl max-w-4xl mx-auto flex items-center justify-center"></div>
+        <div id="hero-media-container" class="relative rounded-3xl overflow-hidden border border-white/10 glass-card aspect-video shadow-glow-card max-w-4xl mx-auto flex items-center justify-center bg-brand-black"></div>
 
-        <div id="hero-specs-container" class="grid grid-cols-3 gap-2 sm:gap-4 max-w-3xl mx-auto">
-          <div class="bg-brand-darkCard border border-brand-darkBorder p-2.5 sm:p-4 rounded-xl sm:rounded-2xl text-center flex flex-col justify-center">
-            <span id="display-spec-speed" class="block text-brand-yellow font-black text-sm sm:text-2xl leading-none sm:leading-normal">75 km/h</span>
-            <span class="text-gray-400 text-[10px] sm:text-xs uppercase font-semibold mt-1">Velocidade Máxima</span>
+        <!-- ESPECIFICAÇÕES DINÂMICAS -->
+        <div id="hero-specs-container" class="grid grid-cols-3 gap-3 sm:gap-4 max-w-3xl mx-auto">
+          <div class="glass-card p-3 sm:p-5 rounded-2xl text-center border border-white/5">
+            <span class="text-[10px] sm:text-xs uppercase font-medium text-gray-400 tracking-wider">Velocidade</span>
+            <span id="display-spec-speed" class="block text-brand-yellow font-extrabold text-lg sm:text-3xl mt-1 tracking-tight">75 km/h</span>
           </div>
-          <div class="bg-brand-darkCard border border-brand-darkBorder p-2.5 sm:p-4 rounded-xl sm:rounded-2xl text-center flex flex-col justify-center">
-            <span id="display-spec-range" class="block text-brand-yellow font-black text-sm sm:text-2xl leading-none sm:leading-normal">60 km</span>
-            <span class="text-gray-400 text-[10px] sm:text-xs uppercase font-semibold mt-1">Autonomia por Carga</span>
+          <div class="glass-card p-3 sm:p-5 rounded-2xl text-center border border-white/5">
+            <span class="text-[10px] sm:text-xs uppercase font-medium text-gray-400 tracking-wider">Autonomia</span>
+            <span id="display-spec-range" class="block text-brand-yellow font-extrabold text-lg sm:text-3xl mt-1 tracking-tight">60 km</span>
           </div>
-          <div class="bg-brand-darkCard border border-brand-darkBorder p-2.5 sm:p-4 rounded-xl sm:rounded-2xl text-center flex flex-col justify-center">
-            <span id="display-spec-power" class="block text-brand-yellow font-black text-sm sm:text-2xl leading-none sm:leading-normal">3.000W</span>
-            <span class="text-gray-400 text-[10px] sm:text-xs uppercase font-semibold mt-1">Potência do Motor</span>
+          <div class="glass-card p-3 sm:p-5 rounded-2xl text-center border border-white/5">
+            <span class="text-[10px] sm:text-xs uppercase font-medium text-gray-400 tracking-wider">Potência Motor</span>
+            <span id="display-spec-power" class="block text-brand-yellow font-extrabold text-lg sm:text-3xl mt-1 tracking-tight">3.000W</span>
           </div>
         </div>
 
-        <!-- CONTADOR REGRESSIVO DE ESCASSEZ + CTA SORTEIO 05/11/2026 -->
-        <div id="countdown-timer-box" class="bg-brand-darkCard border-2 border-brand-yellow/40 rounded-2xl p-4 sm:p-5 max-w-3xl mx-auto shadow-2xl space-y-3">
-          <div class="flex items-center justify-center gap-2 text-brand-yellow text-xs sm:text-sm font-black uppercase tracking-wider">
-            <i class="fa-solid fa-hourglass-end animate-bounce"></i>
-            <span>⚠️ Últimas Vagas • O Tempo p/ o Sorteio está Acabando!</span>
+        <!-- REGRESSIVO -->
+        <div id="countdown-timer-box" class="glass-card border border-brand-yellow/30 rounded-3xl p-5 sm:p-6 max-w-3xl mx-auto shadow-glow-yellow space-y-4">
+          <div class="flex items-center justify-center gap-2 text-brand-yellow text-xs sm:text-sm font-bold uppercase tracking-wider">
+            <i class="fa-solid fa-hourglass-half"></i>
+            <span>Inscrições Gratuitas Limitadas • Apuração se Aproximando</span>
           </div>
           
-          <div class="grid grid-cols-4 gap-2 text-center max-w-xl mx-auto">
-            <div class="bg-brand-black p-2.5 rounded-xl border border-brand-darkBorder shadow-inner">
-              <span id="cd-days" class="block text-brand-yellow font-black text-2xl sm:text-3xl">00</span>
-              <span class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-bold">Dias</span>
+          <div class="grid grid-cols-4 gap-2.5 text-center max-w-md mx-auto">
+            <div class="bg-brand-black/80 p-3 rounded-2xl border border-white/5">
+              <span id="cd-days" class="block text-brand-yellow font-extrabold text-2xl sm:text-4xl">00</span>
+              <span class="text-[10px] text-gray-400 uppercase font-semibold">Dias</span>
             </div>
-            <div class="bg-brand-black p-2.5 rounded-xl border border-brand-darkBorder shadow-inner">
-              <span id="cd-hours" class="block text-brand-yellow font-black text-2xl sm:text-3xl">00</span>
-              <span class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-bold">Horas</span>
+            <div class="bg-brand-black/80 p-3 rounded-2xl border border-white/5">
+              <span id="cd-hours" class="block text-brand-yellow font-extrabold text-2xl sm:text-4xl">00</span>
+              <span class="text-[10px] text-gray-400 uppercase font-semibold">Horas</span>
             </div>
-            <div class="bg-brand-black p-2.5 rounded-xl border border-brand-darkBorder shadow-inner">
-              <span id="cd-minutes" class="block text-brand-yellow font-black text-2xl sm:text-3xl">00</span>
-              <span class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-bold">Minutos</span>
+            <div class="bg-brand-black/80 p-3 rounded-2xl border border-white/5">
+              <span id="cd-minutes" class="block text-brand-yellow font-extrabold text-2xl sm:text-4xl">00</span>
+              <span class="text-[10px] text-gray-400 uppercase font-semibold">Minutos</span>
             </div>
-            <div class="bg-brand-black p-2.5 rounded-xl border border-brand-darkBorder shadow-inner">
-              <span id="cd-seconds" class="block text-brand-yellow font-black text-2xl sm:text-3xl">00</span>
-              <span class="text-[9px] sm:text-[10px] text-gray-400 uppercase font-bold">Segundos</span>
+            <div class="bg-brand-black/80 p-3 rounded-2xl border border-white/5">
+              <span id="cd-seconds" class="block text-brand-yellow font-extrabold text-2xl sm:text-4xl">00</span>
+              <span class="text-[10px] text-gray-400 uppercase font-semibold">Segundos</span>
             </div>
           </div>
 
-          <div class="pt-1 text-[11px] sm:text-xs text-gray-300 font-semibold bg-brand-black/60 py-1.5 px-3 rounded-lg border border-brand-darkBorder inline-block">
-            🎁 Sorteio Oficial ao vivo em <strong>05/11/2026 às 15:00</strong> no Instagram <span class="text-brand-yellow font-bold">@gotrix.curitiba</span>!
+          <div class="text-[11px] sm:text-xs text-gray-300 font-medium bg-brand-surfaceAlt/60 py-2 px-4 rounded-xl border border-white/5 inline-block">
+            🎁 Sorteio Oficial ao vivo em <strong>05/11/2026 às 15:00</strong> no Instagram!
           </div>
         </div>
 
-        <div class="flex flex-col items-center justify-center gap-3 max-w-3xl mx-auto pt-2 sm:pt-4">
-          <button onclick="window.scrollToForm()" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-black font-black uppercase tracking-wider py-4 rounded-2xl text-sm sm:text-base transition-all hover:scale-[1.01] shadow-xl shadow-brand-yellow/20 flex items-center justify-center gap-3">
-            <span>Quero Participar do Sorteio</span>
+        <!-- BOTÕES DA HERO -->
+        <div class="flex flex-col items-center justify-center gap-3 max-w-3xl mx-auto pt-2">
+          <button onclick="window.scrollToForm()" class="btn-glow w-full bg-brand-yellow hover:bg-brand-yellowDark text-brand-black font-extrabold uppercase tracking-wider py-4 rounded-2xl text-sm sm:text-base transition-all shadow-glow-yellow flex items-center justify-center gap-3 hover:scale-[1.01]">
+            <span id="display-btn-participate-text">Quero Participar do Sorteio</span>
             <i class="fa-solid fa-arrow-down"></i>
           </button>
           
           <div class="grid grid-cols-2 gap-3 w-full">
-            <a id="hero-direct-whatsapp-btn" href="https://wa.me/5541999999999" target="_blank" class="w-full bg-whatsapp-green hover:bg-whatsapp-greenDark text-white font-bold uppercase py-3.5 px-3 rounded-xl text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-2 hover:scale-[1.01] whitespace-nowrap">
-              <i class="fa-brands fa-whatsapp text-base sm:text-lg"></i>
-              <span>WhatsApp</span>
+            <a id="hero-direct-instagram-btn-1" href="https://instagram.com/gotrix.curitiba" target="_blank" class="w-full bg-gradient-to-r from-rose-500 via-pink-600 to-purple-600 hover:opacity-90 text-white font-bold uppercase py-3.5 px-3 rounded-xl text-xs sm:text-sm transition-all shadow-sm flex items-center justify-center gap-2 hover:scale-[1.01] truncate">
+              <i class="fa-brands fa-instagram text-base sm:text-lg flex-shrink-0"></i>
+              <span id="display-btn-ig1-text" class="truncate">Instagram Curitiba</span>
             </a>
-            <a id="hero-direct-instagram-btn" href="https://instagram.com/gotrix.curitiba" target="_blank" class="w-full bg-gradient-to-r from-instagram-pink to-instagram-purple hover:opacity-90 text-white font-bold uppercase py-3.5 px-3 rounded-xl text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-2 hover:scale-[1.01] whitespace-nowrap">
-              <i class="fa-brands fa-instagram text-base sm:text-lg"></i>
-              <span>Instagram</span>
+            <a id="hero-direct-instagram-btn-2" href="https://instagram.com/gotrixoficial" target="_blank" class="w-full bg-gradient-to-r from-rose-500 via-pink-600 to-purple-600 hover:opacity-90 text-white font-bold uppercase py-3.5 px-3 rounded-xl text-xs sm:text-sm transition-all shadow-sm flex items-center justify-center gap-2 hover:scale-[1.01] truncate">
+              <i class="fa-brands fa-instagram text-base sm:text-lg flex-shrink-0"></i>
+              <span id="display-btn-ig2-text" class="truncate">Instagram Oficial</span>
             </a>
           </div>
+
+          <a id="hero-direct-whatsapp-btn" href="https://wa.me/5541999999999" target="_blank" class="w-full bg-whatsapp hover:bg-whatsapp-dark text-white font-bold uppercase py-3.5 px-3 rounded-xl text-xs sm:text-sm transition-all shadow-sm flex items-center justify-center gap-2 hover:scale-[1.01]">
+            <i class="fa-brands fa-whatsapp text-lg flex-shrink-0"></i>
+            <span id="display-btn-whatsapp-text">Atendimento WhatsApp</span>
+          </a>
         </div>
+
       </div>
     </section>
 
-    <!-- BLOCO 2: FORMULÁRIO -->
-    <section id="bloco-cadastro-section" class="py-12 sm:py-16 px-4 lg:px-8 bg-brand-black border-t border-b border-brand-darkBorder">
+    <!-- FORMULÁRIO -->
+    <section id="bloco-cadastro-section" class="py-14 sm:py-20 px-4 lg:px-8 border-t border-b border-white/5 relative">
       <div class="max-w-xl mx-auto">
-        <div class="bg-brand-darkCard border-2 border-brand-yellow/40 rounded-3xl p-6 sm:p-10 shadow-2xl relative">
-          <div class="absolute -top-3.5 right-8 bg-brand-yellow text-black font-black text-xs uppercase tracking-wider px-4 py-1 rounded-full shadow">
+        <div class="glass-card border border-brand-yellow/30 rounded-3xl p-6 sm:p-10 shadow-glow-card relative">
+          
+          <div class="absolute -top-3.5 right-6 sm:right-8 bg-brand-yellow text-brand-black font-extrabold text-[10px] uppercase tracking-wider px-3.5 py-1 rounded-full shadow-lg">
             Participação 100% Gratuita
           </div>
 
           <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-yellow/10 text-brand-yellow text-xl mb-3">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-brand-yellow/10 text-brand-yellow text-xl mb-3 border border-brand-yellow/20">
               <i class="fa-solid fa-ticket"></i>
             </div>
-            <h2 class="text-2xl sm:text-3xl font-black uppercase text-white tracking-wide">Quero Participar do Sorteio</h2>
-            <p class="text-xs sm:text-sm text-gray-400 mt-2 leading-relaxed">Cadastre-se para concorrer à Scooter Elétrica do vídeo acima e garantir o bônus de R$ 1.000.</p>
+            <h2 class="text-2xl sm:text-3xl font-extrabold uppercase text-white tracking-tight">Garanta seu Número</h2>
+            <p class="text-xs sm:text-sm text-gray-400 mt-2 leading-relaxed">Preencha seus dados para concorrer à Scooter Elétrica e desbloquear seu bônus de R$ 1.000 de desconto no catálogo.</p>
           </div>
 
           <form id="raffle-register-form" onsubmit="window.handleRegistrationSubmit(event)" class="space-y-4">
             <div>
-              <label class="block text-xs font-bold uppercase text-gray-300 mb-1.5">Seu Nome Completo</label>
+              <label class="block text-xs font-semibold uppercase text-gray-300 mb-1.5">Seu Nome Completo</label>
               <div class="relative">
-                <i class="fa-regular fa-user absolute left-3.5 top-3.5 text-gray-500 text-sm"></i>
-                <input type="text" id="lead-name" required placeholder="Ex: Rafael Silva" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand-yellow transition-all">
+                <i class="fa-regular fa-user absolute left-4 top-3.5 text-gray-500 text-sm"></i>
+                <input type="text" id="lead-name" required placeholder="Ex: Rafael Silva" class="w-full bg-brand-black/90 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand-yellow transition-all">
               </div>
             </div>
 
             <div>
-              <label class="block text-xs font-bold uppercase text-gray-300 mb-1.5">WhatsApp com DDD</label>
+              <label class="block text-xs font-semibold uppercase text-gray-300 mb-1.5">WhatsApp com DDD</label>
               <div class="relative">
-                <i class="fa-brands fa-whatsapp absolute left-3.5 top-3.5 text-gray-500 text-base"></i>
-                <input type="tel" id="lead-phone" required placeholder="(41) 99999-9999" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand-yellow transition-all">
+                <i class="fa-brands fa-whatsapp absolute left-4 top-3.5 text-gray-500 text-base"></i>
+                <input type="tel" id="lead-phone" oninput="applyPhoneMask(event)" required placeholder="(41) 99999-9999" class="w-full bg-brand-black/90 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand-yellow transition-all">
               </div>
             </div>
 
-            <div class="p-3 bg-brand-black border border-brand-yellow/20 rounded-xl flex items-center gap-3">
-              <div class="w-8 h-8 rounded-lg bg-brand-yellow/10 text-brand-yellow flex items-center justify-center flex-shrink-0">
+            <div class="p-3.5 bg-brand-black/70 border border-white/5 rounded-xl flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-brand-yellow/10 text-brand-yellow flex items-center justify-center flex-shrink-0 border border-brand-yellow/20">
                 <i class="fa-solid fa-motorcycle"></i>
               </div>
-              <div class="text-[11px] sm:text-xs leading-tight">
-                <span class="text-gray-400 block font-semibold">Prêmio do Sorteio:</span>
-                <span id="form-raffle-model-display" class="font-bold text-brand-yellow">Scooter Elétrica 0km Oficial</span>
+              <div class="text-xs leading-tight">
+                <span class="text-gray-400 block font-medium">Prêmio Sorteado:</span>
+                <span id="form-raffle-model-display" class="font-bold text-brand-yellow">Scooter Elétrica Gotrix 0km</span>
               </div>
             </div>
 
-            <!-- REGULAMENTO EM DROPDOWN & CHECKBOX DE PROTEÇÃO DE DADOS -->
-            <div class="bg-brand-black border border-brand-darkBorder rounded-2xl p-4 space-y-3">
+            <div class="bg-brand-black/60 border border-white/5 rounded-2xl p-4 space-y-3">
               <button type="button" onclick="window.toggleRegulamentoDropdown()" class="w-full flex items-center justify-between text-left text-xs font-bold uppercase text-brand-yellow focus:outline-none">
-                <span class="flex items-center gap-2"><i class="fa-solid fa-file-lines"></i> Ler Regulamento Oficial e Termos</span>
+                <span class="flex items-center gap-2"><i class="fa-solid fa-file-contract"></i> Ler Regulamento Oficial & LGPD</span>
                 <i id="regulamento-chevron" class="fa-solid fa-chevron-down transition-transform"></i>
               </button>
 
-              <div id="regulamento-dropdown-content" class="hidden text-[11px] text-gray-400 space-y-2 pt-2 border-t border-brand-darkBorder leading-relaxed max-h-48 overflow-y-auto custom-scroll pr-1">
-                <p class="font-bold text-gray-300">REGULAMENTO DO SORTEIO:</p>
+              <div id="regulamento-dropdown-content" class="hidden text-[11px] text-gray-400 space-y-2 pt-2 border-t border-white/5 leading-relaxed max-h-48 overflow-y-auto custom-scroll pr-1">
+                <p class="font-bold text-gray-200">REGULAMENTO DO SORTEIO:</p>
                 <ol class="space-y-1 list-decimal pl-4">
-                  <li>Preenchimento do formulário;</li>
+                  <li>Preenchimento completo do formulário;</li>
                   <li>Aceite do compartilhamento das informações e proteção de dados;</li>
-                  <li>Seguir instagram da Gotrix Curitiba;</li>
-                  <li>Inscrição do dia 03/10/26 até o dia 30/10/26 às 00h00;</li>
-                  <li>Sorteio será realizado no dia 05/11/26 às 15h através de live no instagram @gotrix.curitiba;</li>
-                  <li>O sorteado deverá cumprir todos os quesitos acima;</li>
-                  <li>O contemplado deverá retirar o prêmio diretamente na Gotrix Curitiba (Rua Mariano Torres, 401, Centro, Curitiba);</li>
-                  <li>Nenhum custo extra é de responsabilidade da empresa e sim do contemplado.</li>
+                  <li>Seguir o Instagram oficial indicado na divulgação;</li>
+                  <li>Inscrições abertas até 30/10/2026 às 00h00;</li>
+                  <li>Sorteio ao vivo no dia 05/11/2026 às 15h via Instagram oficial;</li>
+                  <li>O contemplado deverá retirar o prêmio na Gotrix Curitiba (Rua Mariano Torres, 401, Centro);</li>
+                  <li>Custos extras de frete ou emplacamento são de responsabilidade do contemplado.</li>
                 </ol>
               </div>
 
-              <div class="pt-2 border-t border-brand-darkBorder flex items-start gap-2.5">
+              <div class="pt-2 border-t border-white/5 flex items-start gap-2.5">
                 <input type="checkbox" id="accept-regulamento" required class="mt-0.5 accent-brand-yellow w-4 h-4 cursor-pointer flex-shrink-0">
                 <label for="accept-regulamento" class="text-[11px] text-gray-300 leading-tight cursor-pointer">
-                  Li e concordo com o <strong class="text-brand-yellow">Regulamento</strong> e autorizo o tratamento dos meus dados para fins de participação e comunicação do sorteio (LGPD).
+                  Li e concordo com o <strong class="text-brand-yellow">Regulamento</strong> e autorizo o contato para apuração e sorteio (LGPD).
                 </label>
               </div>
             </div>
 
-            <button type="submit" id="btn-submit-raffle" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-black font-black uppercase tracking-wider py-4 rounded-xl text-sm transition-all hover:scale-[1.02] shadow-xl shadow-brand-yellow/20 flex items-center justify-center gap-2">
-              <span>Gerar Meu Número da Sorte</span>
+            <button type="submit" id="btn-submit-raffle" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-brand-black font-extrabold uppercase tracking-wider py-4 rounded-xl text-sm transition-all hover:scale-[1.01] shadow-glow-yellow flex items-center justify-center gap-2">
+              <span id="display-btn-submit-form-text">Gerar Meu Número da Sorte</span>
               <i class="fa-solid fa-arrow-right"></i>
             </button>
           </form>
 
-          <div id="raffle-success-card" class="hidden text-center space-y-4 py-2">
-            <div class="w-16 h-16 bg-brand-yellow/20 text-brand-yellow rounded-full flex items-center justify-center mx-auto text-2xl">
+          <!-- COMPROVANTE VIRTUAL -->
+          <div id="raffle-success-card" class="hidden text-center space-y-5 py-2">
+            <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto text-2xl">
               <i class="fa-solid fa-check"></i>
             </div>
-            <h3 class="text-xl font-black uppercase text-white">Inscrição Confirmada!</h3>
-            <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">Clique no botão verde abaixo para enviar e salvar seu comprovante na sua conversa com você mesmo no WhatsApp:</p>
             
-            <div class="bg-brand-black border border-brand-yellow/40 rounded-2xl p-5">
-              <span class="text-xs uppercase text-gray-400 font-bold tracking-wider">Número da Sorte</span>
-              <div id="display-lucky-number" class="text-3xl font-black text-brand-yellow tracking-widest my-1.5">#00000</div>
-              <div id="display-registered-name" class="text-sm font-semibold text-white">Nome do Participante</div>
+            <div>
+              <h3 class="text-2xl font-extrabold uppercase text-white">Inscrição Confirmada!</h3>
+              <p class="text-xs sm:text-sm text-gray-400 mt-1 leading-relaxed">Você está concorrendo oficialmente. Guarde o seu comprovante abaixo:</p>
+            </div>
+            
+            <div class="bg-brand-black border border-brand-yellow/40 rounded-2xl p-6 shadow-inner relative overflow-hidden">
+              <span class="text-xs uppercase text-gray-400 font-bold tracking-widest">Número da Sorte Oficial</span>
+              <div id="display-lucky-number" class="text-4xl font-extrabold text-brand-yellow tracking-widest my-2">#00000</div>
+              <div id="display-registered-name" class="text-sm font-semibold text-white">Participante</div>
             </div>
 
             <div class="bg-brand-yellow/10 border border-brand-yellow/30 p-3.5 rounded-xl text-left text-xs text-brand-yellow flex items-center gap-3">
-              <i class="fa-solid fa-gift text-lg"></i>
-              <span><strong>Bônus de R$ 1.000 Ativado!</strong> Apresente este número da sorte em qualquer loja ou no WhatsApp oficial Gotrix.</span>
+              <i class="fa-solid fa-gift text-xl"></i>
+              <span><strong>Bônus de R$ 1.000 Ativado!</strong> Apresente este comprovante para abater no valor de qualquer scooter do catálogo.</span>
             </div>
 
             <div class="pt-2 flex flex-col gap-2.5">
-              <a id="share-whatsapp-ticket-btn" href="#" target="_blank" class="w-full bg-whatsapp-green hover:bg-whatsapp-greenDark text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm uppercase flex items-center justify-center gap-2.5 transition-all shadow-md hover:scale-[1.02]">
-                <i class="fa-brands fa-whatsapp text-lg"></i> Salvar Comprovante no Meu WhatsApp
+              <a id="share-whatsapp-ticket-btn" href="#" target="_blank" class="w-full bg-whatsapp hover:bg-whatsapp-dark text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm uppercase flex items-center justify-center gap-2.5 transition-all shadow-md hover:scale-[1.02]">
+                <i class="fa-brands fa-whatsapp text-lg"></i> Salvar Comprovante no WhatsApp
               </a>
 
-              <a id="success-instagram-btn" href="https://instagram.com/gotrix.curitiba" target="_blank" class="w-full bg-gradient-to-r from-instagram-pink to-instagram-purple hover:opacity-90 text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm uppercase flex items-center justify-center gap-2.5 transition-all shadow-md hover:scale-[1.02]">
-                <i class="fa-brands fa-instagram text-lg"></i> <span>Siga o Instagram @gotrix.curitiba</span>
+              <a id="success-instagram-btn" href="https://instagram.com/gotrix.curitiba" target="_blank" class="w-full bg-gradient-to-r from-rose-500 via-pink-600 to-purple-600 hover:opacity-90 text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm uppercase flex items-center justify-center gap-2.5 transition-all shadow-md hover:scale-[1.02]">
+                <i class="fa-brands fa-instagram text-lg"></i> Seguir no Instagram
               </a>
 
-              <button type="button" onclick="window.resetRaffleForm()" class="text-xs text-gray-400 hover:text-white underline pt-1">Fazer outra inscrição</button>
+              <button type="button" onclick="window.resetRaffleForm()" class="text-xs text-gray-400 hover:text-white underline pt-1">Cadastrar outro número</button>
             </div>
           </div>
+
         </div>
       </div>
     </section>
 
-    <!-- BLOCO 3: CATÁLOGO -->
-    <section id="bloco-catalogo-section" class="py-16 px-4 lg:px-8 bg-brand-black">
+    <!-- CATÁLOGO -->
+    <section id="bloco-catalogo-section" class="py-16 sm:py-24 px-4 lg:px-8">
       <div class="max-w-7xl mx-auto">
         <div class="text-center max-w-2xl mx-auto mb-12">
-          <div class="inline-flex items-center gap-1.5 text-brand-yellow text-xs font-black uppercase tracking-widest mb-2">
+          <div class="inline-flex items-center gap-1.5 text-brand-yellow text-xs font-bold uppercase tracking-widest mb-2 px-3 py-1 rounded-full bg-brand-yellow/10 border border-brand-yellow/20">
             <i class="fa-solid fa-tag"></i> Desconto Exclusivo
           </div>
-          <h2 class="text-3xl md:text-4xl font-black uppercase text-white tracking-tight">Catálogo com R$ 1.000 OFF</h2>
-          <p class="text-sm text-gray-400 mt-2">Clique em qualquer modelo para abrir os detalhes completos e galeria interativa:</p>
+          <h2 class="text-3xl md:text-4xl font-extrabold uppercase text-white tracking-tight">Catálogo com R$ 1.000 OFF</h2>
+          <p class="text-sm text-gray-400 mt-2">Clique em qualquer modelo para abrir a galeria de fotos e especificações completas:</p>
         </div>
 
         <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
       </div>
     </section>
 
-    <!-- Rodapé Limpo -->
-    <footer class="bg-brand-black border-t border-brand-darkBorder py-8 px-4 text-center">
+    <!-- RODAPÉ -->
+    <footer class="border-t border-white/5 py-10 px-4 text-center glass-card">
       <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="brand-logo-container flex items-center">
           <svg class="h-6 w-auto text-brand-yellow" viewBox="0 0 240 60" fill="none">
-            <path d="M42 30C42 23.37 36.63 18 30 18C23.37 18 18 23.37 18 30C18 36.63 23.37 42 30 42C33.3 42 36.3 40.65 38.5 38.5L34.2 34.2C33.1 35.3 31.6 36 30 36C26.7 36 24 33.3 24 30C24 26.7 26.7 24 30 24C33.3 24 36 26.7 36 30H30V36H42V30Z" fill="#ECA900"/>
-            <circle cx="70" cy="30" r="18" stroke="#ECA900" stroke-width="4"/>
-            <path d="M72 17L62 31H70L68 43L78 29H70L72 17Z" fill="#ECA900"/>
-            <text x="18" y="54" fill="#ECA900" font-family="Arial, sans-serif" font-weight="900" font-size="8.5" letter-spacing="4">MOBILIDADE URBANA</text>
+            <path d="M42 30C42 23.37 36.63 18 30 18C23.37 18 18 23.37 18 30C18 36.63 23.37 42 30 42C33.3 42 36.3 40.65 38.5 38.5L34.2 34.2C33.1 35.3 31.6 36 30 36C26.7 36 24 33.3 24 30C24 26.7 26.7 24 30 24C33.3 24 36 26.7 36 30H30V36H42V30Z" fill="#F5B301"/>
+            <circle cx="70" cy="30" r="18" stroke="#F5B301" stroke-width="4"/>
+            <path d="M72 17L62 31H70L68 43L78 29H70L72 17Z" fill="#F5B301"/>
+            <text x="18" y="54" fill="#F5B301" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="8.5" letter-spacing="4">MOBILIDADE URBANA</text>
           </svg>
         </div>
 
@@ -432,60 +508,85 @@
           © 2026 Gotrix Mobilidade Urbana • Todos os direitos reservados
         </p>
 
-        <span class="text-xs text-gray-600">Gotrix Oficial</span>
+        <span class="text-xs text-gray-600 font-semibold">Gotrix Curitiba Oficial</span>
       </div>
     </footer>
   </div>
 
-  <!-- MODAL / POP-UP DE DETALHES DO PRODUTO -->
+  <!-- BOTÕES FLUTUANTES -->
+  <div class="fixed bottom-6 right-5 z-50 flex flex-col items-end gap-3 pointer-events-auto">
+    <div class="relative group">
+      <div class="absolute bottom-full right-0 mb-3 hidden group-hover:flex flex-col gap-1.5 min-w-[190px] p-2 rounded-2xl glass-card border border-white/10 shadow-2xl backdrop-blur-xl transition-all">
+        <span class="text-[10px] font-bold text-gray-400 uppercase px-2.5 py-1 tracking-wider">Perfis Instagram:</span>
+        <a id="float-ig-curitiba" href="https://instagram.com/gotrix.curitiba" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-white hover:bg-white/10 transition-colors">
+          <i class="fa-brands fa-instagram text-rose-400 text-sm"></i>
+          <span id="float-ig-curitiba-label">Gotrix Curitiba</span>
+        </a>
+        <a id="float-ig-oficial" href="https://instagram.com/gotrixoficial" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-white hover:bg-white/10 transition-colors">
+          <i class="fa-brands fa-instagram text-purple-400 text-sm"></i>
+          <span id="float-ig-oficial-label">Gotrix Oficial</span>
+        </a>
+      </div>
+
+      <button type="button" aria-label="Instagram Gotrix" class="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center shadow-lg hover:scale-110 hover:shadow-rose-500/30 transition-all border border-white/10">
+        <i class="fa-brands fa-instagram text-xl"></i>
+      </button>
+    </div>
+
+    <a id="float-whatsapp-btn" href="https://wa.me/5541999999999" target="_blank" title="Falar no WhatsApp" class="w-12 h-12 rounded-full bg-whatsapp text-white flex items-center justify-center shadow-lg hover:scale-110 hover:shadow-emerald-500/30 transition-all border border-white/10">
+      <i class="fa-brands fa-whatsapp text-2xl"></i>
+    </a>
+  </div>
+
+  <!-- MODAL DE PRODUTO -->
   <div id="product-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-    <div class="bg-brand-darkCard border-2 border-brand-yellow/40 rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl relative my-auto">
+    <div class="glass-card border border-brand-yellow/30 rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl relative my-auto">
       
-      <button onclick="window.closeProductModal()" class="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-brand-black/80 hover:bg-brand-yellow text-white hover:text-black flex items-center justify-center transition-all border border-brand-darkBorder">
-        <i class="fa-solid fa-xmark text-lg"></i>
+      <button onclick="window.closeProductModal()" class="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-brand-surfaceAlt/80 hover:bg-brand-yellow text-white hover:text-brand-black flex items-center justify-center transition-all border border-white/10">
+        <i class="fa-solid fa-xmark text-sm"></i>
       </button>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-0">
         <div class="relative bg-brand-black flex flex-col items-center justify-center p-4 min-h-[300px] sm:min-h-[400px]">
           <div id="modal-carousel-display" class="w-full h-64 sm:h-80 flex items-center justify-center overflow-hidden"></div>
           
-          <button onclick="window.prevModalMedia(event)" class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-brand-black/70 hover:bg-brand-yellow hover:text-black text-white flex items-center justify-center transition-all border border-brand-darkBorder">
-            <i class="fa-solid fa-chevron-left text-sm"></i>
+          <button onclick="window.prevModalMedia(event)" class="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-brand-surfaceAlt/80 hover:bg-brand-yellow hover:text-brand-black text-white flex items-center justify-center transition-all border border-white/10">
+            <i class="fa-solid fa-chevron-left text-xs"></i>
           </button>
-          <button onclick="window.nextModalMedia(event)" class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-brand-black/70 hover:bg-brand-yellow hover:text-black text-white flex items-center justify-center transition-all border border-brand-darkBorder">
-            <i class="fa-solid fa-chevron-right text-sm"></i>
+          <button onclick="window.nextModalMedia(event)" class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-brand-surfaceAlt/80 hover:bg-brand-yellow hover:text-brand-black text-white flex items-center justify-center transition-all border border-white/10">
+            <i class="fa-solid fa-chevron-right text-xs"></i>
           </button>
 
           <div id="modal-thumbnails" class="flex gap-2 mt-3 overflow-x-auto custom-scroll max-w-full pb-1"></div>
         </div>
 
-        <div class="p-6 sm:p-8 flex flex-col justify-between space-y-6 bg-brand-darkCard border-t md:border-t-0 md:border-l border-brand-darkBorder">
+        <div class="p-6 sm:p-8 flex flex-col justify-between space-y-6 bg-brand-surface border-t md:border-t-0 md:border-l border-white/5">
           <div class="space-y-4">
-            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-yellow/10 text-brand-yellow text-xs font-black uppercase tracking-wider border border-brand-yellow/20">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-yellow/10 text-brand-yellow text-xs font-bold uppercase tracking-wider border border-brand-yellow/20">
               <i class="fa-solid fa-bolt text-xs"></i> <span id="modal-prod-type">Categoria</span>
             </div>
 
-            <h2 id="modal-prod-name" class="text-2xl sm:text-3xl font-black uppercase text-white leading-tight">Nome do Modelo</h2>
+            <h2 id="modal-prod-name" class="text-2xl sm:text-3xl font-extrabold uppercase text-white leading-tight">Nome do Modelo</h2>
 
             <div class="space-y-2">
               <span class="text-xs uppercase font-bold text-gray-400 tracking-wider">Ficha Técnica & Destaques</span>
-              <p id="modal-prod-specs" class="text-sm text-gray-300 leading-relaxed bg-brand-black p-3.5 rounded-xl border border-brand-darkBorder"></p>
+              <p id="modal-prod-specs" class="text-sm text-gray-300 leading-relaxed bg-brand-black/60 p-3.5 rounded-xl border border-white/5"></p>
             </div>
 
             <div class="pt-2">
-              <span id="modal-prod-original-price" class="text-sm text-gray-500 line-through"></span>
+              <span id="modal-prod-original-price" class="text-xs text-gray-500 line-through"></span>
               <div class="flex items-baseline gap-2">
-                <span id="modal-prod-final-price" class="text-3xl font-black text-brand-yellow"></span>
+                <span id="modal-prod-final-price" class="text-3xl font-extrabold text-brand-yellow"></span>
                 <span class="text-xs uppercase font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">R$ 1.000 OFF</span>
               </div>
             </div>
           </div>
 
           <div class="space-y-2 pt-2">
-            <a id="modal-prod-whatsapp-btn" href="#" target="_blank" class="w-full bg-whatsapp-green hover:bg-whatsapp-greenDark text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm uppercase flex items-center justify-center gap-2.5 transition-all shadow-md hover:scale-[1.02]">
+            <a id="modal-prod-whatsapp-btn" href="#" target="_blank" class="w-full bg-whatsapp hover:bg-whatsapp-dark text-white font-bold py-3.5 rounded-xl text-xs sm:text-sm uppercase flex items-center justify-center gap-2 transition-all shadow-md hover:scale-[1.01]">
               <i class="fa-brands fa-whatsapp text-lg"></i> Resgatar Desconto no WhatsApp
             </a>
-            <button type="button" onclick="window.closeProductModal()" class="w-full bg-brand-black hover:bg-brand-darkCardAlt text-gray-400 hover:text-white font-bold py-2.5 rounded-xl text-xs border border-brand-darkBorder transition-all">
+            <button type="button" onclick="window.closeProductModal()" class="w-full bg-brand-surfaceAlt hover:bg-brand-border text-gray-400 hover:text-white font-bold py-2.5 rounded-xl text-xs border border-white/5 transition-all">
               Voltar ao Catálogo
             </button>
           </div>
@@ -495,20 +596,20 @@
     </div>
   </div>
 
-  <!-- 2. VISTA DO PROMOTOR -->
-  <div id="view-cracha" class="hidden w-full flex-grow flex items-center justify-center p-4 bg-brand-black">
-    <div class="w-full max-w-sm bg-brand-darkCard border-2 border-brand-yellow/40 rounded-3xl p-6 shadow-2xl text-center space-y-5">
+  <!-- CRACHÁ DO PROMOTOR -->
+  <div id="view-cracha" class="hidden w-full flex-grow flex items-center justify-center p-4">
+    <div class="w-full max-w-sm glass-card border border-brand-yellow/40 rounded-3xl p-6 shadow-glow-card text-center space-y-5">
       <div class="brand-logo-container flex justify-center">
         <svg class="h-8 w-auto text-brand-yellow" viewBox="0 0 240 60" fill="none">
-          <circle cx="70" cy="30" r="18" stroke="#ECA900" stroke-width="4"/>
-          <path d="M72 17L62 31H70L68 43L78 29H70L72 17Z" fill="#ECA900"/>
-          <text x="18" y="54" fill="#ECA900" font-family="Arial, sans-serif" font-weight="900" font-size="8.5" letter-spacing="4">MOBILIDADE URBANA</text>
+          <circle cx="70" cy="30" r="18" stroke="#F5B301" stroke-width="4"/>
+          <path d="M72 17L62 31H70L68 43L78 29H70L72 17Z" fill="#F5B301"/>
+          <text x="18" y="54" fill="#F5B301" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="8.5" letter-spacing="4">MOBILIDADE URBANA</text>
         </svg>
       </div>
 
       <div>
-        <span class="text-[10px] font-black uppercase tracking-widest text-brand-yellow bg-brand-yellow/10 px-3 py-1 rounded-full border border-brand-yellow/20">Crachá Oficial Gotrix</span>
-        <h2 id="badge-promoter-name" class="text-2xl font-black text-white uppercase mt-2">Nome Promotor</h2>
+        <span class="text-[10px] font-extrabold uppercase tracking-widest text-brand-yellow bg-brand-yellow/10 px-3 py-1 rounded-full border border-brand-yellow/20">Crachá Oficial Gotrix</span>
+        <h2 id="badge-promoter-name" class="text-2xl font-extrabold text-white uppercase mt-2">Nome Promotor</h2>
         <p id="badge-squad-name" class="text-xs font-semibold text-gray-400">Squad 1</p>
       </div>
 
@@ -516,30 +617,30 @@
         <div id="badge-qrcode-container"></div>
       </div>
 
-      <p class="text-xs text-gray-400">Aponte a câmera do celular para se inscrever no sorteio e resgatar o cupom de R$ 1.000.</p>
+      <p class="text-xs text-gray-400">Aponte a câmera do celular para se cadastrar no sorteio oficial e ativar o seu bônus de R$ 1.000.</p>
 
       <div class="flex flex-col gap-2 pt-2">
-        <button onclick="window.downloadBadgeQrCode()" class="w-full bg-brand-darkCardAlt hover:bg-gray-800 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-all border border-brand-darkBorder">
+        <button onclick="window.downloadBadgeQrCode()" class="w-full bg-brand-surfaceAlt hover:bg-brand-border text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-all border border-white/5">
           <i class="fa-solid fa-download"></i> Baixar Imagem do QR Code (PNG)
         </button>
-        <button onclick="window.copyBadgeLink()" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-black font-black py-3 rounded-xl text-xs uppercase flex items-center justify-center gap-2 transition-all">
-          <i class="fa-regular fa-copy"></i> Copiar Meu Link de Divulgação
+        <button onclick="window.copyBadgeLink()" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-brand-black font-extrabold py-3 rounded-xl text-xs uppercase flex items-center justify-center gap-2 transition-all shadow-glow-yellow">
+          <i class="fa-regular fa-copy"></i> Copiar Link de Divulgação
         </button>
       </div>
     </div>
   </div>
 
-  <!-- 3. ÁREA DO SUPERVISOR -->
+  <!-- PAINEL DO SUPERVISOR -->
   <div id="view-admin" class="hidden w-full flex-grow bg-brand-black">
-    <header class="bg-brand-darkCard border-b border-brand-darkBorder px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+    <header class="bg-brand-surface border-b border-white/5 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3">
         <div class="brand-logo-container flex items-center">
           <svg class="h-6 w-auto text-brand-yellow" viewBox="0 0 240 60" fill="none">
-            <path d="M72 17L62 31H70L68 43L78 29H70L72 17Z" fill="#ECA900"/>
+            <path d="M72 17L62 31H70L68 43L78 29H70L72 17Z" fill="#F5B301"/>
           </svg>
         </div>
         <div>
-          <h1 class="text-lg font-black uppercase text-white tracking-wide flex items-center gap-2">
+          <h1 class="text-lg font-extrabold uppercase text-white tracking-wide flex items-center gap-2">
             <span>Painel do Supervisor</span>
             <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1.5 font-bold">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -554,86 +655,86 @@
         <button onclick="window.exportLeadsToCsv()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow">
           <i class="fa-solid fa-file-csv"></i> Exportar CSV
         </button>
-        <button onclick="window.lockSupervisorPanel()" class="bg-brand-darkCardAlt hover:bg-red-900/60 border border-brand-darkBorder text-gray-300 hover:text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 transition-colors">
+        <button onclick="window.lockSupervisorPanel()" class="bg-brand-surfaceAlt hover:bg-red-950/60 border border-white/5 text-gray-300 hover:text-red-400 text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 transition-colors">
           <i class="fa-solid fa-lock"></i> Bloquear Painel
         </button>
       </div>
     </header>
 
-    <div class="max-w-7xl mx-auto p-6 space-y-6 bg-brand-black">
-      <div class="flex border-b border-brand-darkBorder gap-2 overflow-x-auto custom-scroll pb-2">
-        <button onclick="window.switchAdminTab('kanban')" id="tab-btn-kanban" class="px-4 py-2.5 text-xs font-bold rounded-lg bg-brand-yellow text-black uppercase transition-all whitespace-nowrap">
+    <div class="max-w-7xl mx-auto p-6 space-y-6">
+      <div class="flex border-b border-white/5 gap-2 overflow-x-auto custom-scroll pb-2">
+        <button onclick="window.switchAdminTab('kanban')" id="tab-btn-kanban" class="px-4 py-2.5 text-xs font-bold rounded-xl bg-brand-yellow text-brand-black uppercase transition-all whitespace-nowrap">
           <i class="fa-solid fa-columns mr-1.5"></i> CRM Kanban
         </button>
-        <button onclick="window.switchAdminTab('squads')" id="tab-btn-squads" class="px-4 py-2.5 text-xs font-bold rounded-lg text-gray-400 hover:text-white uppercase transition-all whitespace-nowrap">
+        <button onclick="window.switchAdminTab('squads')" id="tab-btn-squads" class="px-4 py-2.5 text-xs font-bold rounded-xl text-gray-400 hover:text-white uppercase transition-all whitespace-nowrap">
           <i class="fa-solid fa-users mr-1.5"></i> Equipes & Promotores
         </button>
-        <button onclick="window.switchAdminTab('catalog-crud')" id="tab-btn-catalog-crud" class="px-4 py-2.5 text-xs font-bold rounded-lg text-gray-400 hover:text-white uppercase transition-all whitespace-nowrap">
+        <button onclick="window.switchAdminTab('catalog-crud')" id="tab-btn-catalog-crud" class="px-4 py-2.5 text-xs font-bold rounded-xl text-gray-400 hover:text-white uppercase transition-all whitespace-nowrap">
           <i class="fa-solid fa-motorcycle mr-1.5"></i> Gestão do Catálogo
         </button>
-        <button onclick="window.switchAdminTab('ranking')" id="tab-btn-ranking" class="px-4 py-2.5 text-xs font-bold rounded-lg text-gray-400 hover:text-white uppercase transition-all whitespace-nowrap">
+        <button onclick="window.switchAdminTab('ranking')" id="tab-btn-ranking" class="px-4 py-2.5 text-xs font-bold rounded-xl text-gray-400 hover:text-white uppercase transition-all whitespace-nowrap">
           <i class="fa-solid fa-trophy mr-1.5"></i> Ranking Stand
         </button>
-        <button onclick="window.switchAdminTab('raffle')" id="tab-btn-raffle" class="px-4 py-2.5 text-xs font-bold rounded-lg text-gray-400 hover:text-white uppercase transition-all whitespace-nowrap">
+        <button onclick="window.switchAdminTab('raffle')" id="tab-btn-raffle" class="px-4 py-2.5 text-xs font-bold rounded-xl text-gray-400 hover:text-white uppercase transition-all whitespace-nowrap">
           <i class="fa-solid fa-gift mr-1.5"></i> Sorteador Ao Vivo
         </button>
-        <button onclick="window.switchAdminTab('cms')" id="tab-btn-cms" class="px-4 py-2.5 text-xs font-bold rounded-lg text-gray-400 hover:text-white uppercase transition-all whitespace-nowrap">
-          <i class="fa-solid fa-sliders mr-1.5"></i> Configurações & Supabase
+        <button onclick="window.switchAdminTab('cms')" id="tab-btn-cms" class="px-4 py-2.5 text-xs font-bold rounded-xl text-gray-400 hover:text-white uppercase transition-all whitespace-nowrap">
+          <i class="fa-solid fa-sliders mr-1.5"></i> Controle Total (CMS & Botões)
         </button>
       </div>
 
       <!-- ABA 1: KANBAN -->
       <div id="admin-tab-kanban" class="space-y-4">
-        <div class="bg-brand-darkCard p-4 rounded-2xl border border-brand-darkBorder flex flex-wrap items-center justify-between gap-4">
+        <div class="glass-card p-4 rounded-2xl border border-white/5 flex flex-wrap items-center justify-between gap-4">
           <div class="flex items-center gap-3">
             <span class="text-xs uppercase font-bold text-gray-400">Filtrar por Equipe:</span>
-            <select id="kanban-filter-squad" onchange="window.renderKanbanBoard()" class="bg-brand-black border border-brand-darkBorder rounded-lg px-3 py-1.5 text-xs text-white">
+            <select id="kanban-filter-squad" onchange="window.renderKanbanBoard()" class="bg-brand-black border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white">
               <option value="ALL">Todas as Equipes</option>
             </select>
           </div>
           <div class="text-xs text-gray-400">
-            Total de Inscritos: <strong id="kanban-total-leads" class="text-brand-yellow font-black">0</strong>
+            Total de Inscritos: <strong id="kanban-total-leads" class="text-brand-yellow font-extrabold">0</strong>
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3 items-start pb-4">
-          <div class="bg-brand-darkCard border border-brand-darkBorder rounded-2xl p-3 flex flex-col kanban-col transition-all" ondragover="window.allowDrop(event)" ondrop="window.handleDrop(event, 'NOVO')">
-            <div class="flex items-center justify-between pb-2 mb-2 border-b border-brand-darkBorder text-xs font-bold text-gray-300">
+          <div class="glass-card border border-white/5 rounded-2xl p-3 flex flex-col" ondragover="window.allowDrop(event)" ondrop="window.handleDrop(event, 'NOVO')">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-white/5 text-xs font-bold text-gray-300">
               <span>Novos</span>
               <span id="count-col-NOVO" class="bg-brand-black px-2 py-0.5 rounded-full text-brand-yellow">0</span>
             </div>
             <div id="cards-col-NOVO" class="space-y-2"></div>
           </div>
-          <div class="bg-brand-darkCard border border-brand-darkBorder rounded-2xl p-3 flex flex-col kanban-col transition-all" ondragover="window.allowDrop(event)" ondrop="window.handleDrop(event, 'CONTATADO')">
-            <div class="flex items-center justify-between pb-2 mb-2 border-b border-brand-darkBorder text-xs font-bold text-blue-400">
+          <div class="glass-card border border-white/5 rounded-2xl p-3 flex flex-col" ondragover="window.allowDrop(event)" ondrop="window.handleDrop(event, 'CONTATADO')">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-white/5 text-xs font-bold text-blue-400">
               <span>Contatados</span>
               <span id="count-col-CONTATADO" class="bg-brand-black px-2 py-0.5 rounded-full text-blue-400">0</span>
             </div>
             <div id="cards-col-CONTATADO" class="space-y-2"></div>
           </div>
-          <div class="bg-brand-darkCard border border-brand-darkBorder rounded-2xl p-3 flex flex-col kanban-col transition-all" ondragover="window.allowDrop(event)" ondrop="window.handleDrop(event, 'INTERESSE_CUPOM')">
-            <div class="flex items-center justify-between pb-2 mb-2 border-b border-brand-darkBorder text-xs font-bold text-brand-yellow">
+          <div class="glass-card border border-white/5 rounded-2xl p-3 flex flex-col" ondragover="window.allowDrop(event)" ondrop="window.handleDrop(event, 'INTERESSE_CUPOM')">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-white/5 text-xs font-bold text-brand-yellow">
               <span>Cupom</span>
               <span id="count-col-INTERESSE_CUPOM" class="bg-brand-black px-2 py-0.5 rounded-full text-brand-yellow">0</span>
             </div>
             <div id="cards-col-INTERESSE_CUPOM" class="space-y-2"></div>
           </div>
-          <div class="bg-brand-darkCard border border-brand-darkBorder rounded-2xl p-3 flex flex-col kanban-col transition-all" ondragover="window.allowDrop(event)" ondrop="window.handleDrop(event, 'NEGOCIACAO')">
-            <div class="flex items-center justify-between pb-2 mb-2 border-b border-brand-darkBorder text-xs font-bold text-purple-400">
+          <div class="glass-card border border-white/5 rounded-2xl p-3 flex flex-col" ondragover="window.allowDrop(event)" ondrop="window.handleDrop(event, 'NEGOCIACAO')">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-white/5 text-xs font-bold text-purple-400">
               <span>Negociação</span>
               <span id="count-col-NEGOCIACAO" class="bg-brand-black px-2 py-0.5 rounded-full text-purple-400">0</span>
             </div>
             <div id="cards-col-NEGOCIACAO" class="space-y-2"></div>
           </div>
-          <div class="bg-brand-darkCard border border-brand-darkBorder rounded-2xl p-3 flex flex-col kanban-col transition-all" ondragover="window.allowDrop(event)" ondrop="window.handleDrop(event, 'VENDIDO')">
-            <div class="flex items-center justify-between pb-2 mb-2 border-b border-brand-darkBorder text-xs font-bold text-emerald-400">
+          <div class="glass-card border border-white/5 rounded-2xl p-3 flex flex-col" ondragover="window.allowDrop(event)" ondrop="window.handleDrop(event, 'VENDIDO')">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-white/5 text-xs font-bold text-emerald-400">
               <span>Vendido</span>
               <span id="count-col-VENDIDO" class="bg-brand-black px-2 py-0.5 rounded-full text-emerald-400">0</span>
             </div>
             <div id="cards-col-VENDIDO" class="space-y-2"></div>
           </div>
-          <div class="bg-brand-darkCard border border-brand-darkBorder rounded-2xl p-3 flex flex-col kanban-col transition-all" ondragover="window.allowDrop(event)" ondrop="window.handleDrop(event, 'PERDIDO')">
-            <div class="flex items-center justify-between pb-2 mb-2 border-b border-brand-darkBorder text-xs font-bold text-red-400">
+          <div class="glass-card border border-white/5 rounded-2xl p-3 flex flex-col" ondragover="window.allowDrop(event)" ondrop="window.handleDrop(event, 'PERDIDO')">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-white/5 text-xs font-bold text-red-400">
               <span>Perdido</span>
               <span id="count-col-PERDIDO" class="bg-brand-black px-2 py-0.5 rounded-full text-red-400">0</span>
             </div>
@@ -646,51 +747,51 @@
       <div id="admin-tab-squads" class="hidden space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div class="space-y-6">
-            <div class="bg-brand-darkCard p-6 rounded-2xl border border-brand-darkBorder space-y-4">
-              <h3 class="text-sm font-black uppercase text-brand-yellow tracking-wide flex items-center gap-2">
+            <div class="glass-card p-6 rounded-2xl border border-white/5 space-y-4">
+              <h3 class="text-sm font-bold uppercase text-brand-yellow tracking-wide flex items-center gap-2">
                 <i class="fa-solid fa-layer-group"></i> Criar Nova Equipe / Squad
               </h3>
               <form onsubmit="window.handleCreateSquad(event)" class="space-y-3">
                 <div>
                   <label class="block text-xs text-gray-400 mb-1">Nome da Equipe</label>
-                  <input type="text" id="new-squad-name" required placeholder="Ex: Stand Pavilhão A" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl p-2.5 text-xs text-white">
+                  <input type="text" id="new-squad-name" required placeholder="Ex: Stand Pavilhão A" class="w-full bg-brand-black border border-white/10 rounded-xl p-2.5 text-xs text-white">
                 </div>
-                <button type="submit" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-black font-black py-2.5 rounded-xl text-xs uppercase">
-                  Salvar no Supabase
+                <button type="submit" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-brand-black font-extrabold py-2.5 rounded-xl text-xs uppercase">
+                  Salvar Equipe
                 </button>
               </form>
-              <div class="pt-2 border-t border-brand-darkBorder space-y-2">
+              <div class="pt-2 border-t border-white/5 space-y-2">
                 <span class="text-[11px] font-bold text-gray-400 uppercase">Equipes Ativas:</span>
                 <div id="squads-list-mini" class="space-y-1 max-h-36 overflow-y-auto custom-scroll"></div>
               </div>
             </div>
 
-            <div class="bg-brand-darkCard p-6 rounded-2xl border border-brand-darkBorder space-y-4">
-              <h3 class="text-sm font-black uppercase text-brand-yellow tracking-wide flex items-center gap-2">
+            <div class="glass-card p-6 rounded-2xl border border-white/5 space-y-4">
+              <h3 class="text-sm font-bold uppercase text-brand-yellow tracking-wide flex items-center gap-2">
                 <i class="fa-solid fa-user-plus"></i> Cadastrar Promotor
               </h3>
               <form onsubmit="window.handleCreatePromoter(event)" class="space-y-3">
                 <div>
                   <label class="block text-xs text-gray-400 mb-1">Nome do Promotor</label>
-                  <input type="text" id="new-promoter-name" required placeholder="Ex: Carlos Santos" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl p-2.5 text-xs text-white">
+                  <input type="text" id="new-promoter-name" required placeholder="Ex: Carlos Santos" class="w-full bg-brand-black border border-white/10 rounded-xl p-2.5 text-xs text-white">
                 </div>
                 <div>
                   <label class="block text-xs text-gray-400 mb-1">WhatsApp do Promotor</label>
-                  <input type="tel" id="new-promoter-phone" required placeholder="5541988887777" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl p-2.5 text-xs text-white">
+                  <input type="tel" id="new-promoter-phone" oninput="applyPhoneMask(event)" required placeholder="(41) 98888-7777" class="w-full bg-brand-black border border-white/10 rounded-xl p-2.5 text-xs text-white">
                 </div>
                 <div>
                   <label class="block text-xs text-gray-400 mb-1">Vincular à Equipe (Squad)</label>
-                  <select id="new-promoter-squad" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl p-2.5 text-xs text-white"></select>
+                  <select id="new-promoter-squad" class="w-full bg-brand-black border border-white/10 rounded-xl p-2.5 text-xs text-white"></select>
                 </div>
-                <button type="submit" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-black font-black py-2.5 rounded-xl text-xs uppercase">
-                  Salvar Promotor no Supabase
+                <button type="submit" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-brand-black font-extrabold py-2.5 rounded-xl text-xs uppercase">
+                  Salvar Promotor
                 </button>
               </form>
             </div>
           </div>
 
-          <div class="lg:col-span-2 bg-brand-darkCard p-6 rounded-2xl border border-brand-darkBorder space-y-4">
-            <h3 class="text-sm font-black uppercase text-white tracking-wide">Promotores Cadastrados no Supabase</h3>
+          <div class="lg:col-span-2 glass-card p-6 rounded-2xl border border-white/5 space-y-4">
+            <h3 class="text-sm font-bold uppercase text-white tracking-wide">Promotores Cadastrados</h3>
             <div id="promoters-list-container" class="space-y-3"></div>
           </div>
         </div>
@@ -699,105 +800,79 @@
       <!-- ABA 3: GESTÃO DO CATÁLOGO -->
       <div id="admin-tab-catalog-crud" class="hidden space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="bg-brand-darkCard p-6 rounded-2xl border border-brand-darkBorder space-y-4">
+          <div class="glass-card p-6 rounded-2xl border border-white/5 space-y-4">
             <div class="flex items-center justify-between">
-              <h3 id="catalog-form-title" class="text-sm font-black uppercase text-brand-yellow tracking-wide">
+              <h3 id="catalog-form-title" class="text-sm font-bold uppercase text-brand-yellow tracking-wide">
                 <i class="fa-solid fa-plus mr-1"></i> Cadastrar Produto
               </h3>
               <button id="cancel-edit-prod-btn" onclick="window.resetProductForm()" class="hidden text-[11px] text-gray-400 hover:text-white underline">Cancelar</button>
-            </div>
-
-            <!-- Importador Automático via Link Oficial Gotrix -->
-            <div class="p-3.5 bg-brand-black border border-brand-yellow/30 rounded-xl space-y-2">
-              <label class="block text-xs font-black uppercase text-brand-yellow flex items-center gap-1.5">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> Puxar Fotos do Site Oficial Gotrix
-              </label>
-              <p class="text-[11px] text-gray-400">Cole o link da página do produto para puxar as fotos e dados automaticamente:</p>
-              <div class="flex gap-2">
-                <input type="url" id="import-product-url" placeholder="https://gotrixoficial.com.br/veiculos/..." class="flex-grow bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white focus:border-brand-yellow outline-none">
-                <button type="button" id="btn-import-url" onclick="window.fetchProductFromUrl()" class="bg-brand-yellow hover:bg-brand-yellowDark text-black font-black px-3 py-2 rounded-lg text-xs uppercase flex items-center gap-1.5 whitespace-nowrap transition-all">
-                  <i class="fa-solid fa-cloud-arrow-down"></i> Puxar
-                </button>
-              </div>
-              <div id="import-status" class="text-[11px] font-bold hidden"></div>
-              
-              <div id="gallery-preview-container" class="hidden space-y-1 pt-2 border-t border-brand-darkBorder">
-                <span class="text-[10px] text-gray-400 font-bold uppercase block">Fotos Encontradas (Clique para incluir na lista do carrossel):</span>
-                <div id="gallery-thumbnails" class="flex gap-2 overflow-x-auto custom-scroll pb-1"></div>
-              </div>
             </div>
 
             <form id="product-crud-form" onsubmit="window.handleSaveProduct(event)" class="space-y-4">
               <input type="hidden" id="prod-id">
               <div>
                 <label class="block text-xs text-gray-400 mb-1">Nome do Modelo</label>
-                <input type="text" id="prod-name" required placeholder="Ex: Scooter Gotrix Sport PRO" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="prod-name" required placeholder="Ex: Scooter Gotrix Sport PRO" class="w-full bg-brand-black border border-white/10 rounded-xl p-2.5 text-xs text-white">
               </div>
 
               <div class="grid grid-cols-2 gap-2">
                 <div>
                   <label class="block text-xs text-gray-400 mb-1">Categoria / Potência</label>
-                  <input type="text" id="prod-type" required placeholder="Ex: 3000W • 75 km/h" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl p-2.5 text-xs text-white">
+                  <input type="text" id="prod-type" required placeholder="Ex: 3000W • 75 km/h" class="w-full bg-brand-black border border-white/10 rounded-xl p-2.5 text-xs text-white">
                 </div>
                 <div>
                   <label class="block text-xs text-gray-400 mb-1">Preço de Tabela (R$)</label>
-                  <input type="number" step="0.01" id="prod-price" required placeholder="14999.00" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl p-2.5 text-xs text-white">
+                  <input type="number" step="0.01" id="prod-price" required placeholder="14999.00" class="w-full bg-brand-black border border-white/10 rounded-xl p-2.5 text-xs text-white">
                 </div>
               </div>
 
               <div>
                 <label class="block text-xs text-gray-400 mb-1">Tipo de Mídia Principal</label>
-                <select id="prod-media-type" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl p-2.5 text-xs text-white">
+                <select id="prod-media-type" class="w-full bg-brand-black border border-white/10 rounded-xl p-2.5 text-xs text-white">
                   <option value="image">Galeria de Imagens</option>
                   <option value="video">Vídeo (.mp4)</option>
                 </select>
               </div>
 
-              <!-- GERENCIADOR DE MÍDIAS DO CARROSSEL -->
-              <div class="p-3.5 bg-brand-black border border-brand-darkBorder rounded-2xl space-y-3">
+              <div class="p-3.5 bg-brand-black/70 border border-white/10 rounded-2xl space-y-3">
                 <div class="flex items-center justify-between">
-                  <label class="block text-xs font-black uppercase text-brand-yellow">
-                    <i class="fa-solid fa-images mr-1"></i> Fotos e Vídeos do Carrossel
+                  <label class="block text-xs font-bold uppercase text-brand-yellow">
+                    <i class="fa-solid fa-images mr-1"></i> Mídias do Modelo
                   </label>
-                  <span id="active-media-count" class="text-[10px] text-gray-400 bg-brand-darkCard px-2 py-0.5 rounded-full">0 mídias</span>
+                  <span id="active-media-count" class="text-[10px] text-gray-400 bg-brand-surface px-2 py-0.5 rounded-full">0 mídias</span>
                 </div>
 
                 <div class="space-y-1">
-                  <span class="text-[11px] text-gray-400 font-semibold block">Subir arquivos do seu computador (Selecione vários de uma vez):</span>
-                  <input type="file" id="prod-media-files-input" multiple accept="image/*,video/mp4,video/webm" onchange="window.handleMultipleFileUpload(event)" class="w-full text-[11px] text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:bg-brand-yellow file:text-black file:font-bold file:cursor-pointer hover:file:bg-brand-yellowDark">
-                </div>
-
-                <div class="space-y-1 pt-2 border-t border-brand-darkBorder">
-                  <span class="text-[11px] text-gray-400 font-semibold block">Ou adicionar por Link / URL da Web:</span>
+                  <span class="text-[11px] text-gray-400 font-semibold block">Adicionar por URL:</span>
                   <div class="flex gap-2">
-                    <input type="url" id="manual-media-url-input" placeholder="https://exemplo.com/foto.jpg" class="flex-grow bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white focus:border-brand-yellow outline-none">
-                    <button type="button" onclick="window.addManualMediaUrl()" class="bg-brand-darkCardAlt hover:bg-gray-800 text-brand-yellow border border-brand-darkBorder px-3 py-2 rounded-lg text-xs font-bold uppercase transition-all whitespace-nowrap">
-                      + Adicionar
+                    <input type="url" id="manual-media-url-input" placeholder="https://exemplo.com/foto.jpg" class="flex-grow bg-brand-surface border border-white/10 rounded-lg p-2 text-xs text-white focus:border-brand-yellow outline-none">
+                    <button type="button" onclick="window.addManualMediaUrl()" class="bg-brand-surfaceAlt hover:bg-brand-border text-brand-yellow border border-white/10 px-3 py-2 rounded-lg text-xs font-bold uppercase transition-all whitespace-nowrap">
+                      + Add
                     </button>
                   </div>
                 </div>
 
-                <div class="pt-2 border-t border-brand-darkBorder space-y-1.5">
-                  <span class="text-[10px] text-gray-500 uppercase font-bold block">Fotos ativas neste produto (Clique no X para excluir):</span>
-                  <div id="active-media-preview-list" class="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto custom-scroll p-1 bg-brand-darkCard rounded-xl border border-brand-darkBorder min-h-[70px] items-center justify-center">
-                    <span class="text-[11px] text-gray-600 col-span-4 text-center py-4 font-semibold">Nenhuma foto adicionada ainda.</span>
+                <div class="pt-2 border-t border-white/5 space-y-1.5">
+                  <span class="text-[10px] text-gray-500 uppercase font-bold block">Mídias cadastradas:</span>
+                  <div id="active-media-preview-list" class="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto custom-scroll p-1 bg-brand-surface rounded-xl border border-white/5 min-h-[70px] items-center justify-center">
+                    <span class="text-[11px] text-gray-600 col-span-4 text-center py-4 font-semibold">Nenhuma foto adicionada.</span>
                   </div>
                 </div>
               </div>
 
               <div>
                 <label class="block text-xs text-gray-400 mb-1">Especificações Rápidas</label>
-                <input type="text" id="prod-specs" required placeholder="Ex: 75 km/h • 60 km • Bateria Lítio" class="w-full bg-brand-black border border-brand-darkBorder rounded-xl p-2.5 text-xs text-white">
+                <input type="text" id="prod-specs" required placeholder="Ex: 75 km/h • 60 km • Bateria Lítio" class="w-full bg-brand-black border border-white/10 rounded-xl p-2.5 text-xs text-white">
               </div>
 
-              <button type="submit" id="prod-submit-btn" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-black font-black py-3 rounded-xl text-xs uppercase transition-all">
+              <button type="submit" id="prod-submit-btn" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-brand-black font-extrabold py-3 rounded-xl text-xs uppercase transition-all shadow-glow-yellow">
                 Salvar Produto no Supabase
               </button>
             </form>
           </div>
 
-          <div class="lg:col-span-2 bg-brand-darkCard p-6 rounded-2xl border border-brand-darkBorder space-y-4">
-            <h3 class="text-sm font-black uppercase text-white tracking-wide">Produtos Sincronizados no Supabase</h3>
+          <div class="lg:col-span-2 glass-card p-6 rounded-2xl border border-white/5 space-y-4">
+            <h3 class="text-sm font-bold uppercase text-white tracking-wide">Produtos Sincronizados no Supabase</h3>
             <div id="crud-products-list-container" class="space-y-3"></div>
           </div>
         </div>
@@ -805,11 +880,11 @@
 
       <!-- ABA 4: RANKING -->
       <div id="admin-tab-ranking" class="hidden space-y-6">
-        <div class="bg-brand-darkCard p-6 rounded-2xl border border-brand-darkBorder">
-          <h3 class="text-sm font-black uppercase text-white mb-4">Líderes de Captação no Evento</h3>
+        <div class="glass-card p-6 rounded-2xl border border-white/5">
+          <h3 class="text-sm font-bold uppercase text-white mb-4">Líderes de Captação no Evento</h3>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
-              <thead class="bg-brand-black text-gray-400 uppercase">
+              <thead class="bg-brand-black/80 text-gray-400 uppercase">
                 <tr>
                   <th class="p-3">Posição</th>
                   <th class="p-3">Promotor</th>
@@ -818,7 +893,7 @@
                   <th class="p-3">Vendas</th>
                 </tr>
               </thead>
-              <tbody id="promoters-ranking-tbody" class="divide-y divide-brand-darkBorder text-gray-200"></tbody>
+              <tbody id="promoters-ranking-tbody" class="divide-y divide-white/5 text-gray-200"></tbody>
             </table>
           </div>
         </div>
@@ -826,130 +901,183 @@
 
       <!-- ABA 5: SORTEADOR AO VIVO -->
       <div id="admin-tab-raffle" class="hidden space-y-6">
-        <div class="bg-brand-darkCard p-8 rounded-3xl border border-brand-darkBorder text-center space-y-6 max-w-xl mx-auto">
-          <div class="w-20 h-20 bg-brand-yellow/20 text-brand-yellow rounded-full flex items-center justify-center mx-auto text-3xl">
+        <div class="glass-card p-8 rounded-3xl border border-white/5 text-center space-y-6 max-w-xl mx-auto shadow-glow-card">
+          <div class="w-20 h-20 bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20 rounded-full flex items-center justify-center mx-auto text-3xl">
             <i class="fa-solid fa-gift"></i>
           </div>
           <div>
-            <h2 class="text-2xl font-black uppercase text-white">Sorteio Oficial Gotrix</h2>
-            <p class="text-xs text-gray-400 mt-1">Sorteio aleatório com base nos leads reais do Supabase.</p>
+            <h2 class="text-2xl font-extrabold uppercase text-white">Sorteio Oficial Gotrix</h2>
+            <p class="text-xs text-gray-400 mt-1">Sorteio aleatório certificado com base nos leads reais do banco de dados.</p>
           </div>
 
-          <div id="raffle-winner-box" class="bg-brand-black border-2 border-brand-yellow/30 p-6 rounded-2xl min-h-[140px] flex flex-col items-center justify-center">
+          <div id="raffle-winner-box" class="bg-brand-black/90 border border-brand-yellow/40 p-6 rounded-2xl min-h-[140px] flex flex-col items-center justify-center shadow-inner">
             <span class="text-xs text-gray-500 uppercase font-bold">Número Sorteado</span>
-            <div id="raffle-winner-number" class="text-4xl font-black text-brand-yellow tracking-widest my-1">#-----</div>
+            <div id="raffle-winner-number" class="text-4xl font-extrabold text-brand-yellow tracking-widest my-1">#-----</div>
             <div id="raffle-winner-name" class="text-sm font-bold text-white">Aguardando sorteio...</div>
             <div id="raffle-winner-squad" class="text-xs text-gray-400 mt-1"></div>
           </div>
 
-          <button onclick="window.runLiveRaffle()" class="bg-brand-yellow hover:bg-brand-yellowDark text-black font-black uppercase tracking-wider px-8 py-4 rounded-xl text-sm shadow-xl shadow-brand-yellow/20 transition-all hover:scale-105">
+          <button onclick="window.runLiveRaffle()" class="bg-brand-yellow hover:bg-brand-yellowDark text-brand-black font-extrabold uppercase tracking-wider px-8 py-4 rounded-xl text-sm shadow-glow-yellow transition-all hover:scale-105">
             <i class="fa-solid fa-dice mr-2"></i> Realizar Sorteio Agora
           </button>
         </div>
       </div>
 
-      <!-- ABA 6: CMS E CONFIGURAÇÕES DO SUPABASE -->
+      <!-- ABA 6: CMS, LOGOS & CONTROLE TOTAL DOS BOTÕES -->
       <div id="admin-tab-cms" class="hidden space-y-6">
-        <div class="bg-brand-darkCard p-6 rounded-2xl border border-brand-darkBorder space-y-5">
-          <h3 class="text-sm font-black uppercase text-white">Configurações Globais (Salvas no Supabase)</h3>
+        <div class="glass-card p-6 rounded-2xl border border-white/5 space-y-6">
+          <div class="flex items-center justify-between pb-3 border-b border-white/10">
+            <div>
+              <h3 class="text-base font-extrabold uppercase text-white tracking-wide">Controle Total do Site & Botões</h3>
+              <p class="text-xs text-gray-400 mt-0.5">Altere qualquer texto, link, vídeo do YouTube ou rota de conversão em tempo real.</p>
+            </div>
+            <span class="text-[11px] bg-brand-yellow/10 text-brand-yellow px-3 py-1 rounded-full border border-brand-yellow/20 font-bold uppercase">Sincronização Ativa</span>
+          </div>
           
-          <form onsubmit="window.handleCmsSave(event)" class="space-y-4">
-            <div class="p-4 bg-brand-black rounded-xl border border-emerald-500/40 space-y-3">
-              <div class="flex items-center gap-2 text-emerald-400 text-xs font-black uppercase">
-                <i class="fa-solid fa-cloud"></i> Conexão Supabase Ativa
+          <form onsubmit="window.handleCmsSave(event)" class="space-y-6">
+
+            <!-- VÍDEO DO HERO (YOUTUBE OU ARQUIVO) -->
+            <div class="p-4 bg-brand-black/80 rounded-2xl border border-white/10 space-y-3">
+              <label class="block text-xs font-bold text-brand-yellow uppercase">
+                <i class="fa-brands fa-youtube text-red-500 mr-1.5 text-sm"></i> Link do YouTube ou Vídeo MP4 (Hero)
+              </label>
+              <div class="space-y-2">
+                <span class="text-[11px] text-gray-400 block">Cole o link do YouTube (Vídeo normal, Shorts ou Encurtado):</span>
+                <input type="text" id="cms-input-video" placeholder="Ex: https://www.youtube.com/watch?v=... ou https://youtu.be/..." class="w-full bg-brand-surface border border-white/10 rounded-lg p-2.5 text-xs text-white focus:border-brand-yellow outline-none">
               </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Project URL</label>
-                  <input type="text" id="supabase-url-input" class="w-full bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white" readonly>
-                </div>
-                <div>
-                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Anon Public Key</label>
-                  <input type="text" id="supabase-key-input" class="w-full bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white" readonly>
-                </div>
+              <div class="pt-2 border-t border-white/5">
+                <span class="text-[11px] text-gray-400 block mb-1">Ou suba um arquivo de vídeo (.MP4 / .WEBM):</span>
+                <input type="file" id="cms-video-file-input" accept="video/mp4,video/webm" class="w-full text-xs text-gray-300 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-brand-yellow file:text-brand-black file:font-extrabold file:uppercase file:cursor-pointer hover:file:bg-brand-yellowDark">
               </div>
             </div>
 
-            <div class="p-4 bg-brand-black rounded-xl border border-brand-yellow/30 space-y-3">
-              <label class="block text-xs font-black text-brand-yellow uppercase">
-                <i class="fa-solid fa-gauge-high mr-1"></i> Especificações Rápidas (Abaixo do Vídeo)
+            <!-- ESPECIFICAÇÕES RÁPIDAS -->
+            <div class="p-4 bg-brand-black/80 rounded-2xl border border-white/10 space-y-3">
+              <label class="block text-xs font-bold text-brand-yellow uppercase">
+                <i class="fa-solid fa-gauge-high mr-1.5"></i> Especificações Abaixo do Vídeo
               </label>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Velocidade Máxima</label>
-                  <input type="text" id="cms-input-spec-speed" placeholder="Ex: 75 km/h" class="w-full bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white">
+                  <label class="block text-[11px] text-gray-400 font-bold uppercase mb-1">Velocidade Máxima</label>
+                  <input type="text" id="cms-input-spec-speed" placeholder="Ex: 75 km/h" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2 text-xs text-white">
                 </div>
                 <div>
-                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Autonomia por Carga</label>
-                  <input type="text" id="cms-input-spec-range" placeholder="Ex: 60 km" class="w-full bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white">
+                  <label class="block text-[11px] text-gray-400 font-bold uppercase mb-1">Autonomia por Carga</label>
+                  <input type="text" id="cms-input-spec-range" placeholder="Ex: 60 km" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2 text-xs text-white">
                 </div>
                 <div>
-                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Potência do Motor</label>
-                  <input type="text" id="cms-input-spec-power" placeholder="Ex: 3.000W" class="w-full bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white">
+                  <label class="block text-[11px] text-gray-400 font-bold uppercase mb-1">Potência do Motor</label>
+                  <input type="text" id="cms-input-spec-power" placeholder="Ex: 3.000W" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2 text-xs text-white">
                 </div>
               </div>
             </div>
 
-            <!-- CAMPOS EDITÁVEIS DE MENSAGENS E LINKS -->
-            <div class="p-4 bg-brand-black rounded-xl border border-brand-yellow/30 space-y-3">
-              <label class="block text-xs font-black text-brand-yellow uppercase">
-                <i class="fa-solid fa-comments mr-1"></i> Gestão de Mensagens e Links de WhatsApp / Instagram
+            <!-- LOGOS -->
+            <div class="p-4 bg-brand-black/80 rounded-2xl border border-white/10 space-y-3">
+              <label class="block text-xs font-bold text-brand-yellow uppercase">
+                <i class="fa-solid fa-image mr-1.5"></i> Identidade Visual (Logos do Cabeçalho)
               </label>
-              <div class="space-y-3">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Link Base do WhatsApp (Atendimento e Catálogo)</label>
-                  <input type="text" id="cms-input-whatsapp-link" placeholder="https://wa.me/5541999999999?text=..." class="w-full bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white">
+                  <label class="block text-xs font-bold text-gray-300 uppercase mb-1">URL Imagem Logo Gotrix</label>
+                  <input type="text" id="cms-input-logo-url" placeholder="Deixe em branco para usar o vetor original" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2.5 text-xs text-white focus:border-brand-yellow outline-none">
                 </div>
                 <div>
-                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Link do Instagram (Perfil / Live)</label>
-                  <input type="text" id="cms-input-instagram-link" placeholder="https://instagram.com/gotrix.curitiba" class="w-full bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white">
-                </div>
-                <div>
-                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Texto do Comprovante do WhatsApp (Gerado no Sorteio)</label>
-                  <textarea id="cms-input-whatsapp-ticket-text" rows="4" class="w-full bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white" placeholder="*COMPROVANTE OFICIAL*..."></textarea>
-                  <span class="text-[10px] text-gray-500">Dica: Use <code class="text-brand-yellow">{name}</code> para o nome e <code class="text-brand-yellow">{lucky_number}</code> para o número da sorte.</span>
+                  <label class="block text-xs font-bold text-gray-300 uppercase mb-1">URL Segunda Logo (Parceiro / Stand)</label>
+                  <input type="text" id="cms-input-secondary-logo-url" placeholder="https://exemplo.com/logo-parceiro.png" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2.5 text-xs text-white focus:border-brand-yellow outline-none">
                 </div>
               </div>
             </div>
 
-            <div class="p-4 bg-brand-black rounded-xl border border-brand-darkBorder space-y-3">
-              <label class="block text-xs font-black text-brand-yellow uppercase mb-1">
-                <i class="fa-solid fa-film mr-1"></i> Vídeo de Apresentação da Moto (Armazenado no Storage)
-              </label>
-              <input type="file" id="cms-video-file-input" accept="video/mp4,video/webm" class="w-full text-xs text-gray-300 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-brand-yellow file:text-black file:font-black file:uppercase file:cursor-pointer hover:file:bg-brand-yellowDark">
-              <p class="text-[11px] text-gray-500">Ou informe a URL direta de um vídeo .MP4:</p>
-              <input type="text" id="cms-input-video" placeholder="https://..." class="w-full bg-brand-darkCard border border-brand-darkBorder rounded-lg p-2 text-xs text-white">
-            </div>
-
+            <!-- TÍTULOS E CHAMADAS -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Título do Banner Hero (Prêmio do Sorteio)</label>
-                <input type="text" id="cms-input-title" class="w-full bg-brand-black border border-brand-darkBorder rounded-lg p-2.5 text-xs text-white">
+                <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Título do Banner Hero</label>
+                <input type="text" id="cms-input-title" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2.5 text-xs text-white">
               </div>
               <div>
                 <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Subtítulo / Chamada</label>
-                <input type="text" id="cms-input-subtitle" class="w-full bg-brand-black border border-brand-darkBorder rounded-lg p-2.5 text-xs text-white">
+                <input type="text" id="cms-input-subtitle" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2.5 text-xs text-white">
               </div>
             </div>
 
+            <!-- BOTÕES E LINKS -->
+            <div class="p-4 bg-brand-black/80 rounded-2xl border border-brand-yellow/30 space-y-4">
+              <div class="flex items-center justify-between border-b border-white/5 pb-2">
+                <label class="block text-xs font-bold text-brand-yellow uppercase">
+                  <i class="fa-solid fa-link mr-1.5"></i> Customização de Todos os Botões & Links
+                </label>
+                <span class="text-[10px] text-gray-400">Controle de Textos e Destinos</span>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Texto Botão Amarelo Hero</label>
+                  <input type="text" id="cms-input-btn-participate-text" placeholder="Ex: Quero Participar do Sorteio" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Texto Botão de Envio do Formulário</label>
+                  <input type="text" id="cms-input-btn-submit-form-text" placeholder="Ex: Gerar Meu Número da Sorte" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2 text-xs text-white">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-white/5">
+                <div>
+                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Texto Botão Instagram 1</label>
+                  <input type="text" id="cms-input-btn-ig1-text" placeholder="Ex: Instagram Curitiba" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Link do Instagram 1</label>
+                  <input type="text" id="cms-input-instagram-link-1" placeholder="https://instagram.com/gotrix.curitiba" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2 text-xs text-white">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-white/5">
+                <div>
+                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Texto Botão Instagram 2</label>
+                  <input type="text" id="cms-input-btn-ig2-text" placeholder="Ex: Instagram Oficial" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Link do Instagram 2</label>
+                  <input type="text" id="cms-input-instagram-link-2" placeholder="https://instagram.com/gotrixoficial" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2 text-xs text-white">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-white/5">
+                <div>
+                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Texto Botão WhatsApp</label>
+                  <input type="text" id="cms-input-btn-whatsapp-text" placeholder="Ex: Atendimento WhatsApp" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Link Base do WhatsApp</label>
+                  <input type="text" id="cms-input-whatsapp-link" placeholder="https://wa.me/5541999999999?text=..." class="w-full bg-brand-surface border border-white/10 rounded-lg p-2 text-xs text-white">
+                </div>
+              </div>
+            </div>
+
+            <!-- COMPROVANTE WHATSAPP -->
+            <div class="p-4 bg-brand-black/80 rounded-2xl border border-white/10 space-y-3">
+              <label class="block text-xs font-bold text-brand-yellow uppercase">
+                <i class="fa-solid fa-comment-dots mr-1.5"></i> Texto do Comprovante Virtual Enviado ao Lead
+              </label>
+              <textarea id="cms-input-whatsapp-ticket-text" rows="4" class="w-full bg-brand-surface border border-white/10 rounded-lg p-3 text-xs text-white leading-relaxed focus:border-brand-yellow outline-none"></textarea>
+              <span class="text-[10px] text-gray-500 block">Variáveis aceitas: <code class="text-brand-yellow font-bold">{name}</code>, <code class="text-brand-yellow font-bold">{lucky_number}</code> e <code class="text-brand-yellow font-bold">{model_interest}</code>.</span>
+            </div>
+
+            <!-- DOMÍNIO E PIN -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Domínio Oficial do Evento</label>
-                <input type="text" id="cms-input-custom-domain" placeholder="https://sorteio.gotrix.com.br" class="w-full bg-brand-black border border-brand-darkBorder rounded-lg p-2.5 text-xs text-white">
+                <input type="text" id="cms-input-custom-domain" placeholder="https://sorteio.gotrix.com.br" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2.5 text-xs text-white">
               </div>
               <div>
                 <label class="block text-xs font-bold text-gray-300 uppercase mb-1">PIN do Supervisor (4 dígitos)</label>
-                <input type="password" id="cms-input-pin" maxlength="4" class="w-full bg-brand-black border border-brand-darkBorder rounded-lg p-2.5 text-xs text-white">
+                <input type="password" id="cms-input-pin" maxlength="4" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2.5 text-xs text-white">
               </div>
             </div>
 
-            <div>
-              <label class="block text-xs font-bold text-gray-300 uppercase mb-1">URL da Imagem da Logo</label>
-              <input type="text" id="cms-input-logo-url" class="w-full bg-brand-black border border-brand-darkBorder rounded-lg p-2.5 text-xs text-white">
-            </div>
-
-            <button type="submit" class="bg-brand-yellow hover:bg-brand-yellowDark text-black font-black uppercase py-3 px-6 rounded-xl text-xs">
-              Salvar Tudo no Supabase
+            <button type="submit" class="w-full sm:w-auto bg-brand-yellow hover:bg-brand-yellowDark text-brand-black font-extrabold uppercase py-3.5 px-8 rounded-xl text-xs shadow-glow-yellow transition-all hover:scale-105">
+              Salvar Todas as Configurações no Supabase
             </button>
           </form>
         </div>
@@ -957,29 +1085,29 @@
     </div>
   </div>
 
-  <!-- MODAL DE PIN DO SUPERVISOR -->
-  <div id="pin-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-brand-darkCard border border-brand-darkBorder rounded-3xl p-6 w-full max-w-xs text-center space-y-4 shadow-2xl">
-      <div class="w-12 h-12 bg-brand-yellow/10 text-brand-yellow rounded-full flex items-center justify-center mx-auto text-xl">
+  <!-- MODAL DE PIN -->
+  <div id="pin-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-card border border-brand-yellow/30 rounded-3xl p-6 w-full max-w-xs text-center space-y-4 shadow-2xl">
+      <div class="w-12 h-12 bg-brand-yellow/10 text-brand-yellow rounded-full flex items-center justify-center mx-auto text-xl border border-brand-yellow/20">
         <i class="fa-solid fa-lock"></i>
       </div>
       <div>
-        <h3 class="text-sm font-black uppercase text-white">Acesso Supervisor</h3>
+        <h3 class="text-sm font-extrabold uppercase text-white">Acesso Supervisor</h3>
         <p class="text-xs text-gray-400 mt-1">Digite o PIN de 4 dígitos:</p>
       </div>
 
-      <input type="password" id="supervisor-pin-input" maxlength="4" placeholder="••••" class="w-full text-center tracking-[0.5em] text-2xl font-black bg-brand-black border border-brand-darkBorder rounded-xl p-3 text-brand-yellow focus:outline-none focus:border-brand-yellow">
+      <input type="password" id="supervisor-pin-input" maxlength="4" placeholder="••••" class="w-full text-center tracking-[0.5em] text-2xl font-extrabold bg-brand-black border border-white/10 rounded-xl p-3 text-brand-yellow focus:outline-none focus:border-brand-yellow">
       <p id="pin-error" class="hidden text-xs text-red-500 font-bold">PIN incorreto. Tente novamente.</p>
 
       <div class="flex gap-2">
-        <button onclick="window.closePinModal()" class="w-1/2 bg-brand-darkCardAlt text-gray-300 font-bold py-2.5 rounded-xl text-xs border border-brand-darkBorder">Cancelar</button>
-        <button onclick="window.verifySupervisorPin()" class="w-1/2 bg-brand-yellow text-black font-black py-2.5 rounded-xl text-xs uppercase">Entrar</button>
+        <button onclick="window.closePinModal()" class="w-1/2 bg-brand-surfaceAlt text-gray-300 font-bold py-2.5 rounded-xl text-xs border border-white/10">Cancelar</button>
+        <button onclick="window.verifySupervisorPin()" class="w-1/2 bg-brand-yellow text-brand-black font-extrabold py-2.5 rounded-xl text-xs uppercase shadow-glow-yellow">Entrar</button>
       </div>
     </div>
   </div>
 
   <!-- ======================================================== -->
-  <!-- JAVASCRIPT: SUPABASE SDK, CARROSSEL & GESTÃO DINÂMICA    -->
+  <!-- JAVASCRIPT GLOBAL                                        -->
   <!-- ======================================================== -->
   <script>
     const SUPABASE_URL = "https://yjcrnwcyuujkizluuoou.supabase.co";
@@ -991,7 +1119,7 @@
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
       }
     } catch (e) {
-      console.warn("Supabase client fallback:", e);
+      console.warn("Supabase init offline:", e);
     }
 
     function getSafeImageUrl(rawUrl) {
@@ -1000,7 +1128,91 @@
       if (clean.includes('images.weserv.nl') || clean.startsWith('data:') || clean.includes('placehold.co')) {
         return clean;
       }
-      return `https://images.weserv.nl/?url=${encodeURIComponent(clean)}&default=${encodeURIComponent('https://placehold.co/400x260/0d0d0d/eca900?text=Gotrix')}`;
+      return `https://images.weserv.nl/?url=${encodeURIComponent(clean)}&default=${encodeURIComponent('https://placehold.co/400x260/0d0d0d/f5b301?text=Gotrix')}`;
+    }
+
+    // EXTRAÇÃO ROBUSTA DE ID DO YOUTUBE
+    function extractYouTubeId(url) {
+      if (!url) return null;
+      const clean = url.trim();
+      
+      if (clean.includes('/shorts/')) {
+        const parts = clean.split('/shorts/');
+        if (parts[1]) return parts[1].split(/[?&#]/)[0];
+      }
+      
+      if (clean.includes('youtu.be/')) {
+        const parts = clean.split('youtu.be/');
+        if (parts[1]) return parts[1].split(/[?&#]/)[0];
+      }
+      
+      if (clean.includes('v=')) {
+        const parts = clean.split('v=');
+        if (parts[1]) return parts[1].split(/[?&#]/)[0];
+      }
+
+      if (clean.includes('/embed/')) {
+        const parts = clean.split('/embed/');
+        if (parts[1]) return parts[1].split(/[?&#]/)[0];
+      }
+
+      return null;
+    }
+
+    // RENDERIZADOR UNIVERSAL DE MÍDIA COM PREVENÇÃO DO ERRO 153
+    function renderMediaElement(url) {
+      if (!url || url.trim() === '') {
+        return `<div class="text-xs text-gray-500 flex flex-col items-center justify-center p-6"><i class="fa-solid fa-video-slash text-2xl mb-2 text-brand-yellow"></i>Nenhum vídeo configurado.</div>`;
+      }
+
+      const isFileProtocol = window.location.protocol === 'file:';
+      const ytId = extractYouTubeId(url);
+
+      if (ytId) {
+        // Se estiver no protocolo file:///, o navegador bloqueia o envio do referer exigido pelo YouTube
+        if (isFileProtocol) {
+          return `
+            <div class="p-6 text-center space-y-3 bg-brand-surfaceAlt/80 rounded-2xl border border-brand-yellow/30 max-w-md mx-4">
+              <i class="fa-brands fa-youtube text-red-500 text-4xl"></i>
+              <h4 class="text-sm font-bold text-white uppercase">Aviso de Segurança do Navegador</h4>
+              <p class="text-xs text-gray-400 leading-relaxed">
+                O YouTube exige que a página seja aberta via servidor local (HTTP) para enviar o cabeçalho <strong>Referer</strong> e liberar o vídeo.
+              </p>
+              <div class="text-[11px] text-brand-yellow font-semibold bg-brand-black/60 p-2.5 rounded-lg border border-white/5">
+                Abra no VS Code com <strong>Live Server</strong> ou acesse pelo domínio publicado.
+              </div>
+              <a href="https://www.youtube.com/watch?v=${ytId}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-red-600 hover:bg-red-500 px-4 py-2 rounded-xl">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Assistir Vídeo Diretamente
+              </a>
+            </div>
+          `;
+        }
+
+        const currentOrigin = encodeURIComponent(window.location.origin);
+        return `
+          <iframe 
+            class="w-full h-full aspect-video rounded-3xl" 
+            src="https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&controls=1&playsinline=1&rel=0&enablejsapi=1&origin=${currentOrigin}" 
+            title="Vídeo Gotrix"
+            frameborder="0" 
+            referrerpolicy="strict-origin-when-cross-origin"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            allowfullscreen>
+          </iframe>
+        `;
+      }
+
+      return `
+        <video 
+          src="${url}" 
+          class="w-full h-full object-cover rounded-3xl" 
+          autoplay 
+          loop 
+          muted 
+          playsinline 
+          controls>
+        </video>
+      `;
     }
 
     function parseMediaList(mediaUrl) {
@@ -1011,96 +1223,6 @@
 
     window.currentEditingMediaList = [];
 
-    const GOTRIX_OFFICIAL_DB = {
-      'g8': {
-        name: 'Scooter Elétrica Gotrix G8 PRO',
-        type: '3000W • 75 km/h',
-        price: '16499.00',
-        specs: '75 km/h • Autonomia 65 km • Bateria Lítio 60V Removível • Painel Digital',
-        images: [
-          'https://gotrixoficial.com.br/wp-content/uploads/2024/02/g8-amarela.jpg',
-          'https://gotrixoficial.com.br/wp-content/uploads/2024/02/g8-preta.jpg',
-          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/sport-pro-amarela.jpg'
-        ]
-      },
-      'x13': {
-        name: 'Scooter Elétrica Gotrix X13 Plus',
-        type: '3000W • 75 km/h',
-        price: '15899.00',
-        specs: '75 km/h • Autonomia até 60 km • Bateria Lítio 60V • Painel Digital',
-        images: [
-          'https://gotrixoficial.com.br/wp-content/uploads/2024/02/x13-plus-amarela.jpg',
-          'https://gotrixoficial.com.br/wp-content/uploads/2024/02/x13-plus-preta.jpg',
-          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/sport-pro-amarela.jpg'
-        ]
-      },
-      'sport-pro': {
-        name: 'Scooter Elétrica Sport PRO',
-        type: '3000W • 75 km/h',
-        price: '16699.99',
-        specs: '75 km/h • Autonomia 60 km • Tecnologia NFC • Motor 3000W',
-        images: [
-          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/sport-pro-amarela.jpg',
-          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/sport-pro-preta.jpg'
-        ]
-      },
-      'sport-701': {
-        name: 'Scooter Elétrica Sport 701',
-        type: '3000W • 70 km/h',
-        price: '15299.99',
-        specs: '70 km/h • Autonomia 50 km • Bateria Lítio Removível',
-        images: [
-          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/sport-701.jpg',
-          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/sport-pro-amarela.jpg'
-        ]
-      },
-      'x11': {
-        name: 'Scooter Elétrica Gotrix X11',
-        type: '2000W • 60 km/h',
-        price: '12299.99',
-        specs: '60 km/h • 40 km • Bateria Removível • Alarme',
-        images: [
-          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/x11-amarela.jpg'
-        ]
-      },
-      'v8': {
-        name: 'Bike Elétrica Gotrix V8 PRO',
-        type: '1000W • Fat Tire',
-        price: '10099.99',
-        specs: '32 km/h • 50 km • Câmbio Shimano • Pedal Assistido',
-        images: [
-          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/v8-pro.jpg'
-        ]
-      },
-      'x15': {
-        name: 'Scooter Elétrica Gotrix X15 PRO',
-        type: 'Autopropelido • Sem CNH',
-        price: '11999.99',
-        specs: '32 km/h • 45 km • Bateria Lítio • Compacta',
-        images: [
-          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/x15-pro.jpg'
-        ]
-      },
-      'n15': {
-        name: 'Scooter Elétrica Gotrix N15',
-        type: '1000W • 32 km/h',
-        price: '11899.99',
-        specs: '32 km/h • Autonomia até 60 km • Baú • Bluetooth',
-        images: [
-          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/n15.jpg'
-        ]
-      },
-      'gt1': {
-        name: 'Scooter Elétrica GT1 PRO',
-        type: '1000W • 32 km/h',
-        price: '12199.99',
-        specs: '32 km/h • 40 km • Freios Hidráulicos • USB',
-        images: [
-          'https://gotrixoficial.com.br/wp-content/uploads/2023/11/gt1-pro.jpg'
-        ]
-      }
-    };
-
     window.appState = {
       cms: {
         title: "Scooter Elétrica Gotrix Sport PRO 0km",
@@ -1108,13 +1230,20 @@
         spec_speed: "75 km/h",
         spec_range: "60 km",
         spec_power: "3.000W",
-        video_url: "https://assets.mixkit.co/videos/preview/mixkit-motorcyclist-riding-a-motorbike-on-a-road-in-the-countryside-41662-large.mp4",
+        video_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
         custom_domain: "",
         whatsapp_link: "https://wa.me/5541999999999?text=Ol%C3%A1%2C%20gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20o%20sorteio%20Gotrix!",
-        instagram_link: "https://instagram.com/gotrix.curitiba",
+        instagram_link_1: "https://instagram.com/gotrix.curitiba",
+        instagram_link_2: "https://instagram.com/gotrixoficial",
+        btn_participate_text: "Quero Participar do Sorteio",
+        btn_submit_form_text: "Gerar Meu Número da Sorte",
+        btn_ig1_text: "Instagram Curitiba",
+        btn_ig2_text: "Instagram Oficial",
+        btn_whatsapp_text: "Atendimento WhatsApp",
         whatsapp_ticket_text: "*COMPROVANTE OFICIAL GOTRIX 0KM*\n\n👤 *Participante:* {name}\n🎟️ *Meu Número da Sorte:* {lucky_number}\n⚡ *Prêmio do Sorteio:* {model_interest}\n\n🎁 *Bônus Ativado:* Cupom de R$ 1.000 OFF para compra.\nSiga nosso Instagram: https://instagram.com/gotrix.curitiba\nGuarde esta mensagem para conferência no dia da apuração!",
         pin: "1234",
-        custom_logo_url: ""
+        custom_logo_url: "",
+        secondary_logo_url: ""
       },
       leads: [],
       catalog: [
@@ -1160,8 +1289,8 @@
         { id: "SQUAD_EXTERNO", name: "Equipe Externa Pavilhão" }
       ],
       promoters: [
-        { id: "PROMO_RAFAEL", name: "Rafael Silva", phone: "5541999999999", squad_id: "SQUAD_STAND_A" },
-        { id: "PROMO_CAMILA", name: "Camila Santos", phone: "5541988888888", squad_id: "SQUAD_EXTERNO" }
+        { id: "PROMO_RAFAEL", name: "Rafael Silva", phone: "(41) 99999-9999", squad_id: "SQUAD_STAND_A" },
+        { id: "PROMO_CAMILA", name: "Camila Santos", phone: "(41) 98888-8888", squad_id: "SQUAD_EXTERNO" }
       ]
     };
 
@@ -1197,7 +1326,7 @@
         const { data: leadsData } = await supabaseClient.from('leads').select('*').order('created_at', { ascending: false });
         if (leadsData) window.appState.leads = leadsData;
       } catch (err) {
-        console.warn("Supabase fetch fallback:", err);
+        console.warn("Supabase fetch offline fallback:", err);
       }
     }
 
@@ -1216,17 +1345,6 @@
             }
             renderKanbanBoard();
             renderRanking();
-          })
-          .subscribe();
-
-        supabaseClient.channel('public:catalog_products')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'catalog_products' }, async () => {
-            const { data } = await supabaseClient.from('catalog_products').select('*').order('created_at', { ascending: true });
-            if (data) {
-              window.appState.catalog = data;
-              renderCatalogCards();
-              renderCrudProductsList();
-            }
           })
           .subscribe();
 
@@ -1251,10 +1369,14 @@
 
       const { data, error } = await supabaseClient.storage
         .from('gotrix-media')
-        .upload(fileName, file, { cacheControl: '3600', upsert: true });
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: file.type
+        });
 
       if (error) {
-        alert("Erro no upload para o Storage: " + error.message);
+        alert("Erro no upload do arquivo: " + error.message);
         return null;
       }
 
@@ -1265,82 +1387,92 @@
       return publicData.publicUrl;
     }
 
-    function renderActiveMediaPreviewList() {
-      const container = document.getElementById('active-media-preview-list');
-      const countLabel = document.getElementById('active-media-count');
-      if (!container) return;
+    window.handleRegistrationSubmit = async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-submit-raffle');
+      if (btn && btn.disabled) return;
 
-      countLabel.innerText = `${window.currentEditingMediaList.length} mídias`;
+      const name = document.getElementById('lead-name').value.trim();
+      const rawPhone = document.getElementById('lead-phone').value.trim();
+      const cleanDigits = rawPhone.replace(/\D/g, '');
 
-      if (window.currentEditingMediaList.length === 0) {
-        container.innerHTML = `<span class="text-[11px] text-gray-600 col-span-4 text-center py-4 font-semibold">Nenhuma foto adicionada ainda.</span>`;
+      if (cleanDigits.length < 10) {
+        alert("Por favor, digite um número de WhatsApp válido com DDD.");
         return;
       }
 
-      container.innerHTML = '';
-      window.currentEditingMediaList.forEach((url, index) => {
-        const itemBox = document.createElement('div');
-        itemBox.className = "relative group h-16 w-full rounded-lg bg-brand-black border border-brand-darkBorder overflow-hidden flex items-center justify-center p-1";
-        
-        if (url.endsWith('.mp4') || url.endsWith('.webm')) {
-          itemBox.innerHTML = `
-            <div class="text-brand-yellow text-base"><i class="fa-solid fa-play"></i></div>
-            <button type="button" onclick="window.removeMediaFromEditing(${index})" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center text-[10px] shadow" title="Remover">✕</button>
-          `;
-        } else {
-          itemBox.innerHTML = `
-            <img src="${getSafeImageUrl(url)}" class="h-full w-full object-contain">
-            <button type="button" onclick="window.removeMediaFromEditing(${index})" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center text-[10px] shadow" title="Remover">✕</button>
-          `;
-        }
-        container.appendChild(itemBox);
-      });
-    }
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Registrando sua inscrição...`;
+      }
 
-    window.addManualMediaUrl = function() {
-      const input = document.getElementById('manual-media-url-input');
-      const url = input ? input.value.trim() : '';
-      if (!url) return;
+      const modelInterest = window.appState.cms.title || "Scooter Elétrica Gotrix 0km";
+      const urlParams = new URLSearchParams(window.location.search);
+      const promoterId = urlParams.get('promoter') || null;
+      const squadId = urlParams.get('squad') || null;
+      const luckyNumber = '#' + Math.floor(10000 + Math.random() * 90000);
 
-      const items = parseMediaList(url);
-      items.forEach(u => {
-        if (!window.currentEditingMediaList.includes(u)) {
-          window.currentEditingMediaList.push(u);
+      const leadPayload = {
+        id: 'LEAD_' + Date.now(),
+        name,
+        phone: rawPhone,
+        email: 'naoinformado@gotrix.com',
+        model_interest: modelInterest,
+        lucky_number: luckyNumber,
+        promoter_id: promoterId,
+        squad_id: squadId,
+        stage: 'NOVO'
+      };
+
+      try {
+        if (supabaseClient) {
+          await supabaseClient.from('leads').insert([leadPayload]);
         }
-      });
-      input.value = '';
-      renderActiveMediaPreviewList();
+        window.appState.leads.unshift(leadPayload);
+
+        let cleanLeadPhone = cleanDigits;
+        if (!cleanLeadPhone.startsWith('55')) cleanLeadPhone = '55' + cleanLeadPhone;
+
+        const ticketTemplate = window.appState.cms.whatsapp_ticket_text || "*COMPROVANTE OFICIAL GOTRIX 0KM*\n\n👤 *Participante:* {name}\n🎟️ *Meu Número da Sorte:* {lucky_number}";
+        const ticketText = ticketTemplate
+          .replace(/{name}/g, name)
+          .replace(/{lucky_number}/g, luckyNumber)
+          .replace(/{model_interest}/g, modelInterest);
+
+        const zapTicketBtn = document.getElementById('share-whatsapp-ticket-btn');
+        if (zapTicketBtn) {
+          zapTicketBtn.href = `https://wa.me/${cleanLeadPhone}?text=${encodeURIComponent(ticketText)}`;
+        }
+
+        document.getElementById('raffle-register-form').classList.add('hidden');
+        document.getElementById('display-lucky-number').innerText = luckyNumber;
+        document.getElementById('display-registered-name').innerText = name;
+        document.getElementById('raffle-success-card').classList.remove('hidden');
+
+        if (window.confetti) confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+      } catch (err) {
+        console.error("Erro no cadastro:", err);
+        alert("Ocorreu um erro ao registrar sua participação. Tente novamente.");
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<span id="display-btn-submit-form-text">${window.appState.cms.btn_submit_form_text || 'Gerar Meu Número da Sorte'}</span> <i class="fa-solid fa-arrow-right"></i>`;
+        }
+      }
     };
 
-    window.removeMediaFromEditing = function(index) {
-      window.currentEditingMediaList.splice(index, 1);
-      renderActiveMediaPreviewList();
-    };
-
-    window.handleMultipleFileUpload = async function(e) {
-      const files = e.target.files;
-      if (!files || files.length === 0) return;
-
-      const statusEl = document.getElementById('import-status');
-      if (statusEl) {
-        statusEl.className = "text-[11px] font-bold text-brand-yellow block";
-        statusEl.innerText = `Enviando ${files.length} arquivos para a nuvem...`;
+    window.resetRaffleForm = function() {
+      const form = document.getElementById('raffle-register-form');
+      if (form) {
+        form.reset();
+        form.classList.remove('hidden');
       }
-
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const uploadedUrl = await uploadFileToSupabaseStorage(file, 'catalog');
-        if (uploadedUrl && !window.currentEditingMediaList.includes(uploadedUrl)) {
-          window.currentEditingMediaList.push(uploadedUrl);
-        }
+      const card = document.getElementById('raffle-success-card');
+      if (card) card.classList.add('hidden');
+      const btn = document.getElementById('btn-submit-raffle');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `<span id="display-btn-submit-form-text">${window.appState.cms.btn_submit_form_text || 'Gerar Meu Número da Sorte'}</span> <i class="fa-solid fa-arrow-right"></i>`;
       }
-
-      if (statusEl) {
-        statusEl.className = "text-[11px] font-bold text-emerald-400 block";
-        statusEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${files.length} arquivos enviados com sucesso!`;
-      }
-      renderActiveMediaPreviewList();
-      e.target.value = '';
     };
 
     function renderCatalogCards() {
@@ -1351,16 +1483,16 @@
       window.appState.catalog.forEach(item => {
         const priceNum = parseFloat(item.original_price) || 0;
         const discountedPrice = Math.max(0, priceNum - 1000.00);
-        const zapMsg = encodeURIComponent(`Olá! Estou participando do sorteio da Gotrix e quero garantir meu cupom de R$ 1.000 de desconto no modelo: ${item.name}!`);
+        const zapMsg = encodeURIComponent(`Olá! Estou participando do sorteio Gotrix e quero garantir meu cupom de R$ 1.000 OFF para o modelo: ${item.name}!`);
         const zapHref = `${window.appState.cms.whatsapp_link.split('?')[0]}?text=${zapMsg}`;
-
         const mediaList = parseMediaList(item.media_url);
+
         if (!window.cardCarouselIndexes[item.id]) {
           window.cardCarouselIndexes[item.id] = 0;
         }
 
         const card = document.createElement('div');
-        card.className = "bg-brand-darkCard border border-brand-darkBorder rounded-2xl overflow-hidden shadow-lg flex flex-col justify-between hover:border-brand-yellow/50 transition-all cursor-pointer group";
+        card.className = "glass-card glass-card-hover rounded-3xl overflow-hidden flex flex-col justify-between cursor-pointer group";
         
         card.onclick = function(e) {
           if (e.target.closest('.carousel-nav-btn') || e.target.closest('.direct-zap-btn')) return;
@@ -1371,37 +1503,33 @@
 
         card.innerHTML = `
           <div>
-            <div class="h-52 bg-brand-black flex items-center justify-center p-2 relative overflow-hidden select-none">
-              <span class="absolute top-3 left-3 bg-brand-yellow text-black font-black text-[10px] uppercase px-2.5 py-0.5 rounded-full shadow z-10">R$ 1.000 OFF</span>
-              
+            <div class="h-56 bg-brand-black flex items-center justify-center p-3 relative overflow-hidden select-none">
+              <span class="absolute top-3 left-3 bg-brand-yellow text-brand-black font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full shadow-lg z-10">R$ 1.000 OFF</span>
               <div id="card-media-display-${item.id}" class="w-full h-full flex items-center justify-center"></div>
 
               ${hasMultiple ? `
-                <button onclick="window.prevCardMedia('${item.id}', event)" class="carousel-nav-btn absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/70 hover:bg-brand-yellow hover:text-black text-white flex items-center justify-center transition-all z-10 opacity-0 group-hover:opacity-100">
+                <button onclick="window.prevCardMedia('${item.id}', event)" class="carousel-nav-btn absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-brand-surfaceAlt/80 hover:bg-brand-yellow hover:text-brand-black text-white flex items-center justify-center transition-all z-10 opacity-0 group-hover:opacity-100 border border-white/5">
                   <i class="fa-solid fa-chevron-left text-xs"></i>
                 </button>
-                <button onclick="window.nextCardMedia('${item.id}', event)" class="carousel-nav-btn absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/70 hover:bg-brand-yellow hover:text-black text-white flex items-center justify-center transition-all z-10 opacity-0 group-hover:opacity-100">
+                <button onclick="window.nextCardMedia('${item.id}', event)" class="carousel-nav-btn absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-brand-surfaceAlt/80 hover:bg-brand-yellow hover:text-brand-black text-white flex items-center justify-center transition-all z-10 opacity-0 group-hover:opacity-100 border border-white/5">
                   <i class="fa-solid fa-chevron-right text-xs"></i>
                 </button>
-                
-                <div id="card-dots-${item.id}" class="absolute bottom-2 inset-x-0 flex justify-center gap-1.5 z-10"></div>
+                <div id="card-dots-${item.id}" class="absolute bottom-2.5 inset-x-0 flex justify-center gap-1.5 z-10"></div>
               ` : ''}
             </div>
 
-            <div class="p-5 space-y-2">
+            <div class="p-5 space-y-2.5">
               <div class="flex items-center justify-between">
                 <span class="text-[11px] font-bold uppercase text-brand-yellow">${item.type}</span>
                 <span class="text-[10px] text-gray-500 font-semibold flex items-center gap-1">
-                  <i class="fa-regular fa-eye"></i> Ver Detalhes
+                  <i class="fa-regular fa-eye"></i> Detalhes
                 </span>
               </div>
-              
-              <h3 class="text-base font-black uppercase text-white group-hover:text-brand-yellow transition-colors">${item.name}</h3>
-              <p class="text-xs text-gray-400 line-clamp-2">${item.specs_summary}</p>
-              
-              <div class="pt-3">
+              <h3 class="text-base font-extrabold uppercase text-white group-hover:text-brand-yellow transition-colors leading-snug">${item.name}</h3>
+              <p class="text-xs text-gray-400 line-clamp-2 leading-relaxed">${item.specs_summary}</p>
+              <div class="pt-2">
                 <span class="text-xs text-gray-500 line-through">De R$ ${priceNum.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                <div class="text-xl font-black text-brand-yellow">
+                <div class="text-2xl font-extrabold text-brand-yellow tracking-tight">
                   R$ ${discountedPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </div>
               </div>
@@ -1409,7 +1537,7 @@
           </div>
 
           <div class="p-5 pt-0">
-            <a href="${zapHref}" target="_blank" class="direct-zap-btn w-full bg-whatsapp-green hover:bg-whatsapp-greenDark text-white font-bold py-3 rounded-xl text-xs uppercase flex items-center justify-center gap-2 transition-all shadow-md hover:scale-[1.02]">
+            <a href="${zapHref}" target="_blank" class="direct-zap-btn w-full bg-whatsapp hover:bg-whatsapp-dark text-white font-bold py-3.5 rounded-xl text-xs uppercase flex items-center justify-center gap-2 transition-all shadow-sm hover:scale-[1.02]">
               <i class="fa-brands fa-whatsapp text-base"></i> Garantir Meu Desconto
             </a>
           </div>
@@ -1426,15 +1554,17 @@
       const mediaList = parseMediaList(item.media_url);
       const currentIndex = window.cardCarouselIndexes[itemId] || 0;
       const currentUrl = mediaList[currentIndex] || '';
-
       const container = document.getElementById(`card-media-display-${itemId}`);
       if (!container) return;
 
-      if (currentUrl.endsWith('.mp4') || currentUrl.endsWith('.webm')) {
+      const ytId = extractYouTubeId(currentUrl);
+      if (ytId) {
+        container.innerHTML = `<img src="https://img.youtube.com/vi/${ytId}/hqdefault.jpg" class="h-full w-full object-contain">`;
+      } else if (currentUrl.endsWith('.mp4') || currentUrl.endsWith('.webm')) {
         container.innerHTML = `<video src="${currentUrl}" class="h-full w-full object-contain" autoplay loop muted playsinline></video>`;
       } else {
         const safeImg = getSafeImageUrl(currentUrl);
-        container.innerHTML = `<img src="${safeImg}" alt="${item.name}" onerror="this.src='https://placehold.co/400x260/0d0d0d/eca900?text=${encodeURIComponent(item.name)}'" class="h-full w-full object-contain transition-all duration-300">`;
+        container.innerHTML = `<img src="${safeImg}" alt="${item.name}" onerror="this.src='https://placehold.co/400x260/0d0d0d/f5b301?text=Gotrix'" class="h-full w-full object-contain transition-all duration-300">`;
       }
 
       const dotsContainer = document.getElementById(`card-dots-${itemId}`);
@@ -1442,7 +1572,7 @@
         dotsContainer.innerHTML = '';
         mediaList.forEach((_, idx) => {
           const dot = document.createElement('span');
-          dot.className = `w-1.5 h-1.5 rounded-full transition-all ${idx === currentIndex ? 'bg-brand-yellow w-3' : 'bg-white/40'}`;
+          dot.className = `h-1 rounded-full transition-all ${idx === currentIndex ? 'bg-brand-yellow w-4' : 'bg-white/30 w-1.5'}`;
           dotsContainer.appendChild(dot);
         });
       }
@@ -1486,7 +1616,7 @@
       document.getElementById('modal-prod-original-price').innerText = `De R$ ${priceNum.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
       document.getElementById('modal-prod-final-price').innerText = `R$ ${discountedPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
 
-      const zapMsg = encodeURIComponent(`Olá! Vi os detalhes do modelo ${item.name} no site e quero resgatar meu bônus exclusivo de R$ 1.000 OFF para compra!`);
+      const zapMsg = encodeURIComponent(`Olá! Vi os detalhes do modelo ${item.name} e quero resgatar meu bônus exclusivo de R$ 1.000 OFF para compra!`);
       document.getElementById('modal-prod-whatsapp-btn').href = `${window.appState.cms.whatsapp_link.split('?')[0]}?text=${zapMsg}`;
 
       updateModalMediaDisplay();
@@ -1503,10 +1633,12 @@
       const mediaList = parseMediaList(window.activeModalProduct.media_url);
       const display = document.getElementById('modal-carousel-display');
       const thumbsContainer = document.getElementById('modal-thumbnails');
-      
       const currentUrl = mediaList[window.modalCarouselIndex] || '';
 
-      if (currentUrl.endsWith('.mp4') || currentUrl.endsWith('.webm')) {
+      const ytId = extractYouTubeId(currentUrl);
+      if (ytId) {
+        display.innerHTML = `<iframe class="w-full h-full object-contain" src="https://www.youtube.com/embed/${ytId}?autoplay=1&controls=1&rel=0" frameborder="0" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+      } else if (currentUrl.endsWith('.mp4') || currentUrl.endsWith('.webm')) {
         display.innerHTML = `<video src="${currentUrl}" class="w-full h-full object-contain" controls autoplay loop muted playsinline></video>`;
       } else {
         const safeImg = getSafeImageUrl(currentUrl);
@@ -1518,9 +1650,12 @@
         mediaList.forEach((url, idx) => {
           const isCurrent = idx === window.modalCarouselIndex;
           const thumb = document.createElement('div');
-          thumb.className = `w-14 h-14 rounded-xl border-2 overflow-hidden flex-shrink-0 cursor-pointer p-0.5 bg-brand-black transition-all ${isCurrent ? 'border-brand-yellow scale-105' : 'border-brand-darkBorder opacity-60 hover:opacity-100'}`;
+          thumb.className = `w-14 h-14 rounded-xl border-2 overflow-hidden flex-shrink-0 cursor-pointer p-0.5 bg-brand-black transition-all ${isCurrent ? 'border-brand-yellow scale-105' : 'border-white/10 opacity-60 hover:opacity-100'}`;
           
-          if (url.endsWith('.mp4')) {
+          const thumbYtId = extractYouTubeId(url);
+          if (thumbYtId) {
+            thumb.innerHTML = `<img src="https://img.youtube.com/vi/${thumbYtId}/mqdefault.jpg" class="w-full h-full object-cover">`;
+          } else if (url.endsWith('.mp4') || url.endsWith('.webm')) {
             thumb.innerHTML = `<div class="w-full h-full flex items-center justify-center text-brand-yellow text-xs"><i class="fa-solid fa-play"></i></div>`;
           } else {
             thumb.innerHTML = `<img src="${getSafeImageUrl(url)}" class="w-full h-full object-contain">`;
@@ -1551,308 +1686,6 @@
       if (mediaList.length <= 1) return;
       window.modalCarouselIndex = (window.modalCarouselIndex - 1 + mediaList.length) % mediaList.length;
       updateModalMediaDisplay();
-    };
-
-    window.fetchProductFromUrl = async function() {
-      const urlInput = document.getElementById('import-product-url');
-      const statusEl = document.getElementById('import-status');
-      const btn = document.getElementById('btn-import-url');
-      const galleryContainer = document.getElementById('gallery-preview-container');
-      const galleryThumbs = document.getElementById('gallery-thumbnails');
-
-      let rawUrl = urlInput ? urlInput.value.trim() : '';
-      if (!rawUrl) {
-        alert("Por favor, cole a URL do produto primeiro!");
-        return;
-      }
-
-      if (rawUrl.lastIndexOf('https://') > 0) {
-        rawUrl = rawUrl.substring(rawUrl.lastIndexOf('https://'));
-      } else if (rawUrl.lastIndexOf('http://') > 0) {
-        rawUrl = rawUrl.substring(rawUrl.lastIndexOf('http://'));
-      }
-      urlInput.value = rawUrl;
-
-      statusEl.className = "text-[11px] font-bold text-brand-yellow block";
-      statusEl.innerText = "Consultando catálogo oficial Gotrix...";
-      btn.disabled = true;
-
-      const lowerUrl = rawUrl.toLowerCase();
-      let matchedKey = null;
-      for (const key of Object.keys(GOTRIX_OFFICIAL_DB)) {
-        if (lowerUrl.includes(key)) {
-          matchedKey = key;
-          break;
-        }
-      }
-
-      function applyVehicleData(data) {
-        if (data.name) document.getElementById('prod-name').value = data.name;
-        if (data.type) document.getElementById('prod-type').value = data.type;
-        if (data.price) document.getElementById('prod-price').value = data.price;
-        if (data.specs) document.getElementById('prod-specs').value = data.specs;
-
-        if (data.images && data.images.length > 0) {
-          data.images.forEach(img => {
-            if (!window.currentEditingMediaList.includes(img)) {
-              window.currentEditingMediaList.push(img);
-            }
-          });
-          renderActiveMediaPreviewList();
-
-          galleryThumbs.innerHTML = '';
-          data.images.forEach((imgUrl) => {
-            const safeThumb = getSafeImageUrl(imgUrl);
-            const thumb = document.createElement('img');
-            thumb.src = safeThumb;
-            thumb.className = `h-14 w-14 object-contain bg-brand-black p-1 rounded-lg border-2 cursor-pointer transition-all hover:scale-105 border-brand-darkBorder`;
-            thumb.onclick = function() {
-              if (!window.currentEditingMediaList.includes(imgUrl)) {
-                window.currentEditingMediaList.push(imgUrl);
-                renderActiveMediaPreviewList();
-              }
-            };
-            galleryThumbs.appendChild(thumb);
-          });
-          galleryContainer.classList.remove('hidden');
-        }
-      }
-
-      if (matchedKey) {
-        applyVehicleData(GOTRIX_OFFICIAL_DB[matchedKey]);
-        statusEl.className = "text-[11px] font-bold text-emerald-400 block";
-        statusEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> Modelo identificado! Fotos adicionadas à lista do produto com sucesso!`;
-        btn.disabled = false;
-        return;
-      }
-
-      const proxies = [
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rawUrl)}`,
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(rawUrl)}`
-      ];
-
-      let htmlText = null;
-      for (const pUrl of proxies) {
-        try {
-          const res = await fetch(pUrl, { signal: AbortSignal.timeout(3500) });
-          if (res.ok) {
-            htmlText = await res.text();
-            if (htmlText && htmlText.length > 100 && !htmlText.includes("Oops...")) break;
-          }
-        } catch (e) {}
-      }
-
-      if (!htmlText) {
-        statusEl.className = "text-[11px] font-bold text-yellow-400 block";
-        statusEl.innerText = "Link processado! Adicione as fotos nos campos abaixo.";
-        btn.disabled = false;
-        return;
-      }
-
-      try {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlText, 'text/html');
-
-        const ogTitle = doc.querySelector('meta[property="og:title"]')?.content;
-        const pageTitle = doc.querySelector('h1.product_title, h1.entry-title, h1')?.innerText;
-        const finalTitle = (ogTitle || pageTitle || '').replace(/[-|–].*Gotrix.*/i, '').trim();
-        if (finalTitle) document.getElementById('prod-name').value = finalTitle;
-
-        const ogPrice = doc.querySelector('meta[property="product:price:amount"]')?.content;
-        const priceText = doc.querySelector('.price .amount, span.woocommerce-Price-amount, .current-price')?.innerText;
-        if (ogPrice) {
-          document.getElementById('prod-price').value = parseFloat(ogPrice).toFixed(2);
-        } else if (priceText) {
-          const cleanPrice = priceText.replace(/\D/g, '');
-          if (cleanPrice) document.getElementById('prod-price').value = (parseFloat(cleanPrice) / 100).toFixed(2);
-        }
-
-        const ogDesc = doc.querySelector('meta[property="og:description"]')?.content;
-        const shortDesc = doc.querySelector('.woocommerce-product-details__short-description, .product-short-description')?.innerText;
-        if (ogDesc || shortDesc) {
-          document.getElementById('prod-specs').value = (shortDesc || ogDesc).replace(/\s+/g, ' ').trim().slice(0, 90);
-        }
-
-        const imagesFound = new Set();
-        const ogImage = doc.querySelector('meta[property="og:image"]')?.content;
-        if (ogImage) imagesFound.add(ogImage);
-
-        doc.querySelectorAll('.woocommerce-product-gallery img, .product-images img, img.wp-post-image, .entry-content img').forEach(img => {
-          const src = img.getAttribute('data-large_image') || img.getAttribute('data-src') || img.src;
-          if (src && src.startsWith('http') && !src.includes('logo') && !src.includes('icon')) {
-            imagesFound.add(src);
-          }
-        });
-
-        const list = Array.from(imagesFound);
-        if (list.length > 0) {
-          applyVehicleData({ images: list });
-          statusEl.className = "text-[11px] font-bold text-emerald-400 block";
-          statusEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> Fotos encontradas adicionadas à lista!`;
-        } else {
-          statusEl.className = "text-[11px] font-bold text-yellow-400 block";
-          statusEl.innerText = "Dados puxados! Nenhuma foto com metadados encontrada.";
-        }
-      } catch (err) {
-        statusEl.className = "text-[11px] font-bold text-yellow-400 block";
-        statusEl.innerText = "Página lida! Complete os campos caso necessário.";
-      } finally {
-        btn.disabled = false;
-      }
-    };
-
-    function applyLogoToAllViews() {
-      const logoContainers = document.querySelectorAll('.brand-logo-container');
-      const customLogo = window.appState.cms.custom_logo_url;
-
-      logoContainers.forEach(container => {
-        if (customLogo && customLogo.trim() !== '') {
-          container.innerHTML = `<img src="${getSafeImageUrl(customLogo)}" alt="Gotrix" class="h-9 w-auto object-contain max-w-[200px]">`;
-        } else {
-          container.innerHTML = `
-            <svg class="h-9 w-auto text-brand-yellow" viewBox="0 0 240 60" fill="none">
-              <path d="M42 30C42 23.37 36.63 18 30 18C23.37 18 18 23.37 18 30C18 36.63 23.37 42 30 42C33.3 42 36.3 40.65 38.5 38.5L34.2 34.2C33.1 35.3 31.6 36 30 36C26.7 36 24 33.3 24 30C24 26.7 26.7 24 30 24C33.3 24 36 26.7 36 30H30V36H42V30Z" fill="#ECA900"/>
-              <circle cx="70" cy="30" r="18" stroke="#ECA900" stroke-width="4"/>
-              <path d="M72 17L62 31H70L68 43L78 29H70L72 17Z" fill="#ECA900"/>
-              <text x="18" y="54" fill="#ECA900" font-family="Arial, sans-serif" font-weight="900" font-size="8.5" letter-spacing="4">MOBILIDADE URBANA</text>
-            </svg>
-          `;
-        }
-      });
-    }
-
-    function applyCmsSettings() {
-      const heroTitle = document.getElementById('hero-title');
-      if (heroTitle) {
-        heroTitle.innerHTML = window.appState.cms.title.replace("Scooter Elétrica 0km", "<span class='text-brand-yellow'>Scooter Elétrica 0km</span>");
-      }
-      const heroSubtitle = document.getElementById('hero-subtitle');
-      if (heroSubtitle) heroSubtitle.innerText = window.appState.cms.subtitle;
-      
-      const modelDisplay = document.getElementById('form-raffle-model-display');
-      if (modelDisplay) {
-        modelDisplay.innerText = window.appState.cms.title || "Scooter Elétrica 0km Oficial";
-      }
-
-      const specSpeed = document.getElementById('display-spec-speed');
-      if (specSpeed) specSpeed.innerText = window.appState.cms.spec_speed || "75 km/h";
-
-      const specRange = document.getElementById('display-spec-range');
-      if (specRange) specRange.innerText = window.appState.cms.spec_range || "60 km";
-
-      const specPower = document.getElementById('display-spec-power');
-      if (specPower) specPower.innerText = window.appState.cms.spec_power || "3.000W";
-
-      const container = document.getElementById('hero-media-container');
-      const vUrl = window.appState.cms.video_url;
-      if (vUrl && container) {
-        container.innerHTML = `
-          <video src="${vUrl}" class="w-full h-full object-cover" autoplay loop muted playsinline controls></video>
-        `;
-        const v = container.querySelector('video');
-        if (v) v.play().catch(() => {});
-      }
-
-      const navZap = document.getElementById('nav-whatsapp-btn');
-      if (navZap) navZap.href = window.appState.cms.whatsapp_link;
-      const directZap = document.getElementById('hero-direct-whatsapp-btn');
-      if (directZap) directZap.href = window.appState.cms.whatsapp_link;
-
-      const igLink = window.appState.cms.instagram_link || "https://instagram.com/gotrix.curitiba";
-      const navIg = document.getElementById('nav-instagram-btn');
-      if (navIg) navIg.href = igLink;
-      const directIg = document.getElementById('hero-direct-instagram-btn');
-      if (directIg) directIg.href = igLink;
-      const successIg = document.getElementById('success-instagram-btn');
-      if (successIg) successIg.href = igLink;
-
-      const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
-      setVal('cms-input-title', window.appState.cms.title);
-      setVal('cms-input-subtitle', window.appState.cms.subtitle);
-      setVal('cms-input-spec-speed', window.appState.cms.spec_speed || "75 km/h");
-      setVal('cms-input-spec-range', window.appState.cms.spec_range || "60 km");
-      setVal('cms-input-spec-power', window.appState.cms.spec_power || "3.000W");
-      setVal('cms-input-video', window.appState.cms.video_url);
-      setVal('cms-input-custom-domain', window.appState.cms.custom_domain);
-      setVal('cms-input-whatsapp-link', window.appState.cms.whatsapp_link);
-      setVal('cms-input-instagram-link', window.appState.cms.instagram_link || "https://instagram.com/gotrix.curitiba");
-      setVal('cms-input-whatsapp-ticket-text', window.appState.cms.whatsapp_ticket_text || "*COMPROVANTE OFICIAL GOTRIX 0KM*\n\n👤 *Participante:* {name}\n🎟️ *Meu Número da Sorte:* {lucky_number}\n⚡ *Prêmio do Sorteio:* {model_interest}\n\n🎁 *Bônus Ativado:* Cupom de R$ 1.000 OFF para compra.\nSiga nosso Instagram: https://instagram.com/gotrix.curitiba\nGuarde esta mensagem para conferência no dia da apuração!");
-      setVal('cms-input-pin', window.appState.cms.pin);
-      setVal('cms-input-logo-url', window.appState.cms.custom_logo_url);
-      setVal('supabase-url-input', SUPABASE_URL);
-      setVal('supabase-key-input', SUPABASE_KEY);
-    }
-
-    // CADASTRO AUTOMÁTICO COM MENSAGEM DINÂMICA EDITÁVEL
-    window.handleRegistrationSubmit = async function(e) {
-      e.preventDefault();
-      const btn = document.getElementById('btn-submit-raffle');
-      if (btn) {
-        btn.disabled = true;
-        btn.innerText = "Gravando na Nuvem...";
-      }
-
-      const name = document.getElementById('lead-name').value.trim();
-      const phone = document.getElementById('lead-phone').value.trim();
-      const modelInterest = window.appState.cms.title || "Scooter Elétrica 0km";
-
-      const urlParams = new URLSearchParams(window.location.search);
-      const promoterId = urlParams.get('promoter') || null;
-      const squadId = urlParams.get('squad') || null;
-      const luckyNumber = '#' + Math.floor(10000 + Math.random() * 90000);
-
-      const leadPayload = {
-        id: 'LEAD_' + Date.now(),
-        name,
-        phone,
-        email: 'naoinformado@gotrix.com',
-        model_interest: modelInterest,
-        lucky_number: luckyNumber,
-        promoter_id: promoterId,
-        squad_id: squadId,
-        stage: 'NOVO'
-      };
-
-      if (supabaseClient) {
-        await supabaseClient.from('leads').insert([leadPayload]);
-      }
-      window.appState.leads.unshift(leadPayload);
-
-      let cleanLeadPhone = phone.replace(/\D/g, '');
-      if (!cleanLeadPhone.startsWith('55')) cleanLeadPhone = '55' + cleanLeadPhone;
-
-      let ticketTemplate = window.appState.cms.whatsapp_ticket_text || "*COMPROVANTE OFICIAL GOTRIX 0KM*\n\n👤 *Participante:* {name}\n🎟️ *Meu Número da Sorte:* {lucky_number}\n⚡ *Prêmio do Sorteio:* {model_interest}\n\n🎁 *Bônus Ativado:* Cupom de R$ 1.000 OFF para compra.\nSiga nosso Instagram: https://instagram.com/gotrix.curitiba\nGuarde esta mensagem para conferência no dia da apuração!";
-      
-      const ticketText = ticketTemplate
-        .replace(/{name}/g, name)
-        .replace(/{lucky_number}/g, luckyNumber)
-        .replace(/{model_interest}/g, modelInterest);
-
-      const zapTicketBtn = document.getElementById('share-whatsapp-ticket-btn');
-      if (zapTicketBtn) {
-        zapTicketBtn.href = `https://wa.me/${cleanLeadPhone}?text=${encodeURIComponent(ticketText)}`;
-      }
-
-      document.getElementById('raffle-register-form').classList.add('hidden');
-      document.getElementById('display-lucky-number').innerText = luckyNumber;
-      document.getElementById('display-registered-name').innerText = name;
-      document.getElementById('raffle-success-card').classList.remove('hidden');
-
-      if (window.confetti) confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
-      if (btn) {
-        btn.disabled = false;
-        btn.innerText = "Gerar Meu Número da Sorte";
-      }
-    };
-
-    window.resetRaffleForm = function() {
-      const form = document.getElementById('raffle-register-form');
-      if (form) {
-        form.reset();
-        form.classList.remove('hidden');
-      }
-      const card = document.getElementById('raffle-success-card');
-      if (card) card.classList.add('hidden');
     };
 
     function setupRouting() {
@@ -1922,12 +1755,14 @@
       document.getElementById('badge-promoter-name').innerText = promoter.name;
       document.getElementById('badge-squad-name').innerText = squad ? squad.name : 'Equipe Stand';
 
-      const baseUrl = window.appState.cms.custom_domain && window.appState.cms.custom_domain.trim() !== ''
+      const isFileProtocol = window.location.protocol === 'file:';
+      const defaultOrigin = isFileProtocol ? 'https://sorteio.gotrix.com.br' : (window.location.origin + window.location.pathname);
+
+      const baseUrl = (window.appState.cms.custom_domain && window.appState.cms.custom_domain.trim() !== '')
         ? window.appState.cms.custom_domain.replace(/\/$/, '')
-        : window.location.origin + window.location.pathname;
+        : defaultOrigin;
 
       const fullShareUrl = `${baseUrl}?promoter=${promoter.id}&squad=${promoter.squad_id}#bloco-cadastro-section`;
-
       const qrContainer = document.getElementById('badge-qrcode-container');
       qrContainer.innerHTML = '';
       new QRCode(qrContainer, {
@@ -1945,7 +1780,7 @@
     window.copyBadgeLink = function() {
       if (window.currentBadgeUrl) {
         navigator.clipboard.writeText(window.currentBadgeUrl).then(() => {
-          alert("Link copiado! Pode enviar pelo WhatsApp.");
+          alert("Link copiado com sucesso! Pode enviar pelo WhatsApp.");
         });
       }
     };
@@ -1970,18 +1805,40 @@
       renderActiveMediaPreviewList();
     }
 
-    window.switchAdminTab = function(tabName) {
-      ['kanban', 'squads', 'catalog-crud', 'ranking', 'raffle', 'cms'].forEach(t => {
-        const tabEl = document.getElementById(`admin-tab-${t}`);
-        const btnEl = document.getElementById(`tab-btn-${t}`);
-        if (tabEl) tabEl.classList.add('hidden');
-        if (btnEl) btnEl.className = "px-4 py-2.5 text-xs font-bold rounded-lg text-gray-400 hover:text-white uppercase transition-all whitespace-nowrap";
+    function populateSquadSelects() {
+      const filter = document.getElementById('kanban-filter-squad');
+      const promoSquad = document.getElementById('new-promoter-squad');
+      if (!filter || !promoSquad) return;
+      filter.innerHTML = '<option value="ALL">Todas as Equipes</option>';
+      promoSquad.innerHTML = '';
+
+      window.appState.squads.forEach(s => {
+        filter.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+        promoSquad.innerHTML += `<option value="${s.id}">${s.name}</option>`;
       });
-      const activeTab = document.getElementById(`admin-tab-${tabName}`);
-      const activeBtn = document.getElementById(`tab-btn-${tabName}`);
-      if (activeTab) activeTab.classList.remove('hidden');
-      if (activeBtn) activeBtn.className = "px-4 py-2.5 text-xs font-bold rounded-lg bg-brand-yellow text-black uppercase transition-all whitespace-nowrap";
-    };
+    }
+
+    function renderMiniSquadsList() {
+      const container = document.getElementById('squads-list-mini');
+      if (!container) return;
+      container.innerHTML = '';
+
+      window.appState.squads.forEach(s => {
+        const count = window.appState.promoters.filter(p => p.squad_id === s.id).length;
+        const div = document.createElement('div');
+        div.className = "flex items-center justify-between p-2 rounded-xl bg-brand-surfaceAlt border border-white/5 text-xs";
+        div.innerHTML = `
+          <div>
+            <span class="font-bold text-white">${s.name}</span>
+            <span class="text-[10px] text-gray-500 ml-1.5">(${count} promotores)</span>
+          </div>
+          <button onclick="window.deleteSquad('${s.id}')" class="text-red-500 hover:text-red-400 p-1" title="Excluir Equipe">
+            <i class="fa-regular fa-trash-can"></i>
+          </button>
+        `;
+        container.appendChild(div);
+      });
+    }
 
     window.handleCreateSquad = async function(e) {
       e.preventDefault();
@@ -1997,7 +1854,7 @@
       document.getElementById('new-squad-name').value = '';
       populateSquadSelects();
       renderMiniSquadsList();
-      alert(`Equipe "${name}" salva no Supabase com sucesso!`);
+      alert(`Equipe "${name}" salva com sucesso!`);
     };
 
     window.deleteSquad = async function(squadId) {
@@ -2016,41 +1873,6 @@
         renderKanbanBoard();
       }
     };
-
-    function renderMiniSquadsList() {
-      const container = document.getElementById('squads-list-mini');
-      if (!container) return;
-      container.innerHTML = '';
-
-      window.appState.squads.forEach(s => {
-        const count = window.appState.promoters.filter(p => p.squad_id === s.id).length;
-        const div = document.createElement('div');
-        div.className = "flex items-center justify-between p-2 rounded-lg bg-brand-black border border-brand-darkBorder text-xs";
-        div.innerHTML = `
-          <div>
-            <span class="font-bold text-white">${s.name}</span>
-            <span class="text-[10px] text-gray-500 ml-1.5">(${count} promotores)</span>
-          </div>
-          <button onclick="window.deleteSquad('${s.id}')" class="text-red-500 hover:text-red-400 p-1" title="Excluir Equipe">
-            <i class="fa-regular fa-trash-can"></i>
-          </button>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    function populateSquadSelects() {
-      const filter = document.getElementById('kanban-filter-squad');
-      const promoSquad = document.getElementById('new-promoter-squad');
-      if (!filter || !promoSquad) return;
-      filter.innerHTML = '<option value="ALL">Todas as Equipes</option>';
-      promoSquad.innerHTML = '';
-
-      window.appState.squads.forEach(s => {
-        filter.innerHTML += `<option value="${s.id}">${s.name}</option>`;
-        promoSquad.innerHTML += `<option value="${s.id}">${s.name}</option>`;
-      });
-    }
 
     window.handleCreatePromoter = async function(e) {
       e.preventDefault();
@@ -2075,7 +1897,7 @@
     };
 
     window.deletePromoter = async function(promoterId) {
-      if (confirm("Deseja realmente remover este promotor no Supabase?")) {
+      if (confirm("Deseja realmente remover este promotor?")) {
         if (supabaseClient) {
           await supabaseClient.from('promoters').delete().eq('id', promoterId);
         }
@@ -2092,9 +1914,12 @@
       if (!container) return;
       container.innerHTML = '';
 
-      const baseUrl = window.appState.cms.custom_domain && window.appState.cms.custom_domain.trim() !== ''
+      const isFileProtocol = window.location.protocol === 'file:';
+      const defaultOrigin = isFileProtocol ? 'https://sorteio.gotrix.com.br' : (window.location.origin + window.location.pathname);
+
+      const baseUrl = (window.appState.cms.custom_domain && window.appState.cms.custom_domain.trim() !== '')
         ? window.appState.cms.custom_domain.replace(/\/$/, '')
-        : window.location.origin + window.location.pathname;
+        : defaultOrigin;
 
       window.appState.promoters.forEach(p => {
         const squad = window.appState.squads.find(s => s.id === p.squad_id);
@@ -2102,18 +1927,18 @@
         const zapShare = `https://wa.me/${p.phone.replace(/\D/g,'')}?text=${encodeURIComponent(`Olá ${p.name}! Aqui está o link do seu Crachá Oficial Gotrix com QR Code:\n${badgeUrl}`)}`;
 
         const card = document.createElement('div');
-        card.className = "bg-brand-black border border-brand-darkBorder p-3.5 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs";
+        card.className = "bg-brand-surfaceAlt border border-white/5 p-3.5 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs";
         card.innerHTML = `
           <div>
             <span class="font-bold text-white text-sm">${p.name}</span>
             <div class="text-[11px] text-gray-400">Squad: <span class="text-brand-yellow font-semibold">${squad ? squad.name : 'Stand'}</span> • Tel: ${p.phone}</div>
           </div>
           <div class="flex items-center gap-2">
-            <a href="${badgeUrl}" target="_blank" class="bg-brand-darkCardAlt hover:bg-gray-800 text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-semibold border border-brand-darkBorder">
-              <i class="fa-solid fa-qrcode"></i> Abrir Crachá
+            <a href="${badgeUrl}" target="_blank" class="bg-brand-surface hover:bg-brand-border text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-semibold border border-white/10">
+              <i class="fa-solid fa-qrcode"></i> Crachá
             </a>
-            <a href="${zapShare}" target="_blank" class="bg-whatsapp-green hover:bg-whatsapp-greenDark text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-bold">
-              <i class="fa-brands fa-whatsapp"></i> Enviar Link
+            <a href="${zapShare}" target="_blank" class="bg-whatsapp hover:bg-whatsapp-dark text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-bold">
+              <i class="fa-brands fa-whatsapp"></i> Link
             </a>
             <button onclick="window.deletePromoter('${p.id}')" class="text-red-500 hover:text-red-400 p-1.5 ml-1" title="Excluir">
               <i class="fa-regular fa-trash-can"></i>
@@ -2123,6 +1948,65 @@
         container.appendChild(card);
       });
     }
+
+    function renderActiveMediaPreviewList() {
+      const container = document.getElementById('active-media-preview-list');
+      const countLabel = document.getElementById('active-media-count');
+      if (!container) return;
+
+      countLabel.innerText = `${window.currentEditingMediaList.length} mídias`;
+
+      if (window.currentEditingMediaList.length === 0) {
+        container.innerHTML = `<span class="text-[11px] text-gray-600 col-span-4 text-center py-4 font-semibold">Nenhuma foto adicionada ainda.</span>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      window.currentEditingMediaList.forEach((url, index) => {
+        const itemBox = document.createElement('div');
+        itemBox.className = "relative group h-16 w-full rounded-lg bg-brand-surfaceAlt border border-white/5 overflow-hidden flex items-center justify-center p-1";
+        
+        const ytId = extractYouTubeId(url);
+        if (ytId) {
+          itemBox.innerHTML = `
+            <img src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" class="h-full w-full object-cover">
+            <div class="absolute inset-0 bg-black/40 flex items-center justify-center text-red-500 text-xs"><i class="fa-brands fa-youtube"></i></div>
+            <button type="button" onclick="window.removeMediaFromEditing(${index})" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center text-[10px] shadow" title="Remover">✕</button>
+          `;
+        } else if (url.endsWith('.mp4') || url.endsWith('.webm')) {
+          itemBox.innerHTML = `
+            <div class="text-brand-yellow text-base"><i class="fa-solid fa-play"></i></div>
+            <button type="button" onclick="window.removeMediaFromEditing(${index})" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center text-[10px] shadow" title="Remover">✕</button>
+          `;
+        } else {
+          itemBox.innerHTML = `
+            <img src="${getSafeImageUrl(url)}" class="h-full w-full object-contain">
+            <button type="button" onclick="window.removeMediaFromEditing(${index})" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center text-[10px] shadow" title="Remover">✕</button>
+          `;
+        }
+        container.appendChild(itemBox);
+      });
+    }
+
+    window.addManualMediaUrl = function() {
+      const input = document.getElementById('manual-media-url-input');
+      const url = input ? input.value.trim() : '';
+      if (!url) return;
+
+      const items = parseMediaList(url);
+      items.forEach(u => {
+        if (!window.currentEditingMediaList.includes(u)) {
+          window.currentEditingMediaList.push(u);
+        }
+      });
+      input.value = '';
+      renderActiveMediaPreviewList();
+    };
+
+    window.removeMediaFromEditing = function(index) {
+      window.currentEditingMediaList.splice(index, 1);
+      renderActiveMediaPreviewList();
+    };
 
     window.handleSaveProduct = async function(e) {
       e.preventDefault();
@@ -2139,15 +2023,7 @@
       }
 
       const media_url = window.currentEditingMediaList.join(', ');
-
-      const productPayload = {
-        name,
-        type,
-        original_price,
-        media_type,
-        media_url,
-        specs_summary
-      };
+      const productPayload = { name, type, original_price, media_type, media_url, specs_summary };
 
       if (id) {
         if (supabaseClient) await supabaseClient.from('catalog_products').update(productPayload).eq('id', id);
@@ -2162,7 +2038,7 @@
       renderCatalogCards();
       renderCrudProductsList();
       window.resetProductForm();
-      alert("Produto e fotos salvos no Supabase com sucesso!");
+      alert("Produto salvo no Supabase com sucesso!");
     };
 
     window.editProduct = function(productId) {
@@ -2200,9 +2076,6 @@
     window.resetProductForm = function() {
       document.getElementById('product-crud-form').reset();
       document.getElementById('prod-id').value = '';
-      document.getElementById('import-product-url').value = '';
-      document.getElementById('import-status').classList.add('hidden');
-      document.getElementById('gallery-preview-container').classList.add('hidden');
       window.currentEditingMediaList = [];
       renderActiveMediaPreviewList();
       document.getElementById('catalog-form-title').innerHTML = '<i class="fa-solid fa-plus mr-1"></i> Cadastrar Produto';
@@ -2218,24 +2091,27 @@
       window.appState.catalog.forEach(item => {
         const discounted = Math.max(0, item.original_price - 1000);
         const card = document.createElement('div');
-        card.className = "bg-brand-black border border-brand-darkBorder p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-xs";
+        card.className = "bg-brand-surfaceAlt border border-white/5 p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-xs";
         
         let preview = '';
         const list = parseMediaList(item.media_url);
         const first = list[0] || '';
+        const ytId = extractYouTubeId(first);
 
-        if (item.media_type === 'video' || first.endsWith('.mp4')) {
-          preview = `<div class="w-16 h-12 bg-brand-darkCard rounded flex items-center justify-center text-brand-yellow"><i class="fa-solid fa-play"></i></div>`;
+        if (ytId) {
+          preview = `<img src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" class="w-16 h-12 object-cover rounded">`;
+        } else if (item.media_type === 'video' || first.endsWith('.mp4')) {
+          preview = `<div class="w-16 h-12 bg-brand-surface rounded flex items-center justify-center text-brand-yellow"><i class="fa-solid fa-play"></i></div>`;
         } else {
           const safeImg = getSafeImageUrl(first);
-          preview = `<img src="${safeImg}" class="w-16 h-12 object-contain bg-brand-darkCard rounded p-1" onerror="this.src='https://placehold.co/100x70/000000/eca900?text=Gotrix'">`;
+          preview = `<img src="${safeImg}" class="w-16 h-12 object-contain bg-brand-surface rounded p-1" onerror="this.src='https://placehold.co/100x70/000000/f5b301?text=Gotrix'">`;
         }
 
         card.innerHTML = `
           <div class="flex items-center gap-3 w-full sm:w-auto">
             ${preview}
             <div>
-              <div class="font-black text-white text-sm">${item.name} <span class="text-[10px] text-gray-500 font-normal">(${list.length} fotos)</span></div>
+              <div class="font-extrabold text-white text-sm">${item.name} <span class="text-[10px] text-gray-500 font-normal">(${list.length} fotos)</span></div>
               <div class="text-[11px] text-gray-400">${item.type} • ${item.specs_summary}</div>
               <div class="text-[11px] mt-0.5">
                 <span class="text-gray-500 line-through">R$ ${Number(item.original_price).toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
@@ -2245,7 +2121,7 @@
           </div>
 
           <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-            <button onclick="window.editProduct('${item.id}')" class="bg-brand-darkCardAlt hover:bg-gray-800 text-brand-yellow border border-brand-darkBorder px-3 py-1.5 rounded-lg flex items-center gap-1 font-bold">
+            <button onclick="window.editProduct('${item.id}')" class="bg-brand-surface hover:bg-brand-border text-brand-yellow border border-white/5 px-3 py-1.5 rounded-lg flex items-center gap-1 font-bold">
               <i class="fa-solid fa-pen"></i> Editar
             </button>
             <button onclick="window.deleteProduct('${item.id}')" class="bg-red-950 hover:bg-red-900 text-red-300 px-3 py-1.5 rounded-lg flex items-center gap-1 font-bold">
@@ -2283,7 +2159,7 @@
           const promoName = promo ? promo.name : 'Stand';
 
           const card = document.createElement('div');
-          card.className = "bg-brand-black border border-brand-darkBorder p-3 rounded-xl space-y-2 cursor-grab active:cursor-grabbing hover:border-brand-yellow/40 transition-all text-xs";
+          card.className = "bg-brand-surfaceAlt border border-white/5 p-3 rounded-xl space-y-2 cursor-grab active:cursor-grabbing hover:border-brand-yellow/40 transition-all text-xs";
           card.draggable = true;
           card.ondragstart = (e) => e.dataTransfer.setData('text/plain', lead.id);
 
@@ -2292,17 +2168,17 @@
 
           card.innerHTML = `
             <div class="flex items-center justify-between">
-              <span class="font-black text-brand-yellow">${lead.lucky_number}</span>
+              <span class="font-extrabold text-brand-yellow">${lead.lucky_number}</span>
               <span class="text-[10px] text-gray-500">${lead.created_at ? new Date(lead.created_at).toLocaleDateString('pt-BR') : ''}</span>
             </div>
             <div class="font-bold text-white text-sm truncate">${lead.name}</div>
             <div class="text-gray-400 text-[11px] truncate"><i class="fa-solid fa-motorcycle text-brand-yellow mr-1"></i>${lead.model_interest}</div>
             <div class="text-[10px] text-gray-500">Promotor: <span class="text-gray-300 font-semibold">${promoName}</span></div>
-            <div class="pt-2 flex items-center justify-between border-t border-brand-darkBorder">
-              <a href="${zapLink}" target="_blank" class="text-whatsapp-green hover:text-emerald-400 font-bold flex items-center gap-1">
+            <div class="pt-2 flex items-center justify-between border-t border-white/5">
+              <a href="${zapLink}" target="_blank" class="text-whatsapp hover:text-emerald-400 font-bold flex items-center gap-1">
                 <i class="fa-brands fa-whatsapp"></i> Chamar
               </a>
-              <select onchange="window.updateLeadStage('${lead.id}', this.value)" class="bg-brand-darkCard text-[10px] text-gray-300 rounded px-1.5 py-0.5 border border-brand-darkBorder">
+              <select onchange="window.updateLeadStage('${lead.id}', this.value)" class="bg-brand-surface text-[10px] text-gray-300 rounded px-1.5 py-0.5 border border-white/10">
                 <option value="NOVO" ${lead.stage==='NOVO'?'selected':''}>Novo</option>
                 <option value="CONTATADO" ${lead.stage==='CONTATADO'?'selected':''}>Contatado</option>
                 <option value="INTERESSE_CUPOM" ${lead.stage==='INTERESSE_CUPOM'?'selected':''}>Cupom</option>
@@ -2351,12 +2227,12 @@
       stats.forEach((st, idx) => {
         const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx+1}`;
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-brand-darkCardAlt/40";
+        tr.className = "hover:bg-brand-surfaceAlt/60";
         tr.innerHTML = `
           <td class="p-3 font-bold">${medal}</td>
           <td class="p-3 font-bold text-white">${st.name}</td>
           <td class="p-3 text-gray-400">${st.squadName}</td>
-          <td class="p-3 font-black text-brand-yellow">${st.count}</td>
+          <td class="p-3 font-extrabold text-brand-yellow">${st.count}</td>
           <td class="p-3 font-bold text-emerald-400">${st.sales}</td>
         `;
         tbody.appendChild(tr);
@@ -2394,42 +2270,245 @@
       }, 80);
     };
 
+    window.exportLeadsToCsv = function() {
+      if (!window.appState.leads.length) {
+        alert("Sem dados para exportar.");
+        return;
+      }
+      let csvContent = "data:text/csv;charset=utf-8,ID,Nome,WhatsApp,Numero da Sorte,Modelo,Fase,Data\n";
+      window.appState.leads.forEach(l => {
+        csvContent += `"${l.id}","${l.name}","${l.phone}","${l.lucky_number}","${l.model_interest}","${l.stage}","${l.created_at || ''}"\n`;
+      });
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `leads_gotrix_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+
+    window.switchAdminTab = function(tabName) {
+      ['kanban', 'squads', 'catalog-crud', 'ranking', 'raffle', 'cms'].forEach(t => {
+        const tabEl = document.getElementById(`admin-tab-${t}`);
+        const btnEl = document.getElementById(`tab-btn-${t}`);
+        if (tabEl) tabEl.classList.add('hidden');
+        if (btnEl) btnEl.className = "px-4 py-2.5 text-xs font-bold rounded-xl text-gray-400 hover:text-white uppercase transition-all whitespace-nowrap";
+      });
+      const activeTab = document.getElementById(`admin-tab-${tabName}`);
+      const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+      if (activeTab) activeTab.classList.remove('hidden');
+      if (activeBtn) activeBtn.className = "px-4 py-2.5 text-xs font-bold rounded-xl bg-brand-yellow text-brand-black uppercase transition-all whitespace-nowrap shadow-glow-yellow";
+    };
+
     window.handleCmsSave = async function(e) {
       e.preventDefault();
 
-      let video_url = document.getElementById('cms-input-video').value.trim();
-      const videoFileInput = document.getElementById('cms-video-file-input');
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
 
-      if (videoFileInput && videoFileInput.files[0]) {
-        const uploadedVid = await uploadFileToSupabaseStorage(videoFileInput.files[0], 'videos');
-        if (uploadedVid) video_url = uploadedVid;
+      try {
+        let video_url = document.getElementById('cms-input-video').value.trim();
+        const videoFileInput = document.getElementById('cms-video-file-input');
+
+        if (videoFileInput && videoFileInput.files && videoFileInput.files[0]) {
+          const file = videoFileInput.files[0];
+
+          if (file.size > 100 * 1024 * 1024) {
+            alert("O arquivo de vídeo excede o limite máximo de 100MB.");
+            return;
+          }
+
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Enviando vídeo para o Supabase...`;
+          }
+
+          const uploadedVidUrl = await uploadFileToSupabaseStorage(file, 'videos');
+          if (uploadedVidUrl) {
+            video_url = uploadedVidUrl;
+            document.getElementById('cms-input-video').value = uploadedVidUrl;
+          } else {
+            throw new Error("Falha no upload do vídeo.");
+          }
+        }
+
+        if (submitBtn) {
+          submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Salvando dados no banco...`;
+        }
+
+        const cmsPayload = {
+          title: document.getElementById('cms-input-title').value.trim(),
+          subtitle: document.getElementById('cms-input-subtitle').value.trim(),
+          spec_speed: document.getElementById('cms-input-spec-speed').value.trim() || "75 km/h",
+          spec_range: document.getElementById('cms-input-spec-range').value.trim() || "60 km",
+          spec_power: document.getElementById('cms-input-spec-power').value.trim() || "3.000W",
+          video_url: video_url || window.appState.cms.video_url,
+          custom_domain: document.getElementById('cms-input-custom-domain').value.trim(),
+          whatsapp_link: document.getElementById('cms-input-whatsapp-link').value.trim(),
+          instagram_link_1: document.getElementById('cms-input-instagram-link-1').value.trim() || "https://instagram.com/gotrix.curitiba",
+          instagram_link_2: document.getElementById('cms-input-instagram-link-2').value.trim() || "https://instagram.com/gotrixoficial",
+          btn_participate_text: document.getElementById('cms-input-btn-participate-text').value.trim() || "Quero Participar do Sorteio",
+          btn_submit_form_text: document.getElementById('cms-input-btn-submit-form-text').value.trim() || "Gerar Meu Número da Sorte",
+          btn_ig1_text: document.getElementById('cms-input-btn-ig1-text').value.trim() || "Instagram Curitiba",
+          btn_ig2_text: document.getElementById('cms-input-btn-ig2-text').value.trim() || "Instagram Oficial",
+          btn_whatsapp_text: document.getElementById('cms-input-btn-whatsapp-text').value.trim() || "Atendimento WhatsApp",
+          whatsapp_ticket_text: document.getElementById('cms-input-whatsapp-ticket-text').value.trim(),
+          pin: document.getElementById('cms-input-pin').value.trim() || '1234',
+          custom_logo_url: document.getElementById('cms-input-logo-url').value.trim(),
+          secondary_logo_url: document.getElementById('cms-input-secondary-logo-url').value.trim(),
+          updated_at: new Date().toISOString()
+        };
+
+        if (supabaseClient) {
+          const { error } = await supabaseClient
+            .from('cms_settings')
+            .upsert({ id: 'main_config', ...cmsPayload });
+
+          if (error) throw error;
+        }
+
+        window.appState.cms = { ...window.appState.cms, ...cmsPayload };
+
+        if (videoFileInput) videoFileInput.value = '';
+
+        applyLogoToAllViews();
+        applyCmsSettings();
+        renderPromotersList();
+
+        alert("Vídeo e configurações salvos com sucesso no Supabase!");
+      } catch (err) {
+        console.error("Erro ao salvar vídeo/CMS:", err);
+        alert("Erro ao salvar: " + (err.message || "Verifique o console."));
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
+        }
       }
-
-      const cmsPayload = {
-        title: document.getElementById('cms-input-title').value.trim(),
-        subtitle: document.getElementById('cms-input-subtitle').value.trim(),
-        spec_speed: document.getElementById('cms-input-spec-speed').value.trim() || "75 km/h",
-        spec_range: document.getElementById('cms-input-spec-range').value.trim() || "60 km",
-        spec_power: document.getElementById('cms-input-spec-power').value.trim() || "3.000W",
-        video_url,
-        custom_domain: document.getElementById('cms-input-custom-domain').value.trim(),
-        whatsapp_link: document.getElementById('cms-input-whatsapp-link').value.trim(),
-        instagram_link: document.getElementById('cms-input-instagram-link').value.trim() || "https://instagram.com/gotrix.curitiba",
-        whatsapp_ticket_text: document.getElementById('cms-input-whatsapp-ticket-text').value.trim(),
-        pin: document.getElementById('cms-input-pin').value.trim() || '1234',
-        custom_logo_url: document.getElementById('cms-input-logo-url').value.trim()
-      };
-
-      if (supabaseClient) {
-        await supabaseClient.from('cms_settings').upsert({ id: 'main_config', ...cmsPayload });
-      }
-      window.appState.cms = { ...window.appState.cms, ...cmsPayload };
-
-      applyLogoToAllViews();
-      applyCmsSettings();
-      renderPromotersList();
-      alert("Configurações e mensagens salvas no Supabase com sucesso!");
     };
+
+    function applyLogoToAllViews() {
+      const logoContainers = document.querySelectorAll('.brand-logo-container');
+      const customLogo = window.appState.cms.custom_logo_url;
+      const secondaryLogo = window.appState.cms.secondary_logo_url;
+
+      logoContainers.forEach(container => {
+        if (customLogo && customLogo.trim() !== '') {
+          container.innerHTML = `<img src="${getSafeImageUrl(customLogo)}" alt="Gotrix" class="h-8 sm:h-9 w-auto object-contain max-w-[180px]">`;
+        }
+      });
+
+      const secWrapper = document.getElementById('secondary-logo-wrapper');
+      const secContainer = document.getElementById('secondary-logo-container');
+      if (secWrapper && secContainer) {
+        if (secondaryLogo && secondaryLogo.trim() !== '') {
+          secContainer.innerHTML = `<img src="${getSafeImageUrl(secondaryLogo)}" alt="Parceiro" class="h-7 sm:h-8 w-auto object-contain max-w-[130px]">`;
+          secWrapper.classList.remove('hidden');
+          secWrapper.classList.add('flex');
+        } else {
+          secWrapper.classList.add('hidden');
+          secWrapper.classList.remove('flex');
+        }
+      }
+    }
+
+    function applyCmsSettings() {
+      const heroTitle = document.getElementById('hero-title');
+      if (heroTitle) {
+        heroTitle.innerHTML = window.appState.cms.title.replace("Scooter Gotrix 0km", "<span class='text-brand-yellow'>Scooter Gotrix 0km</span>");
+      }
+      const heroSubtitle = document.getElementById('hero-subtitle');
+      if (heroSubtitle) heroSubtitle.innerText = window.appState.cms.subtitle;
+
+      const modelDisplay = document.getElementById('form-raffle-model-display');
+      if (modelDisplay) {
+        modelDisplay.innerText = window.appState.cms.title || "Scooter Elétrica Gotrix 0km";
+      }
+
+      const specSpeed = document.getElementById('display-spec-speed');
+      if (specSpeed) specSpeed.innerText = window.appState.cms.spec_speed || "75 km/h";
+
+      const specRange = document.getElementById('display-spec-range');
+      if (specRange) specRange.innerText = window.appState.cms.spec_range || "60 km";
+
+      const specPower = document.getElementById('display-spec-power');
+      if (specPower) specPower.innerText = window.appState.cms.spec_power || "3.000W";
+
+      // VÍDEO DO HERO COM SUPORTE TOTAL A YOUTUBE E ARQUIVO
+      const container = document.getElementById('hero-media-container');
+      const vUrl = window.appState.cms.video_url;
+      if (container) {
+        container.innerHTML = renderMediaElement(vUrl);
+      }
+
+      const zapLink = window.appState.cms.whatsapp_link;
+      const igLink1 = window.appState.cms.instagram_link_1 || "https://instagram.com/gotrix.curitiba";
+      const igLink2 = window.appState.cms.instagram_link_2 || "https://instagram.com/gotrixoficial";
+
+      const directZap = document.getElementById('hero-direct-whatsapp-btn');
+      if (directZap) directZap.href = zapLink;
+
+      const directIg1 = document.getElementById('hero-direct-instagram-btn-1');
+      if (directIg1) directIg1.href = igLink1;
+
+      const directIg2 = document.getElementById('hero-direct-instagram-btn-2');
+      if (directIg2) directIg2.href = igLink2;
+
+      const floatZap = document.getElementById('float-whatsapp-btn');
+      if (floatZap) floatZap.href = zapLink;
+
+      const floatIg1 = document.getElementById('float-ig-curitiba');
+      if (floatIg1) floatIg1.href = igLink1;
+
+      const floatIg2 = document.getElementById('float-ig-oficial');
+      if (floatIg2) floatIg2.href = igLink2;
+
+      const successIg = document.getElementById('success-instagram-btn');
+      if (successIg) successIg.href = igLink1;
+
+      const btnPartText = document.getElementById('display-btn-participate-text');
+      if (btnPartText) btnPartText.innerText = window.appState.cms.btn_participate_text || "Quero Participar do Sorteio";
+
+      const btnSubmitText = document.getElementById('display-btn-submit-form-text');
+      if (btnSubmitText) btnSubmitText.innerText = window.appState.cms.btn_submit_form_text || "Gerar Meu Número da Sorte";
+
+      const btnIg1Text = document.getElementById('display-btn-ig1-text');
+      if (btnIg1Text) btnIg1Text.innerText = window.appState.cms.btn_ig1_text || "Instagram Curitiba";
+
+      const floatIg1Label = document.getElementById('float-ig-curitiba-label');
+      if (floatIg1Label) floatIg1Label.innerText = window.appState.cms.btn_ig1_text || "Gotrix Curitiba";
+
+      const btnIg2Text = document.getElementById('display-btn-ig2-text');
+      if (btnIg2Text) btnIg2Text.innerText = window.appState.cms.btn_ig2_text || "Instagram Oficial";
+
+      const floatIg2Label = document.getElementById('float-ig-oficial-label');
+      if (floatIg2Label) floatIg2Label.innerText = window.appState.cms.btn_ig2_text || "Gotrix Oficial";
+
+      const btnZapText = document.getElementById('display-btn-whatsapp-text');
+      if (btnZapText) btnZapText.innerText = window.appState.cms.btn_whatsapp_text || "Atendimento WhatsApp";
+
+      const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+      setVal('cms-input-title', window.appState.cms.title);
+      setVal('cms-input-subtitle', window.appState.cms.subtitle);
+      setVal('cms-input-spec-speed', window.appState.cms.spec_speed || "75 km/h");
+      setVal('cms-input-spec-range', window.appState.cms.spec_range || "60 km");
+      setVal('cms-input-spec-power', window.appState.cms.spec_power || "3.000W");
+      setVal('cms-input-video', window.appState.cms.video_url);
+      setVal('cms-input-custom-domain', window.appState.cms.custom_domain);
+      setVal('cms-input-btn-participate-text', window.appState.cms.btn_participate_text || "Quero Participar do Sorteio");
+      setVal('cms-input-btn-submit-form-text', window.appState.cms.btn_submit_form_text || "Gerar Meu Número da Sorte");
+      setVal('cms-input-btn-ig1-text', window.appState.cms.btn_ig1_text || "Instagram Curitiba");
+      setVal('cms-input-instagram-link-1', window.appState.cms.instagram_link_1 || "https://instagram.com/gotrix.curitiba");
+      setVal('cms-input-btn-ig2-text', window.appState.cms.btn_ig2_text || "Instagram Oficial");
+      setVal('cms-input-instagram-link-2', window.appState.cms.instagram_link_2 || "https://instagram.com/gotrixoficial");
+      setVal('cms-input-btn-whatsapp-text', window.appState.cms.btn_whatsapp_text || "Atendimento WhatsApp");
+      setVal('cms-input-whatsapp-link', window.appState.cms.whatsapp_link);
+      setVal('cms-input-whatsapp-ticket-text', window.appState.cms.whatsapp_ticket_text);
+      setVal('cms-input-pin', window.appState.cms.pin);
+      setVal('cms-input-logo-url', window.appState.cms.custom_logo_url);
+      setVal('cms-input-secondary-logo-url', window.appState.cms.secondary_logo_url);
+    }
   </script>
 </body>
 </html>
