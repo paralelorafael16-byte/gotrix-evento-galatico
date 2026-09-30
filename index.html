@@ -264,30 +264,25 @@
       </span>
     </div>
 
-    <!-- BLOCO 1: VÍDEO VERTICAL EM TELA INTEIRA COM BOTÃO DE PARTICIPAR NO TOPO DO VÍDEO -->
+    <!-- BLOCO 1: VÍDEO VERTICAL EM TELA INTEIRA -->
     <section id="bloco-video-section" class="relative w-full h-[100vh] min-h-[580px] bg-black flex items-center justify-center overflow-hidden">
       
-      <!-- CONTAINER DO VÍDEO (LARGURA TOTAL E SEM BORDAS ARREDONDADAS) -->
       <div id="hero-media-container" class="absolute inset-0 w-full h-full z-0 flex items-center justify-center bg-black"></div>
 
-      <!-- GRADIENTE SUAVE NA BASE PARA OS BOTÕES -->
       <div class="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none z-10"></div>
 
-      <!-- BARRA LATERAL DIREITA (POSICIONADA MAIS ACIMA / NO MEIO) -->
+      <!-- BARRA LATERAL DIREITA -->
       <div class="absolute right-3 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-3.5">
         
-        <!-- BOTÃO DE SOM -->
         <button type="button" onclick="window.toggleVideoSound()" title="Alternar Som" class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow transition-transform active:scale-90">
           <i id="sound-btn-icon" class="fa-solid fa-volume-xmark text-sm text-brand-yellow"></i>
         </button>
 
-        <!-- BOTÃO INSTAGRAM COM MENU POPUP -->
         <div class="relative flex flex-col items-center">
           <button id="player-ig-toggle-btn" type="button" onclick="window.togglePlayerIgMenu(event)" title="Instagram" class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center shadow transition-transform active:scale-90 border border-white/20">
             <i class="fa-brands fa-instagram text-lg"></i>
           </button>
 
-          <!-- SUBMENU POPUP DO INSTAGRAM -->
           <div id="player-ig-popover" class="hidden absolute top-0 right-12 min-w-[170px] bg-brand-surface/95 backdrop-blur-xl border border-white/10 rounded-2xl p-1.5 shadow-2xl flex flex-col gap-1 z-40">
             <a id="popover-ig1-btn" href="https://instagram.com/gotrix.curitiba" target="_blank" class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-white hover:bg-white/10 transition-colors">
               <i class="fa-brands fa-instagram text-rose-400"></i>
@@ -300,18 +295,15 @@
           </div>
         </div>
 
-        <!-- BOTÃO WHATSAPP -->
         <a id="hero-direct-whatsapp-btn" href="https://wa.me/5541999999999" target="_blank" title="WhatsApp" class="w-10 h-10 rounded-full bg-whatsapp text-white flex items-center justify-center shadow transition-transform active:scale-90 border border-white/20">
           <i class="fa-brands fa-whatsapp text-xl"></i>
         </a>
 
-        <!-- BOTÃO CATÁLOGO -->
         <button type="button" onclick="window.scrollToCatalog()" title="Catálogo" class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-brand-yellow/30 text-brand-yellow flex items-center justify-center shadow transition-transform active:scale-90">
           <i class="fa-solid fa-motorcycle text-sm"></i>
         </button>
       </div>
 
-      <!-- BOTÃO DE PARTICIPAR SOBREPOSTO NO TOPO/MEIO INFERIOR DO VÍDEO -->
       <div class="absolute bottom-6 left-4 right-16 z-20 space-y-2 pointer-events-auto text-left">
         <h1 id="hero-title" class="text-base sm:text-lg font-extrabold uppercase text-white drop-shadow">
           Scooter Gotrix <span class="text-brand-yellow">0km</span>
@@ -1590,7 +1582,7 @@
       window.addEventListener('mousemove', (e) => {
         if (window.lightboxState.isDragging) {
           window.lightboxState.translateX = e.clientX - window.lightboxState.startX;
-          window.lightboxState.translateY = e.clientY - window.lightboxState.startY;
+          window.lightboxState.translateY = e.clientY - window.lightboxState.translateY;
           applyLightboxTransform();
         }
       });
