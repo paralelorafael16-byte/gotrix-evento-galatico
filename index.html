@@ -44,6 +44,7 @@
   </script>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -256,12 +257,12 @@
       </div>
     </header>
 
-    <!-- BLOCO 1: VÍDEO VERTICAL EM TELA INTEIRA (FAIXA AMARELA ELIMINADA DA TELA DO CLIENTE) -->
+    <!-- BLOCO 1: VÍDEO VERTICAL EM TELA INTEIRA (FAIXA AMARELA ELIMINADA DA VISÃO DO CLIENTE) -->
     <section id="bloco-video-section" class="relative w-full h-[100vh] min-h-[580px] bg-black flex items-center justify-center overflow-hidden">
       
       <div id="hero-media-container" class="absolute inset-0 w-full h-full z-0 flex items-center justify-center bg-black"></div>
 
-      <div class="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-black/95 via-black/50 to-transparent pointer-events-none z-10"></div>
+      <div class="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none z-10"></div>
 
       <!-- BARRA LATERAL DIREITA -->
       <div class="absolute right-3 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-3.5">
@@ -296,7 +297,7 @@
         </button>
       </div>
 
-      <!-- BOTÃO DE PARTICIPAR REPOSICIONADO MAIS ACIMA -->
+      <!-- BOTÃO DE PARTICIPAR REPOSICIONADO PARA NÃO SER CORTADO -->
       <div class="absolute bottom-12 left-4 right-16 z-20 space-y-2 pointer-events-auto text-left">
         <h1 id="hero-title" class="text-base sm:text-lg font-extrabold uppercase text-white drop-shadow">
           Scooter Gotrix <span class="text-brand-yellow">0km</span>
@@ -558,7 +559,7 @@
     </div>
   </div>
 
-  <!-- CRACHÁ DO PROMOTOR -->
+  <!-- CRACHÁ DO PROMOTOR (COM QR CODE NATIVO BLINDADO) -->
   <div id="view-cracha" class="hidden w-full flex-grow flex items-center justify-center p-4">
     <div class="w-full max-w-[320px] space-y-4">
       
@@ -1575,7 +1576,7 @@
       window.addEventListener('mousemove', (e) => {
         if (window.lightboxState.isDragging) {
           window.lightboxState.translateX = e.clientX - window.lightboxState.startX;
-          window.lightboxState.translateY = e.clientY - window.lightboxState.translateY;
+          window.lightboxState.translateY = e.clientY - window.lightboxState.startY;
           applyLightboxTransform();
         }
       });
@@ -1705,8 +1706,7 @@
       if (pToken) {
         const promoter = window.appState.promoters.find(p => p.id === pToken);
         if (promoter) {
-          const squad = window.appState.squads.find(s => s.id === promoter.squad_id);
-          document.getElementById('attribution-promoter-name').innerText = promoter.name;
+          // O rastreamento funciona perfeitamente em segundo plano, mas a faixa amarela visual foi eliminada!
         }
       }
 
