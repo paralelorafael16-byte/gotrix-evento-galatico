@@ -86,19 +86,40 @@
       0% { transform: translate(-100%, -100%) rotate(30deg); }
       100% { transform: translate(100%, 100%) rotate(30deg); }
     }
+
+    /* Transição suave para o cabeçalho recolhível */
+    #main-header {
+      transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    }
+    #main-header.header-hidden {
+      transform: translateY(-100%);
+      opacity: 0;
+      pointer-events: none;
+    }
   </style>
 
   <script>
     window.scrollToForm = function() {
       const el = document.getElementById('bloco-cadastro-section');
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      else window.location.hash = '#bloco-cadastro-section';
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Mostra o cabeçalho ao rolar para o formulário
+        const header = document.getElementById('main-header');
+        if (header) header.classList.remove('header-hidden');
+      } else {
+        window.location.hash = '#bloco-cadastro-section';
+      }
     };
 
     window.scrollToCatalog = function() {
       const el = document.getElementById('bloco-catalogo-section');
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      else window.location.hash = '#bloco-catalogo-section';
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const header = document.getElementById('main-header');
+        if (header) header.classList.remove('header-hidden');
+      } else {
+        window.location.hash = '#bloco-catalogo-section';
+      }
     };
 
     window.toggleRegulamentoDropdown = function() {
@@ -123,6 +144,18 @@
         if (!menu.contains(e.target) && !btn.contains(e.target)) {
           menu.classList.add('hidden');
         }
+      }
+    });
+
+    // Controlo do cabeçalho recolhível ao rolar a página
+    window.addEventListener('scroll', function() {
+      const header = document.getElementById('main-header');
+      if (!header) return;
+      if (window.scrollY > 40) {
+        header.classList.remove('header-hidden');
+      } else {
+        // Recolhe o cabeçalho quando estiver no topo absoluto (vídeo em tela inteira)
+        header.classList.add('header-hidden');
       }
     });
 
@@ -195,8 +228,8 @@
   <!-- 1. VISTA PÚBLICA -->
   <div id="view-landing" class="w-full flex-grow">
     
-    <!-- CABEÇALHO -->
-    <header class="sticky top-0 z-40 bg-brand-surface/90 backdrop-blur-xl border-b border-white/5 px-4 sm:px-6 py-2.5 transition-all">
+    <!-- CABEÇALHO RECOLHÍVEL (Inicia oculto para abrir o vídeo em tela inteira) -->
+    <header id="main-header" class="fixed top-0 left-0 right-0 z-40 bg-brand-surface/95 backdrop-blur-xl border-b border-white/5 px-4 sm:px-6 py-2.5 header-hidden">
       <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
         
         <a href="#landing" class="flex items-center gap-2 group cursor-pointer flex-shrink-0">
@@ -228,75 +261,72 @@
     </header>
 
     <!-- BANNER DE CONSULTOR -->
-    <div id="attribution-banner" class="hidden bg-brand-yellow text-brand-black px-3 py-1.5 text-center text-xs font-bold shadow-md">
+    <div id="attribution-banner" class="hidden bg-brand-yellow text-brand-black px-3 py-1.5 text-center text-xs font-bold shadow-md mt-12">
       <span class="flex items-center justify-center gap-1.5 flex-wrap">
         <i class="fa-solid fa-qrcode text-xs"></i>
         <span>Atendimento com <strong id="attribution-promoter-name">Consultor Gotrix</strong></span>
       </span>
     </div>
 
-    <!-- BLOCO 1: PLAYER ESTILO TIKTOK / SHORTS 9:16 (SEM POLUIÇÃO VISUAL) -->
-    <section id="bloco-video-section" class="py-2 sm:py-6 px-2 flex justify-center">
+    <!-- BLOCO 1: VÍDEO VERTICAL ABERTO EM TELA INTEIRA (SEM CANTOS ARREDONDADOS) -->
+    <section id="bloco-video-section" class="relative w-full h-[100vh] min-h-[580px] bg-black flex items-center justify-center overflow-hidden">
       
-      <div class="relative w-full max-w-[360px] sm:max-w-[380px] aspect-[9/16] max-h-[82vh] bg-black rounded-[32px] overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.95)] flex items-center justify-center">
+      <!-- CONTAINER DO VÍDEO (LARGURA TOTAL E SEM BORDAS) -->
+      <div id="hero-media-container" class="absolute inset-0 w-full h-full z-0 flex items-center justify-center bg-black"></div>
+
+      <!-- GRADIENTE SUAVE NA BASE PARA OS BOTÕES -->
+      <div class="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none z-10"></div>
+
+      <!-- BARRA LATERAL DIREITA -->
+      <div class="absolute right-3 bottom-20 z-30 flex flex-col items-center gap-3">
         
-        <!-- CONTAINER DO VÍDEO (IMAGEM COMPLETA SEM CORTES) -->
-        <div id="hero-media-container" class="absolute inset-0 w-full h-full z-0 flex items-center justify-center bg-black"></div>
+        <!-- BOTÃO DE SOM -->
+        <button type="button" onclick="window.toggleVideoSound()" title="Alternar Som" class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow transition-transform active:scale-90">
+          <i id="sound-btn-icon" class="fa-solid fa-volume-xmark text-sm text-brand-yellow"></i>
+        </button>
 
-        <!-- GRADIENTE DISCRETO NA BASE -->
-        <div class="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-10"></div>
-
-        <!-- BARRA LATERAL DIREITA COMPACTA -->
-        <div class="absolute right-2.5 bottom-16 z-30 flex flex-col items-center gap-2.5">
-          
-          <!-- BOTÃO DE SOM -->
-          <button type="button" onclick="window.toggleVideoSound()" title="Alternar Som" class="w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow transition-transform active:scale-90">
-            <i id="sound-btn-icon" class="fa-solid fa-volume-xmark text-xs text-brand-yellow"></i>
+        <!-- BOTÃO INSTAGRAM COM MENU POPUP -->
+        <div class="relative flex flex-col items-center">
+          <button id="player-ig-toggle-btn" type="button" onclick="window.togglePlayerIgMenu(event)" title="Instagram" class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center shadow transition-transform active:scale-90 border border-white/20">
+            <i class="fa-brands fa-instagram text-lg"></i>
           </button>
 
-          <!-- BOTÃO INSTAGRAM COM POPOVER -->
-          <div class="relative flex flex-col items-center">
-            <button id="player-ig-toggle-btn" type="button" onclick="window.togglePlayerIgMenu(event)" title="Instagram" class="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center shadow transition-transform active:scale-90 border border-white/20">
-              <i class="fa-brands fa-instagram text-sm"></i>
-            </button>
-
-            <!-- SUBMENU POPUP DO INSTAGRAM -->
-            <div id="player-ig-popover" class="hidden absolute bottom-11 right-0 min-w-[160px] bg-brand-surface/95 backdrop-blur-xl border border-white/10 rounded-2xl p-1.5 shadow-2xl flex flex-col gap-1 z-40">
-              <a id="popover-ig1-btn" href="https://instagram.com/gotrix.curitiba" target="_blank" class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-white hover:bg-white/10 transition-colors">
-                <i class="fa-brands fa-instagram text-rose-400"></i>
-                <span id="display-popover-ig1-text" class="truncate">Gotrix Curitiba</span>
-              </a>
-              <a id="popover-ig2-btn" href="https://instagram.com/gotrixoficial" target="_blank" class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-white hover:bg-white/10 transition-colors">
-                <i class="fa-brands fa-instagram text-purple-400"></i>
-                <span id="display-popover-ig2-text" class="truncate">Gotrix Oficial</span>
-              </a>
-            </div>
+          <!-- SUBMENU POPUP DO INSTAGRAM -->
+          <div id="player-ig-popover" class="hidden absolute bottom-12 right-0 min-w-[170px] bg-brand-surface/95 backdrop-blur-xl border border-white/10 rounded-2xl p-1.5 shadow-2xl flex flex-col gap-1 z-40">
+            <a id="popover-ig1-btn" href="https://instagram.com/gotrix.curitiba" target="_blank" class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-white hover:bg-white/10 transition-colors">
+              <i class="fa-brands fa-instagram text-rose-400"></i>
+              <span id="display-popover-ig1-text" class="truncate">Gotrix Curitiba</span>
+            </a>
+            <a id="popover-ig2-btn" href="https://instagram.com/gotrixoficial" target="_blank" class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-white hover:bg-white/10 transition-colors">
+              <i class="fa-brands fa-instagram text-purple-400"></i>
+              <span id="display-popover-ig2-text" class="truncate">Gotrix Oficial</span>
+            </a>
           </div>
-
-          <!-- BOTÃO WHATSAPP -->
-          <a id="hero-direct-whatsapp-btn" href="https://wa.me/5541999999999" target="_blank" title="WhatsApp" class="w-9 h-9 rounded-full bg-whatsapp text-white flex items-center justify-center shadow transition-transform active:scale-90 border border-white/20">
-            <i class="fa-brands fa-whatsapp text-base"></i>
-          </a>
-
-          <!-- BOTÃO CATÁLOGO -->
-          <button type="button" onclick="window.scrollToCatalog()" title="Catálogo" class="w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-brand-yellow/30 text-brand-yellow flex items-center justify-center shadow transition-transform active:scale-90">
-            <i class="fa-solid fa-motorcycle text-xs"></i>
-          </button>
         </div>
 
-        <!-- BASE LIMPA: APENAS TÍTULO E BOTÃO DE PARTICIPAÇÃO -->
-        <div class="absolute bottom-3 left-3 right-14 z-20 space-y-1.5 pointer-events-auto text-left">
-          <h1 id="hero-title" class="text-sm font-extrabold uppercase text-white drop-shadow truncate">
-            Scooter Gotrix <span class="text-brand-yellow">0km</span>
-          </h1>
+        <!-- BOTÃO WHATSAPP -->
+        <a id="hero-direct-whatsapp-btn" href="https://wa.me/5541999999999" target="_blank" title="WhatsApp" class="w-10 h-10 rounded-full bg-whatsapp text-white flex items-center justify-center shadow transition-transform active:scale-90 border border-white/20">
+          <i class="fa-brands fa-whatsapp text-xl"></i>
+        </a>
 
-          <button onclick="window.scrollToForm()" class="btn-glow w-full bg-brand-yellow hover:bg-brand-yellowDark text-brand-black font-extrabold uppercase tracking-wider py-2.5 rounded-xl text-xs transition-all shadow-glow-yellow flex items-center justify-center gap-2">
-            <span id="display-btn-participate-text">Quero Participar do Sorteio</span>
-            <i class="fa-solid fa-arrow-down text-[10px]"></i>
-          </button>
-        </div>
-
+        <!-- BOTÃO CATÁLOGO -->
+        <button type="button" onclick="window.scrollToCatalog()" title="Catálogo" class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-brand-yellow/30 text-brand-yellow flex items-center justify-center shadow transition-transform active:scale-90">
+          <i class="fa-solid fa-motorcycle text-sm"></i>
+        </button>
       </div>
+
+      <!-- BASE DO VÍDEO (TEXTO INTEIRO E BOTÃO DE PARTICIPAR) -->
+      <div class="absolute bottom-4 left-4 right-16 z-20 space-y-2 pointer-events-auto text-left">
+        <h1 id="hero-title" class="text-base sm:text-lg font-extrabold uppercase text-white drop-shadow">
+          Scooter Gotrix <span class="text-brand-yellow">0km</span>
+        </h1>
+
+        <button onclick="window.scrollToForm()" class="btn-glow w-full bg-brand-yellow hover:bg-brand-yellowDark text-brand-black font-extrabold uppercase tracking-wider py-3 rounded-xl text-xs transition-all shadow-glow-yellow flex items-center justify-center gap-2">
+          <span id="display-btn-participate-text">Quero Participar do Sorteio</span>
+          <i class="fa-solid fa-arrow-down text-xs"></i>
+        </button>
+      </div>
+
     </section>
 
     <!-- FORMULÁRIO -->
@@ -449,7 +479,7 @@
     </footer>
   </div>
 
-  <!-- LIGHTBOX / FULLSCREEN COM ZOOM INTERATIVO -->
+  <!-- LIGHTBOX / FULLSCREEN COM ZOOM -->
   <div id="image-lightbox" class="hidden fixed inset-0 z-50 bg-black/95 backdrop-blur-2xl flex flex-col justify-between p-4 overflow-hidden select-none">
     
     <div class="flex items-center justify-between z-20">
@@ -1043,7 +1073,6 @@
 
     window.isVideoMuted = true;
 
-    // RENDERIZADOR COM TRUQUE CSS PARA OCULTAR A BARRA DE TÍTULO/PERFIL DO YOUTUBE
     function renderMediaElement(url) {
       if (!url || url.trim() === '') {
         return `<div class="text-xs text-gray-500 flex flex-col items-center justify-center p-4 text-center"><i class="fa-solid fa-video-slash text-xl mb-1 text-brand-yellow"></i>Sem vídeo configurado.</div>`;
@@ -1052,7 +1081,7 @@
       const ytId = extractYouTubeId(url);
       if (ytId) {
         return `
-          <div class="relative w-full h-full overflow-hidden rounded-[32px] bg-black">
+          <div class="relative w-full h-full overflow-hidden bg-black">
             <iframe 
               id="tiktok-iframe-player"
               class="w-full h-[calc(100%+75px)] -mt-[65px] object-cover pointer-events-auto" 
@@ -1071,7 +1100,7 @@
         <video 
           id="tiktok-native-player"
           src="${url}" 
-          class="w-full h-full object-contain" 
+          class="w-full h-full object-cover" 
           autoplay 
           loop 
           muted 
@@ -1120,9 +1149,6 @@
       cms: {
         title: "Scooter Gotrix 0km",
         subtitle: "Confira a moto que pode ser sua neste sorteio exclusivo Gotrix!",
-        spec_speed: "75 km/h",
-        spec_range: "60 km",
-        spec_power: "3.000W",
         video_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
         custom_domain: "",
         whatsapp_link: "https://wa.me/5541999999999?text=Ol%C3%A1%2C%20gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20o%20sorteio%20Gotrix!",
@@ -1568,7 +1594,7 @@
       window.addEventListener('mousemove', (e) => {
         if (window.lightboxState.isDragging) {
           window.lightboxState.translateX = e.clientX - window.lightboxState.startX;
-          window.lightboxState.translateY = e.clientY - window.lightboxState.startY;
+          window.lightboxState.translateY = e.clientY - window.lightboxState.translateY;
           applyLightboxTransform();
         }
       });
