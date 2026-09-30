@@ -44,7 +44,6 @@
   </script>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -257,20 +256,11 @@
       </div>
     </header>
 
-    <!-- BANNER DE CONSULTOR -->
-    <div id="attribution-banner" class="hidden bg-brand-yellow text-brand-black px-3 py-1.5 text-center text-xs font-bold shadow-md mt-12">
-      <span class="flex items-center justify-center gap-1.5 flex-wrap">
-        <i class="fa-solid fa-qrcode text-xs"></i>
-        <span>Atendimento com <strong id="attribution-promoter-name">Consultor Gotrix</strong></span>
-      </span>
-    </div>
-
-    <!-- BLOCO 1: VÍDEO VERTICAL EM TELA INTEIRA (COM BOTÃO REPOSICIONADO MAIS ACIMA) -->
+    <!-- BLOCO 1: VÍDEO VERTICAL EM TELA INTEIRA (FAIXA AMARELA ELIMINADA DA TELA DO CLIENTE) -->
     <section id="bloco-video-section" class="relative w-full h-[100vh] min-h-[580px] bg-black flex items-center justify-center overflow-hidden">
       
       <div id="hero-media-container" class="absolute inset-0 w-full h-full z-0 flex items-center justify-center bg-black"></div>
 
-      <!-- Gradiente inferior um pouco mais alto para resguardar o botão de toque -->
       <div class="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-black/95 via-black/50 to-transparent pointer-events-none z-10"></div>
 
       <!-- BARRA LATERAL DIREITA -->
@@ -306,7 +296,7 @@
         </button>
       </div>
 
-      <!-- BOTÃO DE PARTICIPAR REPOSICIONADO MAIS ACIMA NA TELA (EVITA O CORTE INFERIOR) -->
+      <!-- BOTÃO DE PARTICIPAR REPOSICIONADO MAIS ACIMA -->
       <div class="absolute bottom-12 left-4 right-16 z-20 space-y-2 pointer-events-auto text-left">
         <h1 id="hero-title" class="text-base sm:text-lg font-extrabold uppercase text-white drop-shadow">
           Scooter Gotrix <span class="text-brand-yellow">0km</span>
@@ -568,7 +558,7 @@
     </div>
   </div>
 
-  <!-- CRACHÁ DO PROMOTOR (COM QR CODE NATIVO BLINDADO) -->
+  <!-- CRACHÁ DO PROMOTOR -->
   <div id="view-cracha" class="hidden w-full flex-grow flex items-center justify-center p-4">
     <div class="w-full max-w-[320px] space-y-4">
       
@@ -1075,7 +1065,7 @@
           <div class="relative w-full h-full overflow-hidden bg-black">
             <iframe 
               id="tiktok-iframe-player"
-              class="w-full h-full object-cover pointer-events-auto" 
+              class="w-full h-[calc(100%+75px)] -mt-[65px] object-cover pointer-events-auto" 
               src="https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&controls=0&playsinline=1&loop=1&playlist=${ytId}&enablejsapi=1&rel=0&modestbranding=1" 
               title="Vídeo Gotrix"
               frameborder="0" 
@@ -1717,7 +1707,6 @@
         if (promoter) {
           const squad = window.appState.squads.find(s => s.id === promoter.squad_id);
           document.getElementById('attribution-promoter-name').innerText = promoter.name;
-          document.getElementById('attribution-banner').classList.remove('hidden');
         }
       }
 
@@ -1776,7 +1765,6 @@
       window.currentBadgeUrl = fullShareUrl;
       window.currentBadgePromoter = promoter;
 
-      // QR CODE BLINDADO COM API NATIVA (GARANTE QUE NUNCA FICA EM BRANCO)
       const qrImageEl = document.getElementById('badge-qr-image');
       if (qrImageEl) {
         const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(fullShareUrl)}&margin=0`;
