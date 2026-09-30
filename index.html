@@ -47,6 +47,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Biblioteca para renderizar e descarregar o crachá físico completo em PNG -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
     body {
@@ -112,6 +114,22 @@
         icon.classList.toggle('rotate-180');
       }
     };
+
+    window.togglePlayerIgMenu = function(e) {
+      if (e) e.stopPropagation();
+      const menu = document.getElementById('player-ig-popover');
+      if (menu) menu.classList.toggle('hidden');
+    };
+
+    document.addEventListener('click', function(e) {
+      const menu = document.getElementById('player-ig-popover');
+      const btn = document.getElementById('player-ig-toggle-btn');
+      if (menu && !menu.classList.contains('hidden')) {
+        if (!menu.contains(e.target) && !btn.contains(e.target)) {
+          menu.classList.add('hidden');
+        }
+      }
+    });
 
     function startCountdown() {
       const countDownDate = new Date("October 30, 2026 00:00:00").getTime();
@@ -255,26 +273,25 @@
     <!-- BLOCO 1: PLAYER ESTILO TIKTOK / SHORTS 9:16 (SEM CORTES) -->
     <section id="bloco-video-section" class="py-4 sm:py-8 px-2 sm:px-4 flex justify-center">
       
-      <!-- CARD VERTICAL SHORTS COM PROPORÇÃO 9:16 RIGOROSA -->
       <div class="relative w-full max-w-[375px] sm:max-w-[400px] aspect-[9/16] max-h-[82vh] bg-black rounded-[32px] sm:rounded-[36px] overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.95)] flex items-center justify-center">
         
-        <!-- CONTAINER DO VÍDEO (OBJETO TOTAL SEM CORTAR A IMAGEM) -->
+        <!-- CONTAINER DO VÍDEO -->
         <div id="hero-media-container" class="absolute inset-0 w-full h-full z-0 flex items-center justify-center bg-black"></div>
 
-        <!-- GRADIENTE SUAVE DE LEITURA (NÃO TAPA O VÍDEO) -->
+        <!-- GRADIENTE SUAVE -->
         <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/90 pointer-events-none z-10"></div>
 
-        <!-- TAG SUPERIOR FLUTUANTE -->
+        <!-- TAG SUPERIOR -->
         <div class="absolute top-4 left-4 z-20 pointer-events-none">
           <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-brand-yellow/30 text-brand-yellow text-[10px] font-extrabold uppercase tracking-wider">
             <i class="fa-solid fa-bolt text-[9px] animate-pulse"></i> Sorteio Gotrix 2026
           </span>
         </div>
 
-        <!-- BARRA LATERAL DIREITA (CONTROLO DE SOM, INSTAGRAM E WHATSAPP) -->
+        <!-- BARRA LATERAL DIREITA -->
         <div class="absolute right-3 bottom-24 z-30 flex flex-col items-center gap-3.5">
           
-          <!-- BOTÃO DE ALTERNAR SOM (MUTE / UNMUTE) -->
+          <!-- BOTÃO DE ALTERNAR SOM -->
           <button type="button" onclick="window.toggleVideoSound()" class="flex flex-col items-center gap-1 group">
             <div id="sound-btn-icon-wrapper" class="w-11 h-11 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-lg transition-transform active:scale-90">
               <i id="sound-btn-icon" class="fa-solid fa-volume-xmark text-lg text-brand-yellow"></i>
@@ -282,13 +299,30 @@
             <span id="sound-btn-label" class="text-[9px] font-bold text-white uppercase drop-shadow">Sem Som</span>
           </button>
 
-          <!-- BOTÃO INSTAGRAM -->
-          <a id="hero-direct-instagram-btn-1" href="https://instagram.com/gotrix.curitiba" target="_blank" class="flex flex-col items-center gap-1 group">
-            <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center shadow-lg transition-transform active:scale-90 border border-white/20">
-              <i class="fa-brands fa-instagram text-xl"></i>
+          <!-- BOTÃO INSTAGRAM COM MENU POPUP (ESCOLHER ENTRE OS DOIS PERFIS) -->
+          <div class="relative flex flex-col items-center">
+            
+            <button id="player-ig-toggle-btn" type="button" onclick="window.togglePlayerIgMenu(event)" class="flex flex-col items-center gap-1 group focus:outline-none">
+              <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center shadow-lg transition-transform active:scale-90 border border-white/20">
+                <i class="fa-brands fa-instagram text-xl"></i>
+              </div>
+              <span class="text-[9px] font-bold text-white uppercase drop-shadow">Instagram</span>
+            </button>
+
+            <!-- SUBMENU POPUP FLUTUANTE DO INSTAGRAM -->
+            <div id="player-ig-popover" class="hidden absolute bottom-14 right-0 min-w-[170px] bg-brand-surface/95 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl flex flex-col gap-1 z-40 animate-fade-in">
+              <span class="text-[9px] font-bold text-gray-400 uppercase px-2 py-0.5 tracking-wider">Escolha o Perfil:</span>
+              <a id="popover-ig1-btn" href="https://instagram.com/gotrix.curitiba" target="_blank" class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-white hover:bg-white/10 transition-colors">
+                <i class="fa-brands fa-instagram text-rose-400 text-sm"></i>
+                <span id="display-popover-ig1-text" class="truncate">Gotrix Curitiba</span>
+              </a>
+              <a id="popover-ig2-btn" href="https://instagram.com/gotrixoficial" target="_blank" class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-white hover:bg-white/10 transition-colors">
+                <i class="fa-brands fa-instagram text-purple-400 text-sm"></i>
+                <span id="display-popover-ig2-text" class="truncate">Gotrix Oficial</span>
+              </a>
             </div>
-            <span class="text-[9px] font-bold text-white uppercase drop-shadow">Perfil</span>
-          </a>
+
+          </div>
 
           <!-- BOTÃO WHATSAPP -->
           <a id="hero-direct-whatsapp-btn" href="https://wa.me/5541999999999" target="_blank" class="flex flex-col items-center gap-1 group">
@@ -298,7 +332,7 @@
             <span class="text-[9px] font-bold text-white uppercase drop-shadow">Contato</span>
           </a>
 
-          <!-- BOTÃO MOTOS DO CATÁLOGO -->
+          <!-- BOTÃO MOTOS -->
           <button type="button" onclick="window.scrollToCatalog()" class="flex flex-col items-center gap-1 group">
             <div class="w-11 h-11 rounded-full bg-brand-surfaceAlt/90 backdrop-blur-md border border-brand-yellow/30 text-brand-yellow flex items-center justify-center shadow-lg transition-transform active:scale-90">
               <i class="fa-solid fa-motorcycle text-lg"></i>
@@ -307,7 +341,7 @@
           </button>
         </div>
 
-        <!-- INFORMAÇÕES SOBREPOSTAS NA PARTE INFERIOR (ESTILO SHORTS/TIKTOK) -->
+        <!-- LEGENDA DO SHORTS -->
         <div class="absolute bottom-4 left-4 right-16 z-20 space-y-2 pointer-events-auto text-left">
           
           <div>
@@ -319,7 +353,6 @@
             </p>
           </div>
 
-          <!-- ESPECIFICAÇÕES HORIZONTAIS -->
           <div class="flex items-center gap-1.5 flex-wrap pt-0.5">
             <span class="px-2 py-0.5 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-[10px] text-gray-300 font-bold">
               ⚡ <span id="display-spec-speed" class="text-brand-yellow">75 km/h</span>
@@ -332,7 +365,6 @@
             </span>
           </div>
 
-          <!-- BOTÃO PRINCIPAL COM GLOW (CTA) -->
           <div class="pt-1">
             <button onclick="window.scrollToForm()" class="btn-glow w-full bg-brand-yellow hover:bg-brand-yellowDark text-brand-black font-extrabold uppercase tracking-wider py-3 rounded-xl text-xs transition-all shadow-glow-yellow flex items-center justify-center gap-2">
               <span id="display-btn-participate-text">Quero Participar do Sorteio</span>
@@ -586,37 +618,46 @@
     </div>
   </div>
 
-  <!-- CRACHÁ DO PROMOTOR -->
+  <!-- CRACHÁ DO PROMOTOR (COM SUPORTE A IMPRESSÃO E DOWNLOAD COMPLETO) -->
   <div id="view-cracha" class="hidden w-full flex-grow flex items-center justify-center p-4">
-    <div class="w-full max-w-xs glass-card border border-brand-yellow/40 rounded-3xl p-5 shadow-glow-card text-center space-y-4">
-      <div class="brand-logo-container flex justify-center">
-        <svg class="h-7 w-auto text-brand-yellow" viewBox="0 0 240 60" fill="none">
-          <circle cx="70" cy="30" r="18" stroke="#F5B301" stroke-width="4"/>
-          <path d="M72 17L62 31H70L68 43L78 29H70L72 17Z" fill="#F5B301"/>
-          <text x="18" y="54" fill="#F5B301" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="8.5" letter-spacing="4">MOBILIDADE URBANA</text>
-        </svg>
+    <div class="w-full max-w-xs space-y-4">
+      
+      <!-- CARTÃO FÍSICO DO CRACHÁ -->
+      <div id="printable-badge-card" class="glass-card border border-brand-yellow/40 rounded-3xl p-6 shadow-glow-card text-center space-y-4 bg-brand-surface">
+        <div class="brand-logo-container flex justify-center">
+          <svg class="h-7 w-auto text-brand-yellow" viewBox="0 0 240 60" fill="none">
+            <circle cx="70" cy="30" r="18" stroke="#F5B301" stroke-width="4"/>
+            <path d="M72 17L62 31H70L68 43L78 29H70L72 17Z" fill="#F5B301"/>
+            <text x="18" y="54" fill="#F5B301" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="8.5" letter-spacing="4">MOBILIDADE URBANA</text>
+          </svg>
+        </div>
+
+        <div>
+          <span class="text-[9px] font-extrabold uppercase tracking-widest text-brand-yellow bg-brand-yellow/10 px-2.5 py-0.5 rounded-full border border-brand-yellow/20">Crachá Oficial Gotrix</span>
+          <h2 id="badge-promoter-name" class="text-xl font-extrabold text-white uppercase mt-1.5 truncate">Nome Promotor</h2>
+          <p id="badge-squad-name" class="text-[11px] font-semibold text-gray-400">Squad 1</p>
+        </div>
+
+        <div class="bg-white p-3 rounded-2xl inline-block shadow-lg mx-auto">
+          <div id="badge-qrcode-container"></div>
+        </div>
+
+        <p class="text-[11px] text-gray-400">Aponte a câmara para registar no sorteio e ativar R$ 1.000 OFF.</p>
       </div>
 
-      <div>
-        <span class="text-[9px] font-extrabold uppercase tracking-widest text-brand-yellow bg-brand-yellow/10 px-2.5 py-0.5 rounded-full border border-brand-yellow/20">Crachá Oficial Gotrix</span>
-        <h2 id="badge-promoter-name" class="text-xl font-extrabold text-white uppercase mt-1.5 truncate">Nome Promotor</h2>
-        <p id="badge-squad-name" class="text-[11px] font-semibold text-gray-400">Squad 1</p>
-      </div>
-
-      <div class="bg-white p-3 rounded-2xl inline-block shadow-lg mx-auto">
-        <div id="badge-qrcode-container"></div>
-      </div>
-
-      <p class="text-[11px] text-gray-400">Aponte a câmara para registar no sorteio e ativar R$ 1.000 OFF.</p>
-
+      <!-- BOTÕES DE DOWNLOAD PARA IMPRESSÃO -->
       <div class="flex flex-col gap-2 pt-1">
-        <button onclick="window.downloadBadgeQrCode()" class="w-full bg-brand-surfaceAlt text-white font-bold py-2 rounded-xl text-[11px] flex items-center justify-center gap-1.5 border border-white/5">
-          <i class="fa-solid fa-download"></i> Baixar Imagem (PNG)
+        <button onclick="window.downloadFullBadgeCard()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-2.5 rounded-xl text-xs uppercase flex items-center justify-center gap-1.5 shadow-md">
+          <i class="fa-solid fa-id-card"></i> Baixar Imagem do Crachá (Impressão)
+        </button>
+        <button onclick="window.downloadBadgeQrCode()" class="w-full bg-brand-surfaceAlt hover:bg-brand-border text-white font-bold py-2 rounded-xl text-[11px] flex items-center justify-center gap-1.5 border border-white/5">
+          <i class="fa-solid fa-qrcode"></i> Baixar Apenas QR Code (PNG)
         </button>
         <button onclick="window.copyBadgeLink()" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-black font-extrabold py-2.5 rounded-xl text-xs uppercase flex items-center justify-center gap-1.5 shadow-glow-yellow">
           <i class="fa-regular fa-copy"></i> Copiar Link
         </button>
       </div>
+
     </div>
   </div>
 
@@ -954,11 +995,11 @@
                 <input type="text" id="cms-input-btn-submit-form-text" placeholder="Texto Botão Envio Form" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2 text-xs text-white">
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <input type="text" id="cms-input-btn-ig1-text" placeholder="Texto IG 1" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2 text-xs text-white">
+                <input type="text" id="cms-input-btn-ig1-text" placeholder="Texto IG 1 (Curitiba)" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2 text-xs text-white">
                 <input type="text" id="cms-input-instagram-link-1" placeholder="Link IG 1" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2 text-xs text-white">
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <input type="text" id="cms-input-btn-ig2-text" placeholder="Texto IG 2" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2 text-xs text-white">
+                <input type="text" id="cms-input-btn-ig2-text" placeholder="Texto IG 2 (Oficial)" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2 text-xs text-white">
                 <input type="text" id="cms-input-instagram-link-2" placeholder="Link IG 2" class="w-full bg-brand-surface border border-white/10 rounded-lg p-2 text-xs text-white">
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -1065,7 +1106,6 @@
 
     window.isVideoMuted = true;
 
-    // RENDERIZADOR UNIVERSAL COM OBJECT-CONTAIN (NÃO CORTA O VÍDEO)
     function renderMediaElement(url) {
       if (!url || url.trim() === '') {
         return `<div class="text-xs text-gray-500 flex flex-col items-center justify-center p-4 text-center"><i class="fa-solid fa-video-slash text-xl mb-1 text-brand-yellow"></i>Sem vídeo configurado.</div>`;
@@ -1080,7 +1120,7 @@
             src="https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&controls=0&playsinline=1&loop=1&playlist=${ytId}&enablejsapi=1&rel=0&modestbranding=1" 
             title="Vídeo Gotrix"
             frameborder="0" 
-            referrerpolicy="strict-origin-when-cross-origin"
+            referrerpolicy="strict-origin-when-cross-origin" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
             allowfullscreen>
           </iframe>
@@ -1100,7 +1140,6 @@
       `;
     }
 
-    // ALTERNADOR DE SOM (MUTE / UNMUTE)
     window.toggleVideoSound = function() {
       window.isVideoMuted = !window.isVideoMuted;
       
@@ -1692,6 +1731,7 @@
       });
 
       window.currentBadgeUrl = fullShareUrl;
+      window.currentBadgePromoter = promoter;
     }
 
     window.copyBadgeLink = function() {
@@ -1712,9 +1752,30 @@
       }
     };
 
-    // ==========================================
-    // FUNÇÕES DO PAINEL ADMINISTRATIVO
-    // ==========================================
+    // DOWNLOAD DO CARTÃO DE CRACHÁ COMPLETO EM ALTA DEFINIÇÃO PARA IMPRESSÃO
+    window.downloadFullBadgeCard = function() {
+      const cardElement = document.getElementById('printable-badge-card');
+      if (!cardElement) return;
+
+      const promoterName = (window.currentBadgePromoter && window.currentBadgePromoter.name) 
+        ? window.currentBadgePromoter.name.replace(/\s+/g, '_') 
+        : 'promotor';
+
+      html2canvas(cardElement, {
+        scale: 3, // Alta resolução para impressão
+        backgroundColor: '#0E0F12',
+        useCORS: true
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `cracha-gotrix-${promoterName}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }).catch(err => {
+        console.error("Erro ao gerar imagem para impressão:", err);
+        alert("Não foi possível gerar a imagem para impressão. Tente novamente.");
+      });
+    };
+
     function renderSupervisorPanel() {
       populateSquadSelects();
       renderMiniSquadsList();
@@ -2350,7 +2411,7 @@
       const specPower = document.getElementById('display-spec-power');
       if (specPower) specPower.innerText = window.appState.cms.spec_power || "3.000W";
 
-      // VÍDEO NO CONTAINER TIKTOK (SEM CORTE)
+      // VÍDEO NO CONTAINER TIKTOK
       const container = document.getElementById('hero-media-container');
       const vUrl = window.appState.cms.video_url;
       if (container) {
@@ -2359,12 +2420,23 @@
 
       const zapLink = window.appState.cms.whatsapp_link;
       const igLink1 = window.appState.cms.instagram_link_1 || "https://instagram.com/gotrix.curitiba";
+      const igLink2 = window.appState.cms.instagram_link_2 || "https://instagram.com/gotrixoficial";
 
       const directZap = document.getElementById('hero-direct-whatsapp-btn');
       if (directZap) directZap.href = zapLink;
 
-      const directIg1 = document.getElementById('hero-direct-instagram-btn-1');
-      if (directIg1) directIg1.href = igLink1;
+      // CONFIGURAÇÃO DOS LINKS DO INSTAGRAM NO SUBMENU POPUP
+      const popoverIg1 = document.getElementById('popover-ig1-btn');
+      if (popoverIg1) popoverIg1.href = igLink1;
+
+      const popoverIg2 = document.getElementById('popover-ig2-btn');
+      if (popoverIg2) popoverIg2.href = igLink2;
+
+      const popoverIg1Text = document.getElementById('display-popover-ig1-text');
+      if (popoverIg1Text) popoverIg1Text.innerText = window.appState.cms.btn_ig1_text || "Gotrix Curitiba";
+
+      const popoverIg2Text = document.getElementById('display-popover-ig2-text');
+      if (popoverIg2Text) popoverIg2Text.innerText = window.appState.cms.btn_ig2_text || "Gotrix Oficial";
 
       const successIg = document.getElementById('success-instagram-btn');
       if (successIg) successIg.href = igLink1;
