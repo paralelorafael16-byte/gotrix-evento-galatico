@@ -87,24 +87,6 @@
       0% { transform: translate(-100%, -100%) rotate(30deg); }
       100% { transform: translate(100%, 100%) rotate(30deg); }
     }
-
-    /* Regras de impressão para crachá PVC */
-    @media print {
-      body * {
-        visibility: hidden;
-      }
-      #printable-badge-card, #printable-badge-card * {
-        visibility: visible;
-      }
-      #printable-badge-card {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        box-shadow: none !important;
-        border: 1px solid #000 !important;
-      }
-    }
   </style>
 
   <script>
@@ -144,36 +126,6 @@
         }
       }
     });
-
-    function startCountdown() {
-      const countDownDate = new Date("October 30, 2026 00:00:00").getTime();
-      const x = setInterval(function() {
-        const now = new Date().getTime();
-        const distance = countDownDate - now;
-
-        if (distance < 0) {
-          clearInterval(x);
-          const timerEl = document.getElementById("countdown-timer-box");
-          if (timerEl) timerEl.innerHTML = "<span class='text-brand-yellow font-bold uppercase text-xs tracking-wider'>Inscrições encerradas!</span>";
-          return;
-        }
-
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        const dEl = document.getElementById("cd-days");
-        const hEl = document.getElementById("cd-hours");
-        const mEl = document.getElementById("cd-minutes");
-        const sEl = document.getElementById("cd-seconds");
-
-        if (dEl) dEl.innerText = String(days).padStart(2, '0');
-        if (hEl) hEl.innerText = String(hours).padStart(2, '0');
-        if (mEl) mEl.innerText = String(minutes).padStart(2, '0');
-        if (sEl) sEl.innerText = String(seconds).padStart(2, '0');
-      }, 1000);
-    }
 
     var _secretCount = 0;
     var _secretTimer = null;
@@ -239,7 +191,7 @@
     }
   </script>
 </head>
-<body class="bg-brand-black text-gray-100 font-sans antialiased min-h-screen flex flex-col justify-between custom-scroll selection:bg-brand-yellow selection:text-black" onload="startCountdown()">
+<body class="bg-brand-black text-gray-100 font-sans antialiased min-h-screen flex flex-col justify-between custom-scroll selection:bg-brand-yellow selection:text-black">
 
   <!-- 1. VISTA PÚBLICA -->
   <div id="view-landing" class="w-full flex-grow">
@@ -280,51 +232,37 @@
     <div id="attribution-banner" class="hidden bg-brand-yellow text-brand-black px-3 py-1.5 text-center text-xs font-bold shadow-md">
       <span class="flex items-center justify-center gap-1.5 flex-wrap">
         <i class="fa-solid fa-qrcode text-xs"></i>
-        <span>Atendimento com <strong id="attribution-promoter-name">Consultor Gotrix</strong> (<span id="attribution-squad-name">Stand</span>)</span>
+        <span>Atendimento exclusivo com <strong id="attribution-promoter-name">Consultor Gotrix</strong></span>
       </span>
     </div>
 
     <!-- BLOCO 1: PLAYER ESTILO TIKTOK / SHORTS 9:16 (SEM POLUIÇÃO VISUAL) -->
-    <section id="bloco-video-section" class="py-4 sm:py-8 px-2 sm:px-4 flex justify-center">
+    <section id="bloco-video-section" class="py-2 sm:py-6 px-2 flex justify-center">
       
-      <div class="relative w-full max-w-[360px] sm:max-w-[380px] aspect-[9/16] max-h-[80vh] bg-black rounded-[32px] overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.95)] flex items-center justify-center">
+      <div class="relative w-full max-w-[360px] sm:max-w-[380px] aspect-[9/16] max-h-[82vh] bg-black rounded-[32px] overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.95)] flex items-center justify-center">
         
-        <!-- CONTAINER DO VÍDEO -->
+        <!-- CONTAINER DO VÍDEO (IMAGEM INTEIRA SEM CORTES) -->
         <div id="hero-media-container" class="absolute inset-0 w-full h-full z-0 flex items-center justify-center bg-black"></div>
 
-        <!-- GRADIENTE SUAVE -->
-        <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/95 pointer-events-none z-10"></div>
+        <!-- GRADIENTE DISCRETO APENAS NA BASE INFERIOR -->
+        <div class="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-10"></div>
 
-        <!-- TAG SUPERIOR -->
-        <div class="absolute top-4 left-4 z-20 pointer-events-none">
-          <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-brand-yellow/30 text-brand-yellow text-[10px] font-extrabold uppercase tracking-wider">
-            <i class="fa-solid fa-bolt text-[9px] animate-pulse"></i> Sorteio Oficial
-          </span>
-        </div>
-
-        <!-- BARRA LATERAL DIREITA -->
-        <div class="absolute right-3 bottom-24 z-30 flex flex-col items-center gap-3">
+        <!-- BARRA LATERAL DIREITA MINIMALISTA (ÍCONES PEQUENOS E DIRETOS) -->
+        <div class="absolute right-2.5 bottom-20 z-30 flex flex-col items-center gap-2.5">
           
-          <!-- BOTÃO DE ALTERNAR SOM -->
-          <button type="button" onclick="window.toggleVideoSound()" class="flex flex-col items-center gap-1 group">
-            <div id="sound-btn-icon-wrapper" class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-lg transition-transform active:scale-90">
-              <i id="sound-btn-icon" class="fa-solid fa-volume-xmark text-sm text-brand-yellow"></i>
-            </div>
-            <span id="sound-btn-label" class="text-[9px] font-bold text-white uppercase drop-shadow">Sem Som</span>
+          <!-- BOTÃO SOM -->
+          <button type="button" onclick="window.toggleVideoSound()" title="Alternar Som" class="w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow transition-transform active:scale-90">
+            <i id="sound-btn-icon" class="fa-solid fa-volume-xmark text-xs text-brand-yellow"></i>
           </button>
 
-          <!-- BOTÃO INSTAGRAM COM MENU POPUP -->
+          <!-- BOTÃO INSTAGRAM COM POPOVER -->
           <div class="relative flex flex-col items-center">
-            <button id="player-ig-toggle-btn" type="button" onclick="window.togglePlayerIgMenu(event)" class="flex flex-col items-center gap-1 group focus:outline-none">
-              <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center shadow-lg transition-transform active:scale-90 border border-white/20">
-                <i class="fa-brands fa-instagram text-lg"></i>
-              </div>
-              <span class="text-[9px] font-bold text-white uppercase drop-shadow">Instagram</span>
+            <button id="player-ig-toggle-btn" type="button" onclick="window.togglePlayerIgMenu(event)" title="Instagram" class="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center shadow transition-transform active:scale-90 border border-white/20">
+              <i class="fa-brands fa-instagram text-sm"></i>
             </button>
 
             <!-- SUBMENU POPUP DO INSTAGRAM -->
-            <div id="player-ig-popover" class="hidden absolute bottom-14 right-0 min-w-[170px] bg-brand-surface/95 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl flex flex-col gap-1 z-40">
-              <span class="text-[9px] font-bold text-gray-400 uppercase px-2 py-0.5 tracking-wider">Escolha o Perfil:</span>
+            <div id="player-ig-popover" class="hidden absolute bottom-11 right-0 min-w-[160px] bg-brand-surface/95 backdrop-blur-xl border border-white/10 rounded-2xl p-1.5 shadow-2xl flex flex-col gap-1 z-40">
               <a id="popover-ig1-btn" href="https://instagram.com/gotrix.curitiba" target="_blank" class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-white hover:bg-white/10 transition-colors">
                 <i class="fa-brands fa-instagram text-rose-400"></i>
                 <span id="display-popover-ig1-text" class="truncate">Gotrix Curitiba</span>
@@ -337,51 +275,34 @@
           </div>
 
           <!-- BOTÃO WHATSAPP -->
-          <a id="hero-direct-whatsapp-btn" href="https://wa.me/5541999999999" target="_blank" class="flex flex-col items-center gap-1 group">
-            <div class="w-10 h-10 rounded-full bg-whatsapp text-white flex items-center justify-center shadow-lg transition-transform active:scale-90 border border-white/20">
-              <i class="fa-brands fa-whatsapp text-xl"></i>
-            </div>
-            <span class="text-[9px] font-bold text-white uppercase drop-shadow">Contato</span>
+          <a id="hero-direct-whatsapp-btn" href="https://wa.me/5541999999999" target="_blank" title="WhatsApp" class="w-9 h-9 rounded-full bg-whatsapp text-white flex items-center justify-center shadow transition-transform active:scale-90 border border-white/20">
+            <i class="fa-brands fa-whatsapp text-base"></i>
           </a>
 
-          <!-- BOTÃO MOTOS DO CATÁLOGO -->
-          <button type="button" onclick="window.scrollToCatalog()" class="flex flex-col items-center gap-1 group">
-            <div class="w-10 h-10 rounded-full bg-brand-surfaceAlt/90 backdrop-blur-md border border-brand-yellow/30 text-brand-yellow flex items-center justify-center shadow-lg transition-transform active:scale-90">
-              <i class="fa-solid fa-motorcycle text-sm"></i>
-            </div>
-            <span class="text-[9px] font-bold text-white uppercase drop-shadow">Catálogo</span>
+          <!-- BOTÃO MOTOS -->
+          <button type="button" onclick="window.scrollToCatalog()" title="Catálogo" class="w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-brand-yellow/30 text-brand-yellow flex items-center justify-center shadow transition-transform active:scale-90">
+            <i class="fa-solid fa-motorcycle text-xs"></i>
           </button>
         </div>
 
-        <!-- LEGENDA DO SHORTS -->
-        <div class="absolute bottom-4 left-4 right-16 z-20 space-y-2 pointer-events-auto text-left">
-          <div>
-            <h1 id="hero-title" class="text-lg font-extrabold uppercase text-white leading-tight drop-shadow">
+        <!-- BASE LIMPA: SEM TEXTOS GIGANTES TAPANDO O VÍDEO -->
+        <div class="absolute bottom-3 left-3 right-14 z-20 space-y-1.5 pointer-events-auto text-left">
+          
+          <div class="flex items-center gap-2">
+            <h1 id="hero-title" class="text-sm font-extrabold uppercase text-white drop-shadow truncate">
               Scooter Gotrix <span class="text-brand-yellow">0km</span>
             </h1>
-            <p id="hero-subtitle" class="text-[11px] text-gray-300 font-medium line-clamp-2 leading-relaxed drop-shadow mt-0.5">
-              Participe do sorteio oficial da moto e ganhe bônus de R$ 1.000 OFF.
-            </p>
+            <div class="flex items-center gap-1 text-[9px] text-gray-300 font-bold bg-black/60 px-2 py-0.5 rounded-full border border-white/10">
+              <span id="display-spec-speed">75 km/h</span> • <span id="display-spec-power">3000W</span>
+            </div>
           </div>
 
-          <div class="flex items-center gap-1.5 flex-wrap pt-0.5">
-            <span class="px-2 py-0.5 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-[10px] text-gray-300 font-bold">
-              ⚡ <span id="display-spec-speed" class="text-brand-yellow">75 km/h</span>
-            </span>
-            <span class="px-2 py-0.5 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-[10px] text-gray-300 font-bold">
-              🔋 <span id="display-spec-range" class="text-brand-yellow">60 km</span>
-            </span>
-            <span class="px-2 py-0.5 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-[10px] text-gray-300 font-bold">
-              🚀 <span id="display-spec-power" class="text-brand-yellow">3.000W</span>
-            </span>
-          </div>
+          <!-- BOTÃO DE AÇÃO DIRETO E COMPACTO -->
+          <button onclick="window.scrollToForm()" class="btn-glow w-full bg-brand-yellow hover:bg-brand-yellowDark text-brand-black font-extrabold uppercase tracking-wider py-2.5 rounded-xl text-xs transition-all shadow-glow-yellow flex items-center justify-center gap-2">
+            <span id="display-btn-participate-text">Quero Participar do Sorteio</span>
+            <i class="fa-solid fa-arrow-down text-[10px]"></i>
+          </button>
 
-          <div class="pt-1">
-            <button onclick="window.scrollToForm()" class="btn-glow w-full bg-brand-yellow hover:bg-brand-yellowDark text-brand-black font-extrabold uppercase tracking-wider py-3 rounded-xl text-xs transition-all shadow-glow-yellow flex items-center justify-center gap-2">
-              <span id="display-btn-participate-text">Quero Participar do Sorteio</span>
-              <i class="fa-solid fa-arrow-down text-xs"></i>
-            </button>
-          </div>
         </div>
 
       </div>
@@ -509,7 +430,7 @@
             <i class="fa-solid fa-tag"></i> Desconto Exclusivo
           </div>
           <h2 class="text-2xl sm:text-3xl font-extrabold uppercase text-white tracking-tight">Catálogo R$ 1.000 OFF</h2>
-          <p class="text-xs text-gray-400 mt-1">Toque na fotografia para abrir em ecrã completo com zoom interativo:</p>
+          <p class="text-xs text-gray-400 mt-1">Toque na fotografia para abrir em tela cheia com zoom interativo:</p>
         </div>
 
         <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"></div>
@@ -537,14 +458,12 @@
     </footer>
   </div>
 
-  <!-- LIGHTBOX / VISUALIZADOR DE ECRÃ INTEIRO COM ZOOM INTERATIVO -->
+  <!-- LIGHTBOX / FULLSCREEN COM ZOOM -->
   <div id="image-lightbox" class="hidden fixed inset-0 z-50 bg-black/95 backdrop-blur-2xl flex flex-col justify-between p-4 overflow-hidden select-none">
     
-    <!-- Barra Superior da Lightbox -->
     <div class="flex items-center justify-between z-20">
       <span id="lightbox-counter" class="text-xs font-bold text-gray-400 bg-white/10 px-3 py-1 rounded-full">1 / 1</span>
       
-      <!-- Controlos de Zoom -->
       <div class="flex items-center gap-2">
         <button onclick="window.zoomInMedia()" class="w-9 h-9 rounded-full bg-white/10 hover:bg-brand-yellow hover:text-black text-white flex items-center justify-center transition-all">
           <i class="fa-solid fa-magnifying-glass-plus text-sm"></i>
@@ -561,11 +480,9 @@
       </div>
     </div>
 
-    <!-- Área Principal de Exibição com Zoom e Arraste -->
     <div class="relative flex-grow flex items-center justify-center overflow-hidden my-auto cursor-grab active:cursor-grabbing" id="lightbox-touch-area">
       <div id="lightbox-content-wrapper" class="transition-transform duration-200 ease-out flex items-center justify-center max-w-full max-h-full"></div>
       
-      <!-- Botões de Navegação Anterior / Próximo -->
       <button onclick="window.prevLightboxMedia()" class="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center hover:bg-brand-yellow hover:text-black transition-all">
         <i class="fa-solid fa-chevron-left text-sm"></i>
       </button>
@@ -574,15 +491,14 @@
       </button>
     </div>
 
-    <!-- Barra Inferior da Lightbox -->
     <div class="text-center py-2 z-20">
       <h3 id="lightbox-title" class="text-sm font-bold text-white uppercase truncate">Modelo</h3>
-      <p class="text-[11px] text-gray-400">Arraste para mover • Dê dois toques ou use os botões para dar zoom</p>
+      <p class="text-[11px] text-gray-400">Arraste para mover • Duplo toque para alternar zoom</p>
     </div>
 
   </div>
 
-  <!-- MODAL DE DETALHES DO PRODUTO -->
+  <!-- MODAL DE PRODUTO -->
   <div id="product-modal" class="hidden fixed inset-0 z-40 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
     <div class="glass-card border border-brand-yellow/30 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl relative my-auto max-h-[92vh] flex flex-col">
       
@@ -640,17 +556,14 @@
     </div>
   </div>
 
-  <!-- CRACHÁ DO PROMOTOR (DESIGN PROFISSIONAL DE IMPRESSÃO PVC) -->
+  <!-- CRACHÁ DO PROMOTOR (IMPRESSÃO PVC PROFISSIONAL) -->
   <div id="view-cracha" class="hidden w-full flex-grow flex items-center justify-center p-4">
     <div class="w-full max-w-[320px] space-y-4">
       
-      <!-- CARTÃO FÍSICO COM CORTE E CONTRASTE ADEQUADO[cite: 3] -->
       <div id="printable-badge-card" class="relative bg-gradient-to-b from-[#14161C] via-[#0E0F12] to-[#070708] border-2 border-brand-yellow/60 rounded-[28px] p-6 text-center space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.95)] overflow-hidden">
         
-        <!-- Furo do Cordão -->
         <div class="w-12 h-2.5 bg-black/80 border border-white/20 rounded-full mx-auto -mt-2 mb-2 shadow-inner"></div>
 
-        <!-- Logo Gotrix Oficial[cite: 3] -->
         <div class="brand-logo-container flex justify-center py-1">
           <svg class="h-8 w-auto text-brand-yellow" viewBox="0 0 240 60" fill="none">
             <circle cx="70" cy="30" r="18" stroke="#F5B301" stroke-width="4"/>
@@ -659,7 +572,6 @@
           </svg>
         </div>
 
-        <!-- Dados do Promotor[cite: 3] -->
         <div class="space-y-1">
           <span class="inline-block text-[10px] font-black uppercase tracking-widest text-black bg-brand-yellow px-3 py-0.5 rounded-full shadow">
             Consultor Oficial
@@ -672,7 +584,6 @@
           </p>
         </div>
 
-        <!-- Box do QR Code sem ecrã branco e sempre gerado[cite: 3] -->
         <div class="bg-white p-3.5 rounded-2xl inline-flex items-center justify-center shadow-[0_0_25px_rgba(245,179,1,0.2)] mx-auto border-2 border-brand-yellow/40">
           <div id="badge-qrcode-container" class="w-[180px] h-[180px] flex items-center justify-center"></div>
         </div>
@@ -693,7 +604,6 @@
 
       </div>
 
-      <!-- BOTÕES DE IMPRESSÃO E DOWNLOAD -->
       <div class="flex flex-col gap-2 pt-1">
         <button onclick="window.downloadFullBadgeCard()" class="w-full bg-brand-yellow hover:bg-brand-yellowDark text-black font-extrabold py-3.5 rounded-xl text-xs uppercase flex items-center justify-center gap-2 shadow-glow-yellow transition-all active:scale-[0.98]">
           <i class="fa-solid fa-print text-sm"></i> Baixar Imagem do Crachá (Impressão)
@@ -1195,7 +1105,6 @@
       window.isVideoMuted = !window.isVideoMuted;
       
       const icon = document.getElementById('sound-btn-icon');
-      const label = document.getElementById('sound-btn-label');
       const ytIframe = document.getElementById('tiktok-iframe-player');
       const nativeVid = document.getElementById('tiktok-native-player');
 
@@ -1206,8 +1115,7 @@
         if (nativeVid) {
           nativeVid.muted = true;
         }
-        if (icon) icon.className = "fa-solid fa-volume-xmark text-sm text-brand-yellow";
-        if (label) label.innerText = "Sem Som";
+        if (icon) icon.className = "fa-solid fa-volume-xmark text-xs text-brand-yellow";
       } else {
         if (ytIframe && ytIframe.contentWindow) {
           ytIframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
@@ -1217,8 +1125,7 @@
           nativeVid.muted = false;
           nativeVid.volume = 1.0;
         }
-        if (icon) icon.className = "fa-solid fa-volume-high text-sm text-emerald-400";
-        if (label) label.innerText = "Com Som";
+        if (icon) icon.className = "fa-solid fa-volume-high text-xs text-emerald-400";
       }
     };
 
@@ -1305,7 +1212,6 @@
     window.activeModalProduct = null;
     window.modalCarouselIndex = 0;
 
-    // ESTADO DA LIGHTBOX (FULLSCREEN COM ZOOM)
     window.lightboxState = {
       mediaList: [],
       currentIndex: 0,
@@ -1522,7 +1428,6 @@
             <div class="h-52 bg-brand-black flex items-center justify-center p-2 relative overflow-hidden select-none">
               <span class="absolute top-2.5 left-2.5 bg-brand-yellow text-brand-black font-extrabold text-[9px] uppercase px-2 py-0.5 rounded-full shadow-lg z-10">R$ 1.000 OFF</span>
               
-              <!-- Botão Zoom Direto no Card -->
               <button onclick="window.openImageLightboxFromCard('${item.id}', event)" title="Ver em tela cheia com zoom" class="zoom-btn absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full bg-black/60 hover:bg-brand-yellow hover:text-black text-white flex items-center justify-center transition-all border border-white/10">
                 <i class="fa-solid fa-up-right-and-down-left-from-center text-[10px]"></i>
               </button>
@@ -1559,7 +1464,7 @@
     }
 
     // ==========================================
-    // SISTEMA DE LIGHTBOX (ECRÃ COMPLETO COM ZOOM REAL)
+    // SISTEMA DE LIGHTBOX (FULLSCREEN COM ZOOM)
     // ==========================================
     window.openImageLightbox = function(mediaList, startIndex = 0, title = 'Gotrix') {
       window.lightboxState.mediaList = mediaList;
@@ -1626,7 +1531,7 @@
       } else {
         wrapper.innerHTML = `
           <img 
-            id="lightbox-zoomable-img"
+            id="lightbox-zoomable-img" 
             src="${getSafeImageUrl(currentUrl)}" 
             alt="Imagem" 
             class="max-w-[95vw] max-h-[80vh] object-contain transition-transform duration-100 ease-out select-none pointer-events-none drop-shadow-2xl">
@@ -1696,7 +1601,6 @@
         window.lightboxState.isDragging = false;
       });
 
-      // Duplo toque para alternar Zoom no telemóvel
       let lastTap = 0;
       touchArea.addEventListener('touchend', (e) => {
         const currentTime = new Date().getTime();
@@ -1806,7 +1710,7 @@
     };
 
     // ==========================================
-    // ROTEAMENTO E CONTROLO DE VISTAS
+    // ROTEAMENTO SEM DISPARO INDEVIDO DE SENHA
     // ==========================================
     function setupRouting() {
       window.addEventListener('hashchange', handleRoute);
@@ -1826,7 +1730,6 @@
         if (promoter) {
           const squad = window.appState.squads.find(s => s.id === promoter.squad_id);
           document.getElementById('attribution-promoter-name').innerText = promoter.name;
-          document.getElementById('attribution-squad-name').innerText = squad ? squad.name : 'Gotrix Stand';
           document.getElementById('attribution-banner').classList.remove('hidden');
         }
       }
@@ -1847,10 +1750,10 @@
           viewCracha.classList.add('hidden');
           viewAdmin.classList.remove('hidden');
           renderSupervisorPanel();
+          return;
         } else {
-          window.promptSupervisorPin();
+          window.history.replaceState(null, null, window.location.pathname + window.location.search);
         }
-        return;
       }
 
       viewCracha.classList.add('hidden');
@@ -1868,7 +1771,7 @@
     }
 
     // ==========================================
-    // GERAÇÃO DEFINITIVA DO CRACHÁ COM QR CODE SÍNCRONO[cite: 3]
+    // CRACHÁ COM QR CODE SÍNCRONO
     // ==========================================
     function loadBadgeView(token) {
       const promoter = window.appState.promoters.find(p => p.id === token) || window.appState.promoters[0];
@@ -2572,8 +2475,6 @@
       if (heroTitle) {
         heroTitle.innerHTML = window.appState.cms.title.replace("0km", "<span class='text-brand-yellow'>0km</span>");
       }
-      const heroSubtitle = document.getElementById('hero-subtitle');
-      if (heroSubtitle) heroSubtitle.innerText = window.appState.cms.subtitle;
 
       const modelDisplay = document.getElementById('form-raffle-model-display');
       if (modelDisplay) {
@@ -2582,9 +2483,6 @@
 
       const specSpeed = document.getElementById('display-spec-speed');
       if (specSpeed) specSpeed.innerText = window.appState.cms.spec_speed || "75 km/h";
-
-      const specRange = document.getElementById('display-spec-range');
-      if (specRange) specRange.innerText = window.appState.cms.spec_range || "60 km";
 
       const specPower = document.getElementById('display-spec-power');
       if (specPower) specPower.innerText = window.appState.cms.spec_power || "3.000W";
