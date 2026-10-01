@@ -1750,35 +1750,36 @@
       });
     }
 
-    async function loadBadgeView(token) {
-      // 1. Tenta achar no array local
-      let promoter = window.appState.promoters.find(p => p.id === token);
+    async function loadBadgeView(rawToken) {
+      const token = rawToken ? decodeURIComponent(rawToken).trim() : '';
+      
+      // 1. Tenta achar na memória local
+      let promoter = window.appState.promoters.find(p => p.id.toLowerCase() === token.toLowerCase());
       if (!promoter && token) {
-        promoter = window.appState.promoters.find(p => p.id.toLowerCase() === token.toLowerCase() || p.name.toLowerCase().includes(token.toLowerCase()));
+        promoter = window.appState.promoters.find(p => p.name.toLowerCase() === token.toLowerCase());
       }
 
-      // 2. Se não estiver na memória, busca direto no Supabase para garantir que o João (ou qualquer novo promotor) apareça
+      // 2. Se não estiver na memória, busca assíncrona direto no Supabase
       if (!promoter && supabaseClient && token) {
         try {
           const { data, error } = await supabaseClient
             .from('promoters')
             .select('*')
-            .or(`id.eq.${token},name.ilike.%${token}%`)
+            .or(`id.ilike.${token},name.ilike.${token}`)
             .maybeSingle();
 
           if (!error && data) {
             promoter = data;
           }
         } catch (err) {
-          console.warn("Erro ao buscar promotor no Supabase:", err);
+          console.warn("Busca Supabase falhou:", err);
         }
       }
 
-      // 3. Se ainda não achar, extrai o nome direto do token de forma limpa (ex: PROMO_JOAO_123 -> JOAO)
+      // 3. Fallback limpo extraindo do token (decodificado) caso não exista na tabela
       if (!promoter && token) {
-        let fallbackName = token.replace(/^PROMO_/i, '').replace(/_\d+$/, '').replace(/_/g, ' ');
-        if (!fallbackName) fallbackName = "Consultor Gotrix";
-        promoter = { id: token, name: fallbackName, squad_id: 'SQUAD_STAND_A', phone: '' };
+        let cleanName = token.replace(/^PROMO_/i, '').replace(/_\d+$/, '').replace(/_/g, ' ');
+        promoter = { id: token, name: cleanName, squad_id: 'SQUAD_STAND_A', phone: '' };
       }
 
       const squad = window.appState.squads.find(s => s.id === (promoter ? promoter.squad_id : '')) || { name: 'Stand Principal Gotrix' };
