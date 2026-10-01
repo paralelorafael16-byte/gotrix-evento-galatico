@@ -2311,9 +2311,10 @@
     };
 
     window.exportLeadsToCsv = async function() {
+      // Pega primeiro os leads que já estão na memória da aplicação
       let leadsToExport = window.appState.leads || [];
 
-      // Puxa absolutamente todos os leads atualizados direto do Supabase
+      // Tenta buscar diretamente do Supabase para garantir que traz tudo atualizado
       if (supabaseClient) {
         try {
           const { data, error } = await supabaseClient
@@ -2324,7 +2325,7 @@
             leadsToExport = data;
           }
         } catch (err) {
-          console.warn("Aviso ao buscar leads do Supabase para o CSV:", err);
+          console.warn("Aviso ao buscar leads do Supabase:", err);
         }
       }
 
@@ -2333,7 +2334,7 @@
         return;
       }
 
-      // ATENÇÃO: Usando ponto e vírgula (;) como separador para o Excel abrir separado automaticamente por colunas
+      // Usando ponto e vírgula (;) para forçar a separação automática por colunas no Excel
       let csvRows = ["ID;Nome;WhatsApp;Numero da Sorte;Modelo;Fase;Promotor ID;Squad ID;Data"];
       
       leadsToExport.forEach(l => {
