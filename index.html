@@ -1751,8 +1751,18 @@
     }
 
     function loadBadgeView(token) {
-      const promoter = window.appState.promoters.find(p => p.id === token) || window.appState.promoters[0];
-      if (!promoter) return;
+      // CORREÇÃO: Busca exata do promotor pelo ID exato ou fallback seguro comparando strings em minúsculo
+      let promoter = window.appState.promoters.find(p => p.id === token);
+      if (!promoter && token) {
+        promoter = window.appState.promoters.find(p => p.id.toLowerCase() === token.toLowerCase() || p.name.toLowerCase().includes(token.toLowerCase()));
+      }
+      
+      // Se não achar nenhum promotor correspondente, avisa em vez de puxar o primeiro da lista incorretamente
+      if (!promoter) {
+        document.getElementById('badge-promoter-name').innerText = "PROMOTOR NÃO ENCONTRADO";
+        document.getElementById('badge-squad-name').innerText = "Verifique o link de cadastro";
+        return;
+      }
 
       const squad = window.appState.squads.find(s => s.id === promoter.squad_id);
       document.getElementById('badge-promoter-name').innerText = promoter.name;
@@ -2311,10 +2321,8 @@
     };
 
     window.exportLeadsToCsv = async function() {
-      // 1. Pega os dados já presentes em memória
       let leadsToExport = window.appState.leads || [];
 
-      // 2. Tenta atualizar com dados frescos do Supabase (com tratamento de falhas para nunca retornar em branco)
       if (supabaseClient) {
         try {
           const { data, error } = await supabaseClient
@@ -2325,19 +2333,16 @@
             leadsToExport = data;
           }
         } catch (err) {
-          console.warn("Usando cache local de leads devido a falha na rede:", err);
+          console.warn("Usando cache local:", err);
         }
       }
 
-      // Se ainda assim estiver vazio, avisa o usuário
       if (!leadsToExport || leadsToExport.length === 0) {
         alert("Nenhum lead encontrado para exportar.");
         return;
       }
 
-      // Retornamos ao padrão universal com VÍRGULA (,) e instrução explícita "sep=," na primeira linha
-      // Isso força qualquer versão do Microsoft Excel ou WPS Office a separar perfeitamente em colunas na abertura!
-      let csvRows = ["sep=,", "ID,Nome,WhatsApp,Numero da Sorte,Modelo,Fase,Promotor ID,Squad ID,Data"];
+      let csvRows = ["ID,Nome,WhatsApp,Numero da Sorte,Modelo,Fase,Promotor ID,Squad ID,Data"];
       
       leadsToExport.forEach(l => {
         const clean = (val) => {
