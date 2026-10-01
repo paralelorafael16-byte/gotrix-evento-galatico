@@ -2311,10 +2311,10 @@
     };
 
     window.exportLeadsToCsv = async function() {
-      // Pega primeiro os leads que já estão na memória da aplicação
+      // Pega os leads da memória que já foram carregados/sincronizados da aplicação
       let leadsToExport = window.appState.leads || [];
 
-      // Tenta buscar diretamente do Supabase para garantir que traz tudo atualizado
+      // Tenta buscar diretamente do Supabase em background de forma síncrona/segura
       if (supabaseClient) {
         try {
           const { data, error } = await supabaseClient
@@ -2325,7 +2325,7 @@
             leadsToExport = data;
           }
         } catch (err) {
-          console.warn("Aviso ao buscar leads do Supabase:", err);
+          console.warn("Aviso na busca do Supabase para o CSV:", err);
         }
       }
 
@@ -2334,7 +2334,7 @@
         return;
       }
 
-      // Usando ponto e vírgula (;) para forçar a separação automática por colunas no Excel
+      // Monta as linhas do CSV usando ponto e vírgula (;) para o Excel abrir separado por colunas
       let csvRows = ["ID;Nome;WhatsApp;Numero da Sorte;Modelo;Fase;Promotor ID;Squad ID;Data"];
       
       leadsToExport.forEach(l => {
@@ -2359,13 +2359,15 @@
       const csvString = csvRows.join("\n");
       const blob = new Blob(["\ufeff" + csvString], { type: 'text/csv;charset=utf-8;' });
       
-      const link = document.createElement("a");
+      // Criação segura do link para download imediato
       const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", `todos_leads_gotrix_${Date.now()}.csv`);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `leads_gotrix_${Date.now()}.csv`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 100);
     };
 
     window.switchAdminTab = function(tabName) {
