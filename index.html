@@ -257,8 +257,8 @@
       </div>
     </header>
 
-    <!-- BLOCO 1: VÍDEO VERTICAL EM TELA INTEIRA (BOTÃO MAIS ACIMA DA BASE) -->
-    <section id="bloco-video-section" class="relative w-full h-[100vh] min-h-[580px] bg-black flex items-center justify-center overflow-hidden">
+    <!-- BLOCO 1: VÍDEO VERTICAL EM TELA INTEIRA (LIMITADO E CENTRALIZADO NO DESKTOP) -->
+    <section id="bloco-video-section" class="relative w-full md:max-w-[450px] md:mx-auto h-[100vh] min-h-[580px] bg-black flex items-center justify-center overflow-hidden md:shadow-2xl md:border-x md:border-white/10">
       
       <div id="hero-media-container" class="absolute inset-0 w-full h-full z-0 flex items-center justify-center bg-black"></div>
 
@@ -267,7 +267,7 @@
       <!-- BARRA LATERAL DIREITA -->
       <div class="absolute right-3 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-3.5">
         
-        <button type="button" onclick="window.toggleVideoSound()" title="Alternar Som" class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow transition-transform active:scale-90">
+        <button type="button" onclick="window.toggleVideoSound()" title="Alternar Som" class="w-10 h-10 rounded-full bg-black/65 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow transition-transform active:scale-90">
           <i id="sound-btn-icon" class="fa-solid fa-volume-xmark text-sm text-brand-yellow"></i>
         </button>
 
@@ -292,12 +292,12 @@
           <i class="fa-brands fa-whatsapp text-xl"></i>
         </a>
 
-        <button type="button" onclick="window.scrollToCatalog()" title="Catálogo" class="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-brand-yellow/30 text-brand-yellow flex items-center justify-center shadow transition-transform active:scale-90">
+        <button type="button" onclick="window.scrollToCatalog()" title="Catálogo" class="w-10 h-10 rounded-full bg-black/65 backdrop-blur-md border border-brand-yellow/30 text-brand-yellow flex items-center justify-center shadow transition-transform active:scale-90">
           <i class="fa-solid fa-motorcycle text-sm"></i>
         </button>
       </div>
 
-      <!-- BOTÃO DE PARTICIPAR REPOSICIONADO MAIS ACIMA (~16px da base interna) -->
+      <!-- BOTÃO DE PARTICIPAR REPOSICIONADO MAIS ACIMA -->
       <div class="absolute bottom-16 left-4 right-16 z-20 space-y-2 pointer-events-auto text-left">
         <h1 id="hero-title" class="text-base sm:text-lg font-extrabold uppercase text-white drop-shadow">
           Scooter Gotrix <span class="text-brand-yellow">0km</span>
@@ -1719,7 +1719,6 @@
         return;
       }
 
-      // CORREÇÃO: Quando vem via QR Code do promotor (?promoter=...), garantimos que o site abre no topo (vídeo) e NÃO rola para o cadastro
       if (hash === '#painel' || hash === '#admin') {
         const authed = sessionStorage.getItem('gotrix_supervisor_auth');
         if (authed === 'true') {
@@ -1737,7 +1736,6 @@
       viewAdmin.classList.add('hidden');
       viewLanding.classList.remove('hidden');
 
-      // Se entrou via QR code do promotor, limpa qualquer hash acidental para abrir limpo no vídeo
       if (pToken && !hash) {
         window.scrollTo(0, 0);
       }
@@ -1752,7 +1750,6 @@
       });
     }
 
-    // GERAÇÃO ROBUSTA DE QR CODE COM qrcode.min.js LOCAL
     function loadBadgeView(token) {
       const promoter = window.appState.promoters.find(p => p.id === token) || window.appState.promoters[0];
       if (!promoter) return;
@@ -1768,7 +1765,6 @@
         ? window.appState.cms.custom_domain.replace(/\/$/, '')
         : defaultOrigin;
 
-      // URL limpa sem hash de formulário para abrir no vídeo de boas-vindas
       const fullShareUrl = `${baseUrl}?promoter=${promoter.id}&squad=${promoter.squad_id}`;
       window.currentBadgeUrl = fullShareUrl;
       window.currentBadgePromoter = promoter;
