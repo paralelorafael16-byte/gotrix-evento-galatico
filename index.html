@@ -2313,7 +2313,7 @@
     window.exportLeadsToCsv = async function() {
       let leadsToExport = window.appState.leads || [];
 
-      // Puxa absolutamente todos os leads atualizados direto da base de dados do Supabase
+      // Puxa absolutamente todos os leads atualizados direto do Supabase
       if (supabaseClient) {
         try {
           const { data, error } = await supabaseClient
@@ -2333,7 +2333,8 @@
         return;
       }
 
-      let csvRows = ["ID,Nome,WhatsApp,Numero da Sorte,Modelo,Fase,Promotor ID,Squad ID,Data"];
+      // ATENÇÃO: Usando ponto e vírgula (;) como separador para o Excel abrir separado automaticamente por colunas
+      let csvRows = ["ID;Nome;WhatsApp;Numero da Sorte;Modelo;Fase;Promotor ID;Squad ID;Data"];
       
       leadsToExport.forEach(l => {
         const clean = (val) => {
@@ -2351,7 +2352,7 @@
         const squad = clean(l.squad_id);
         const date = clean(l.created_at);
 
-        csvRows.push(`"${id}","${name}","${phone}","${lucky}","${model}","${stage}","${promoter}","${squad}","${date}"`);
+        csvRows.push(`"${id}";"${name}";"${phone}";"${lucky}";"${model}";"${stage}";"${promoter}";"${squad}";"${date}"`);
       });
 
       const csvString = csvRows.join("\n");
