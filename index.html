@@ -2311,10 +2311,10 @@
     };
 
     window.exportLeadsToCsv = async function() {
-      // Pega os leads da memória que já foram carregados/sincronizados da aplicação
+      // 1. Pega os dados já presentes em memória
       let leadsToExport = window.appState.leads || [];
 
-      // Tenta buscar diretamente do Supabase em background de forma síncrona/segura
+      // 2. Tenta atualizar com dados frescos do Supabase (com tratamento de falhas para nunca retornar em branco)
       if (supabaseClient) {
         try {
           const { data, error } = await supabaseClient
@@ -2325,17 +2325,19 @@
             leadsToExport = data;
           }
         } catch (err) {
-          console.warn("Aviso na busca do Supabase para o CSV:", err);
+          console.warn("Usando cache local de leads devido a falha na rede:", err);
         }
       }
 
+      // Se ainda assim estiver vazio, avisa o usuário
       if (!leadsToExport || leadsToExport.length === 0) {
         alert("Nenhum lead encontrado para exportar.");
         return;
       }
 
-      // Monta as linhas do CSV usando ponto e vírgula (;) para o Excel abrir separado por colunas
-      let csvRows = ["ID;Nome;WhatsApp;Numero da Sorte;Modelo;Fase;Promotor ID;Squad ID;Data"];
+      // Retornamos ao padrão universal com VÍRGULA (,) e instrução explícita "sep=," na primeira linha
+      // Isso força qualquer versão do Microsoft Excel ou WPS Office a separar perfeitamente em colunas na abertura!
+      let csvRows = ["sep=,", "ID,Nome,WhatsApp,Numero da Sorte,Modelo,Fase,Promotor ID,Squad ID,Data"];
       
       leadsToExport.forEach(l => {
         const clean = (val) => {
@@ -2353,13 +2355,12 @@
         const squad = clean(l.squad_id);
         const date = clean(l.created_at);
 
-        csvRows.push(`"${id}";"${name}";"${phone}";"${lucky}";"${model}";"${stage}";"${promoter}";"${squad}";"${date}"`);
+        csvRows.push(`"${id}","${name}","${phone}","${lucky}","${model}","${stage}","${promoter}","${squad}","${date}"`);
       });
 
       const csvString = csvRows.join("\n");
       const blob = new Blob(["\ufeff" + csvString], { type: 'text/csv;charset=utf-8;' });
       
-      // Criação segura do link para download imediato
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
