@@ -1751,15 +1751,20 @@
     }
 
     async function loadBadgeView(rawToken) {
+      // Decodifica o token para reverter caracteres como %C3%83 de volta para acentos (ex: JOÃO)
       const token = rawToken ? decodeURIComponent(rawToken).trim() : '';
       
-      // 1. Tenta achar na memória local
-      let promoter = window.appState.promoters.find(p => p.id.toLowerCase() === token.toLowerCase());
-      if (!promoter && token) {
-        promoter = window.appState.promoters.find(p => p.name.toLowerCase() === token.toLowerCase());
+      let promoter = null;
+
+      // 1. Procura na memória local (case-insensitive e decodificado)
+      if (window.appState.promoters && window.appState.promoters.length > 0) {
+        promoter = window.appState.promoters.find(p => p.id && p.id.toLowerCase() === token.toLowerCase());
+        if (!promoter) {
+          promoter = window.appState.promoters.find(p => p.name && p.name.toLowerCase() === token.toLowerCase());
+        }
       }
 
-      // 2. Se não estiver na memória, busca assíncrona direto no Supabase
+      // 2. Se não achou na memória, busca direto no Supabase
       if (!promoter && supabaseClient && token) {
         try {
           const { data, error } = await supabaseClient
@@ -1776,7 +1781,7 @@
         }
       }
 
-      // 3. Fallback limpo extraindo do token (decodificado) caso não exista na tabela
+      // 3. Fallback inteligente usando o nome limpo do token (já decodificado)
       if (!promoter && token) {
         let cleanName = token.replace(/^PROMO_/i, '').replace(/_\d+$/, '').replace(/_/g, ' ');
         promoter = { id: token, name: cleanName, squad_id: 'SQUAD_STAND_A', phone: '' };
@@ -1796,7 +1801,9 @@
 
       const promoterId = promoter ? promoter.id : token;
       const squadId = promoter ? promoter.squad_id : '';
-      const fullShareUrl = `${baseUrl}?promoter=${promoterId}&squad=${squadId}`;
+      
+      // CORREÇÃO: encodeURI garante que caracteres especiais como ão/Ã não quebrem a geração do QR Code
+      const fullShareUrl = encodeURI(`${baseUrl}?promoter=${promoterId}&squad=${squadId}`);
       
       window.currentBadgeUrl = fullShareUrl;
       window.currentBadgePromoter = promoter;
