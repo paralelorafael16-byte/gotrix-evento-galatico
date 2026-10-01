@@ -2311,47 +2311,55 @@
     };
 
     window.exportLeadsToCsv = async function() {
-      let leadsToExport = window.appState.leads;
+      let leadsToExport = window.appState.leads || [];
 
       // Puxa absolutamente todos os leads atualizados direto da base de dados do Supabase
       if (supabaseClient) {
         try {
           const { data, error } = await supabaseClient
             .from('leads')
-            .select('*')
-            .order('created_at', { ascending: false });
+            .select('*');
           
           if (!error && data && data.length > 0) {
             leadsToExport = data;
           }
         } catch (err) {
-          console.warn("Usando leads em cache para o CSV:", err);
+          console.warn("Aviso ao buscar leads do Supabase para o CSV:", err);
         }
       }
 
       if (!leadsToExport || leadsToExport.length === 0) {
-        alert("Sem dados para exportar.");
+        alert("Nenhum lead encontrado para exportar.");
         return;
       }
 
-      let csvContent = "data:text/csv;charset=utf-8,ID,Nome,WhatsApp,Numero da Sorte,Modelo,Fase,Promotor ID,Squad ID,Data\n";
+      let csvRows = ["ID,Nome,WhatsApp,Numero da Sorte,Modelo,Fase,Promotor ID,Squad ID,Data"];
       
       leadsToExport.forEach(l => {
-        const name = (l.name || '').replace(/"/g, '""');
-        const phone = (l.phone || '').replace(/"/g, '""');
-        const lucky = (l.lucky_number || '').replace(/"/g, '""');
-        const model = (l.model_interest || '').replace(/"/g, '""');
-        const stage = (l.stage || '').replace(/"/g, '""');
-        const promoter = (l.promoter_id || '').replace(/"/g, '""');
-        const squad = (l.squad_id || '').replace(/"/g, '""');
-        const date = (l.created_at || '').replace(/"/g, '""');
+        const clean = (val) => {
+          if (val === null || val === undefined) return '';
+          return String(val).replace(/"/g, '""').replace(/(\r\n|\n|\r)/gm, ' ');
+        };
 
-        csvContent += `"${l.id}","${name}","${phone}","${lucky}","${model}","${stage}","${promoter}","${squad}","${date}"\n`;
+        const id = clean(l.id);
+        const name = clean(l.name);
+        const phone = clean(l.phone);
+        const lucky = clean(l.lucky_number);
+        const model = clean(l.model_interest);
+        const stage = clean(l.stage);
+        const promoter = clean(l.promoter_id);
+        const squad = clean(l.squad_id);
+        const date = clean(l.created_at);
+
+        csvRows.push(`"${id}","${name}","${phone}","${lucky}","${model}","${stage}","${promoter}","${squad}","${date}"`);
       });
 
-      const encodedUri = encodeURI(csvContent);
+      const csvString = csvRows.join("\n");
+      const blob = new Blob(["\ufeff" + csvString], { type: 'text/csv;charset=utf-8;' });
+      
       const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
       link.setAttribute("download", `todos_leads_gotrix_${Date.now()}.csv`);
       document.body.appendChild(link);
       link.click();
