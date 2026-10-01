@@ -1750,23 +1750,41 @@
       });
     }
 
-    function loadBadgeView(token) {
-      // CORREÇÃO: Busca exata do promotor pelo ID exato ou fallback seguro comparando strings em minúsculo
+    async function loadBadgeView(token) {
+      // 1. Tenta achar no array local
       let promoter = window.appState.promoters.find(p => p.id === token);
       if (!promoter && token) {
         promoter = window.appState.promoters.find(p => p.id.toLowerCase() === token.toLowerCase() || p.name.toLowerCase().includes(token.toLowerCase()));
       }
-      
-      // Se não achar nenhum promotor correspondente, avisa em vez de puxar o primeiro da lista incorretamente
-      if (!promoter) {
-        document.getElementById('badge-promoter-name').innerText = "PROMOTOR NÃO ENCONTRADO";
-        document.getElementById('badge-squad-name').innerText = "Verifique o link de cadastro";
-        return;
+
+      // 2. Se não estiver na memória, busca direto no Supabase para garantir que o João (ou qualquer novo promotor) apareça
+      if (!promoter && supabaseClient && token) {
+        try {
+          const { data, error } = await supabaseClient
+            .from('promoters')
+            .select('*')
+            .or(`id.eq.${token},name.ilike.%${token}%`)
+            .maybeSingle();
+
+          if (!error && data) {
+            promoter = data;
+          }
+        } catch (err) {
+          console.warn("Erro ao buscar promotor no Supabase:", err);
+        }
       }
 
-      const squad = window.appState.squads.find(s => s.id === promoter.squad_id);
-      document.getElementById('badge-promoter-name').innerText = promoter.name;
-      document.getElementById('badge-squad-name').innerText = squad ? squad.name : 'Equipe Stand';
+      // 3. Se ainda não achar, extrai o nome direto do token de forma limpa (ex: PROMO_JOAO_123 -> JOAO)
+      if (!promoter && token) {
+        let fallbackName = token.replace(/^PROMO_/i, '').replace(/_\d+$/, '').replace(/_/g, ' ');
+        if (!fallbackName) fallbackName = "Consultor Gotrix";
+        promoter = { id: token, name: fallbackName, squad_id: 'SQUAD_STAND_A', phone: '' };
+      }
+
+      const squad = window.appState.squads.find(s => s.id === (promoter ? promoter.squad_id : '')) || { name: 'Stand Principal Gotrix' };
+      
+      document.getElementById('badge-promoter-name').innerText = promoter ? promoter.name : 'Consultor Gotrix';
+      document.getElementById('badge-squad-name').innerText = squad.name;
 
       const isFileProtocol = window.location.protocol === 'file:';
       const defaultOrigin = isFileProtocol ? 'https://sorteio.gotrix.com.br' : (window.location.origin + window.location.pathname);
@@ -1775,7 +1793,10 @@
         ? window.appState.cms.custom_domain.replace(/\/$/, '')
         : defaultOrigin;
 
-      const fullShareUrl = `${baseUrl}?promoter=${promoter.id}&squad=${promoter.squad_id}`;
+      const promoterId = promoter ? promoter.id : token;
+      const squadId = promoter ? promoter.squad_id : '';
+      const fullShareUrl = `${baseUrl}?promoter=${promoterId}&squad=${squadId}`;
+      
       window.currentBadgeUrl = fullShareUrl;
       window.currentBadgePromoter = promoter;
 
